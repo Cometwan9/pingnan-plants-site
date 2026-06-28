@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="分享">
+  <path fill="#FFF7CF" d="M14 12H42V52H14V12Z"/>
+  <path fill="#D8E8A8" d="M18 16H38V48H18V16Z"/>
+  <path fill="#6F9466" d="M12 10H44V16H12V10Z"/>
+  <path fill="#6F9466" d="M12 16H18V54H12V16Z"/>
+  <path fill="#6F9466" d="M12 48H44V54H12V48Z"/>
+  <path fill="#6F9466" d="M38 10H44V30H38V10Z"/>
+  <path fill="#6F9466" d="M38 42H44V54H38V42Z"/>
+  <path fill="#E7D88F" d="M22 22H34V26H22V22Z"/>
+  <path fill="#E7D88F" d="M22 32H34V36H22V32Z"/>
+  <path fill="#E7D88F" d="M22 42H30V46H22V42Z"/>
+  <path fill="#8FC66B" d="M36 30H48V36H36V30Z"/>
+  <path fill="#8FC66B" d="M46 24H52V42H46V24Z"/>
+  <path fill="#8FC66B" d="M52 30H56V36H52V30Z"/>
+  <path fill="#FFF7CF" d="M42 30H46V36H42V30Z"/>
+</svg>

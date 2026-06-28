@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>种种后台 Sprig Admin</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #fff8df;
+        --cream: #fff1bf;
+        --line: #9ac37c;
+        --ink: #4e6748;
+        --muted: #7c9470;
+        --green: #9bd174;
+        --gold: #ffd76b;
+        font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(255, 248, 223, 0.9), rgba(220, 245, 197, 0.86)),
+          #cfe9a5;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 28px 0 40px;
+      }
+
+      header,
+      section,
+      form {
+        border: 2px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 248, 223, 0.92);
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: end;
+        padding: 20px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+        line-height: 1;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      form {
+        display: flex;
+        gap: 10px;
+        margin: 16px 0;
+        padding: 14px;
+      }
+
+      input,
+      button {
+        min-height: 44px;
+        border: 2px solid var(--line);
+        border-radius: 10px;
+        font: inherit;
+        font-weight: 800;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 0 12px;
+        color: var(--ink);
+        background: #fffdf0;
+      }
+
+      button {
+        padding: 0 16px;
+        color: #5c4b1d;
+        background: var(--gold);
+        cursor: pointer;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+        margin: 16px 0;
+      }
+
+      .stat {
+        padding: 14px;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 7px;
+        font-size: 28px;
+      }
+
+      .players {
+        padding: 16px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 880px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(154, 195, 124, 0.48);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: #5e7d55;
+        font-size: 13px;
+      }
+
+      td {
+        font-weight: 750;
+      }
+
+      code {
+        font-size: 12px;
+        color: #68835e;
+      }
+
+      .empty,
+      .error {
+        padding: 18px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .error {
+        color: #a45d4e;
+      }
+
+      @media (max-width: 760px) {
+        header,
+        form {
+          grid-template-columns: 1fr;
+        }
+
+        form {
+          flex-direction: column;
+        }
+
+        .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="muted">Sprig Garden Admin</p>
+          <h1>种种后台</h1>
+        </div>
+        <p class="muted" id="adminUpdated">等待读取</p>
+      </header>
+
+      <form id="adminLogin">
+        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="后台密码，默认 sprig-admin" />
+        <button type="submit">读取数据</button>
+      </form>
+
+      <section class="stats" id="stats">
+        <article class="stat"><span>玩家数</span><strong>--</strong></article>
+        <article class="stat"><span>今日登录</span><strong>--</strong></article>
+        <article class="stat"><span>总登录</span><strong>--</strong></article>
+        <article class="stat"><span>图鉴解锁</span><strong>--</strong></article>
+        <article class="stat"><span>风物</span><strong>--</strong></article>
+        <article class="stat"><span>扫描</span><strong>--</strong></article>
+      </section>
+
+      <section class="players">
+        <h2>玩家列表</h2>
+        <div id="adminMessage" class="empty">输入后台密码后，会显示登录和游戏进度。</div>
+        <div class="table-wrap">
+          <table id="playersTable" hidden>
+            <thead>
+              <tr>
+                <th>玩家</th>
+                <th>地区</th>
+                <th>登录</th>
+                <th>进度</th>
+                <th>资源</th>
+                <th>ID</th>
+              </tr>
+            </thead>
+            <tbody id="playersBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.querySelector("#adminLogin");
+      const passwordInput = document.querySelector("#adminPassword");
+      const statCards = Array.from(document.querySelectorAll(".stat strong"));
+      const message = document.querySelector("#adminMessage");
+      const table = document.querySelector("#playersTable");
+      const body = document.querySelector("#playersBody");
+      const updated = document.querySelector("#adminUpdated");
+
+      function formatTime(value) {
+        if (!value) return "暂无";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "暂无";
+        return date.toLocaleString("zh-CN", { hour12: false });
+      }
+
+      function renderStats(totals = {}) {
+        [
+          totals.players,
+          totals.todayLogins,
+          totals.totalLogins,
+          totals.totalUnlockedSprigs,
+          totals.totalSpecialties,
+          totals.totalScans,
+        ].forEach((value, index) => {
+          statCards[index].textContent = Number(value || 0);
+        });
+      }
+
+      function renderPlayers(profiles = []) {
+        body.replaceChildren();
+        table.hidden = profiles.length === 0;
+        message.hidden = profiles.length > 0;
+        message.textContent = profiles.length ? "" : "还没有玩家登录。";
+        profiles.forEach((profile) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${profile.gardenName}</strong><br /><span>${profile.playerName}</span></td>
+            <td>${profile.region || "未知"}<br /><span>${profile.birthday || "未填生日"}</span></td>
+            <td>${profile.loginCount} 次<br /><span>${formatTime(profile.lastLoginAt)}</span></td>
+            <td>图鉴 ${profile.unlockedCount}<br />风物 ${profile.specialtyCount}<br />扫描 ${profile.scanCount}</td>
+            <td>种子 ${profile.seeds}<br />体力 ${profile.stamina}</td>
+            <td><code>${profile.playerId}</code></td>
+          `;
+          body.append(tr);
+        });
+      }
+
+      async function loadAdmin(password) {
+        message.hidden = false;
+        message.className = "empty";
+        message.textContent = "正在读取后台数据。";
+        table.hidden = true;
+        const response = await fetch("/api/admin/summary", {
+          headers: { "x-admin-password": password },
+        });
+        if (!response.ok) {
+          throw new Error(response.status === 401 ? "后台密码不对。" : "后台数据读取失败。");
+        }
+        const payload = await response.json();
+        renderStats(payload.totals);
+        renderPlayers(payload.profiles || []);
+        updated.textContent = `更新于 ${formatTime(payload.generatedAt)}`;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await loadAdmin(passwordInput.value.trim());
+        } catch (error) {
+          message.hidden = false;
+          message.className = "error";
+          message.textContent = error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

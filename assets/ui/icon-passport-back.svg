@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="返回">
+  <path fill="#FFF7CF" d="M10 10H54V54H10V10Z"/>
+  <path fill="#D8E8A8" d="M14 14H50V50H14V14Z"/>
+  <path fill="#6F9466" d="M31 18H39V24H31V18Z"/>
+  <path fill="#6F9466" d="M25 24H33V30H25V24Z"/>
+  <path fill="#6F9466" d="M19 30H45V36H19V30Z"/>
+  <path fill="#6F9466" d="M25 36H33V42H25V36Z"/>
+  <path fill="#6F9466" d="M31 42H39V48H31V42Z"/>
+  <path fill="#9FCD75" d="M42 16H48V22H42V16Z"/>
+</svg>

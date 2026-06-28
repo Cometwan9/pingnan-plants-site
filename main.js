@@ -67,7 +67,12 @@ const mapPlantScanButton = document.querySelector("#mapPlantScanButton");
 const dandelionSprig = document.querySelector('[data-sprig="dandelion"]');
 const atlasProgress = document.querySelector("#atlasProgress");
 const atlasProgressBar = document.querySelector("#atlasProgressBar");
-const atlasSeedCount = document.querySelector("#atlasSeedCount");
+const atlasRewardButton = document.querySelector("#atlasRewardButton");
+const atlasRewardButtonText = document.querySelector("#atlasRewardButtonText");
+const atlasRewardPopover = document.querySelector("#atlasRewardPopover");
+const atlasRewardTitle = document.querySelector("#atlasRewardTitle");
+const atlasRewardText = document.querySelector("#atlasRewardText");
+const atlasRewardList = document.querySelector("#atlasRewardList");
 const atlasCollectedTitle = document.querySelector("#atlasCollectedTitle");
 const atlasLockedTitle = document.querySelector("#atlasLockedTitle");
 const atlasCollectedList = document.querySelector("#atlasCollectedList");
@@ -86,6 +91,7 @@ const durationButtons = document.querySelectorAll("[data-duration]");
 const expeditionPlanText = document.querySelector("#expeditionPlanText");
 const expeditionText = document.querySelector("#expeditionText");
 const expeditionLoot = document.querySelector("#expeditionLoot");
+const expeditionSquad = document.querySelector("#expeditionSquad");
 const expeditionTitle = document.querySelector("#expeditionTitle");
 const expeditionTimer = document.querySelector("#expeditionTimer");
 const mapPackPicker = document.querySelector("#mapPackPicker");
@@ -124,12 +130,17 @@ const guideNext = document.querySelector("#guideNext");
 const featureTip = document.querySelector("#featureTip");
 const identityName = document.querySelector("#identityName");
 const identityTabButtons = document.querySelectorAll("[data-identity-tab]");
+const identityTabs = document.querySelector(".identity-tabs");
 const identityPages = document.querySelectorAll("[data-identity-page]");
 const editIdentityName = document.querySelector("#editIdentityName");
 const editIdentityNameQuick = document.querySelector("#editIdentityNameQuick");
 const identityNameEditor = document.querySelector("#identityNameEditor");
 const identityNameInput = document.querySelector("#identityNameInput");
 const saveIdentityName = document.querySelector("#saveIdentityName");
+const editIdentityBio = document.querySelector("#editIdentityBio");
+const identityBioEditor = document.querySelector("#identityBioEditor");
+const identityBioInput = document.querySelector("#identityBioInput");
+const saveIdentityBio = document.querySelector("#saveIdentityBio");
 const shareIdentityCard = document.querySelector("#shareIdentityCard");
 const passportCard = document.querySelector("#passportCard");
 const passportShareCard = document.querySelector("#passportShareCard");
@@ -154,6 +165,10 @@ const identityAtlasBar = document.querySelector("#identityAtlasBar");
 const identityFriendList = document.querySelector("#identityFriendList");
 const identityAtlasGrid = document.querySelector("#identityAtlasGrid");
 const specialtyShelf = document.querySelector("#specialtyShelf");
+const landformRegionList = document.querySelector("#landformRegionList");
+const landformPrev = document.querySelector("#landformPrev");
+const landformNext = document.querySelector("#landformNext");
+const specialtyBagTitle = document.querySelector("#specialtyBagTitle");
 const identitySeedCount = document.querySelector("#identitySeedCount");
 const identityNurseryStatus = document.querySelector("#identityNurseryStatus");
 const nurseryDropZone = document.querySelector("#nurseryDropZone");
@@ -171,9 +186,36 @@ const NATIONAL_ATLAS_COUNT = 31142;
 const ATLAS_LOCKED_PAGE_SIZE = 12;
 const ATLAS_MODEL_SOURCE = "Flora of China Checklist";
 const BOOT_LOADING_MS = 6200;
+const BOOT_LOADING_LINE_MS = 2800;
 const BIRTHDAY_START_YEAR = 1940;
 const BIRTHDAY_END_YEAR = new Date().getFullYear();
 const BIRTHDAY_ROW_HEIGHT = 68;
+
+function resetLocalGardenProgressFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has("reset")) return;
+
+  [
+    GUIDE_SEEN_KEY,
+    PROFILE_KEY,
+    PLAYER_ID_KEY,
+    CHECKIN_PROMPT_KEY,
+    "sprigDailyStreak",
+    "sprigLastDailyCheckin",
+    "sprigExpeditionEndAt",
+    "sprigExpeditionDuration",
+    "sprigNurserySprigId",
+    "sprigNurseryStartAt",
+    "sprigNurseryEndAt",
+  ].forEach((key) => localStorage.removeItem(key));
+
+  params.delete("reset");
+  const cleanSearch = params.toString();
+  const cleanUrl = `${window.location.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${window.location.hash}`;
+  window.history.replaceState({}, "", cleanUrl);
+}
+
+resetLocalGardenProgressFromUrl();
 
 const AMAP_DEFAULT_CONFIG = {
   key: "",
@@ -196,6 +238,7 @@ let weatherAnimationFrame = null;
 let weatherParticles = [];
 let weatherScene = "calm";
 let weatherCanvasSize = { width: 0, height: 0, ratio: 1 };
+const sprigAnimationCooldown = new Map();
 
 const mapPacks = window.SPRIG_MAP_PACKS || [];
 const mapPackUtils = window.SPRIG_MAP_PACK_UTILS || {};
@@ -227,6 +270,8 @@ let atlasEntries = activeMapPack.sprigs || [];
 let sprigs = Object.fromEntries(atlasEntries.map((entry) => [entry.id, entry]));
 let sprigIds = Object.keys(sprigs);
 let atlasEntryById = Object.fromEntries(atlasEntries.map((entry) => [entry.id, entry]));
+let currentLockedAtlasPage = [];
+let currentLandformIndex = 0;
 
 function getPlayerId() {
   const existing = localStorage.getItem(PLAYER_ID_KEY);
@@ -259,6 +304,9 @@ const state = {
   discoverySprigId: "plantain",
   selectedMapPoi: null,
   lastScan: null,
+  firstLoginAt: "",
+  lastLoginAt: "",
+  loginCount: 0,
   scanRecords: [],
   specialties: [],
   pendingSpecialties: [],
@@ -267,7 +315,17 @@ const state = {
   atlasCategory: "all",
   atlasStoryIndex: 0,
   atlasPage: 0,
+  atlasSelectedLocked: null,
+  claimedAtlasLevels: new Set(),
   mapPois: [],
+  currentWeather: {
+    label: "读取中",
+    scene: "calm",
+    temperature: null,
+    source: "",
+    observedAt: "",
+  },
+  sprigAnimationTasks: {},
   onboarding: {
     region: "浙江省",
     province: "浙江省",
@@ -282,11 +340,14 @@ const state = {
     name: "花园观察员",
     avatar: "园",
     location: "种种大世界",
+    bio: "",
   },
   knowledgeIndexes: {},
+  touchTimers: {},
   guideStep: 0,
   guidePrimed: false,
   guideObserving: false,
+  guideObservationReady: false,
   guideTypingTimer: null,
   guideTransitionTimer: null,
   guideTransitioning: false,
@@ -299,11 +360,78 @@ const state = {
 
 const GUIDE_EXIT_MS = 180;
 const GUIDE_ENTER_MS = 420;
-const GUIDE_ADVANCE_MS = 280;
+const GUIDE_ADVANCE_MS = 1500;
 const NURSERY_HATCH_MS = 10 * 60 * 1000;
 const NURSERY_END_KEY = "sprigNurseryEndAt";
 const NURSERY_ID_KEY = "sprigNurserySprigId";
 const NURSERY_START_KEY = "sprigNurseryStartAt";
+
+const scanRarityTiers = [
+  { id: "common", label: "常见", tone: "common", threshold: 58, seeds: 3, xp: 24 },
+  { id: "uncommon", label: "少见", tone: "uncommon", threshold: 78, seeds: 5, xp: 36 },
+  { id: "rare", label: "稀有", tone: "rare", threshold: 93, seeds: 8, xp: 58 },
+  { id: "epic", label: "珍稀", tone: "epic", threshold: 99, seeds: 12, xp: 86 },
+  { id: "seasonal", label: "节令", tone: "seasonal", threshold: 101, seeds: 16, xp: 120 },
+];
+
+const sprigBehaviorProfiles = [
+  {
+    id: "reading",
+    label: "翻叶书",
+    mood: "focused",
+    weather: ["calm", "cloud", "mist"],
+    line: "这一页有一点潮气，正好压进书里。",
+    prompt: "坐在小叶垫上看一本植物图册，偶尔抬头眨眼，叶片轻轻翻动",
+  },
+  {
+    id: "sleeping",
+    label: "打盹",
+    mood: "sleepy",
+    weather: ["calm", "cloud", "mist", "snow"],
+    line: "嘘，我把梦晒在叶背上。",
+    prompt: "抱着小种子打盹，呼吸起伏很轻，头顶冒出小小睡意泡泡",
+  },
+  {
+    id: "singing",
+    label: "哼歌",
+    mood: "happy",
+    weather: ["calm", "cloud"],
+    line: "啦，小路今天有回声。",
+    prompt: "站在花园小径上哼歌，身体轻轻晃，旁边冒出几颗像素音符",
+  },
+  {
+    id: "playing",
+    label: "结伴玩",
+    mood: "happy",
+    weather: ["calm", "cloud"],
+    line: "我们绕着石头跑一圈，很快就回来。",
+    prompt: "和另一只植物小精灵轻轻碰叶、绕着小石头玩，表现友好的互动关系",
+  },
+  {
+    id: "rain",
+    label: "听雨",
+    mood: "rainy",
+    weather: ["rain", "storm"],
+    line: "雨点敲在叶尖上，我听得见。",
+    prompt: "下雨天躲在大叶子下面听雨，叶片接住雨点，表情安静又有点认真",
+  },
+  {
+    id: "grumpy",
+    label: "闹别扭",
+    mood: "grumpy",
+    weather: ["storm", "rain"],
+    line: "鞋底都是泥，我先不想出门。",
+    prompt: "雨后有点闹别扭，抱着叶子鼓脸，脚边有小水洼",
+  },
+  {
+    id: "snow",
+    label: "看雪",
+    mood: "curious",
+    weather: ["snow"],
+    line: "白白的风落下来了。",
+    prompt: "在细雪里抬头看天空，叶尖接住雪粒，动作慢而温柔",
+  },
+];
 
 const birthdaySeasonSprigs = [
   { months: [1, 12], id: "huangjing", term: "冬藏节令", line: "蓝铃花在冬土边轻轻响了一下，把第一盏小灯递给你。", greeting: "我听见你的生日落在冷一点的土里。别急，我会替你把小光藏好。" },
@@ -349,42 +477,48 @@ const guideSteps = [
     sprigId: "plantain",
     speaker: "铃兰种种 · 路边小向导",
     mascot: sprigs.plantain.image,
-    title: "花园醒着呢",
-    text: "嘘，园丁先把名字放进身份卡。小芽芽帮你看门，来过的花园都会在这里留脚印。",
+    title: "花园醒了",
+    text: "先看看你的护照。",
     action: "轻触身份卡",
     expression: "curious",
     motion: "nod",
+    observeSelector: "#panel-identity",
+    observeClass: "guide-scroll-glow",
+    pauseAfter: 2200,
   },
   {
     selector: ".sprig--plantain",
     sprigId: "plantain",
     speaker: "铃兰种种 · 路边小向导",
     mascot: sprigs.plantain.image,
-    title: "路边有动静",
-    text: "小芽芽蹲在路边很久啦。点一下叶尖，它会把今天听见的脚步声和叶脉秘密讲给你。",
+    title: "叶尖动了",
+    text: "点一下，它会小声说话。",
     action: "叫醒它",
     expression: "happy",
     motion: "leaf-wave",
+    pauseAfter: 1700,
   },
   {
     selector: '.dock [data-panel="panel-identity"]',
     sprigId: "fern",
     speaker: "蕨芽种种 · 慢半拍的档案员",
     mascot: sprigs.fern.image,
-    title: "把遇见收起来",
-    text: "图鉴已经收进背包第二页。先打开背包，护照、图鉴、物品都在同一本册子里。",
+    title: "背包在这里",
+    text: "护照、图鉴、风物都收在这本册子里。",
     action: "打开背包",
     expression: "focused",
     motion: "peek",
-    pauseAfter: 1800,
+    observeSelector: "#panel-identity",
+    observeClass: "guide-scroll-glow",
+    pauseAfter: 2400,
   },
   {
     selector: '.dock [data-panel="panel-map"]',
     sprigId: "dandelion",
     speaker: "蒲公英种种 · 顺风信使",
     mascot: sprigs.dandelion.image,
-    title: "风从地图那边来",
-    text: "蒲蒲刚从风里回来，口袋里全是坐标。雷达扫一圈，附近哪片草在招手，它会先抖给你看。",
+    title: "地图会听风",
+    text: "看看附近有没有花园。",
     action: "点地图",
     expression: "bright",
     motion: "sway",
@@ -395,46 +529,67 @@ const guideSteps = [
     sprigId: "dandelion",
     speaker: "蒲公英种种 · 顺风信使",
     mascot: sprigs.dandelion.image,
-    title: "试试看扫描",
-    text: "现在点地图里的“扫描植物”。它会带你进入取景框，之后新的种种线索会进图鉴。",
+    title: "试试扫描",
+    text: "有植物就拍。没在户外，也可以上传照片。",
     action: "点扫描植物",
     expression: "bright",
     motion: "sway",
+    observeSelector: "#captureButton",
     pauseAfter: 1800,
+  },
+  {
+    selector: "#captureButton",
+    panel: "panel-discover",
+    sprigId: "dandelion",
+    speaker: "蒲公英种种 · 顺风信使",
+    mascot: sprigs.dandelion.image,
+    title: "对准叶子",
+    text: "点一下试拍。不方便取景，就用照片。",
+    action: "试着识别",
+    expression: "bright",
+    motion: "sway",
+    observeSelector: "#uploadScanButton",
+    pauseAfter: 2600,
   },
   {
     selector: ".garden-action-button--expedition",
     sprigId: "tea",
     speaker: "豌豆种种 · 山路茶馆老板",
     mascot: sprigs.tea.image,
-    title: "让伙伴去附近看看",
-    text: "茶茶把小包袱扎好了。读到你脚下这片花园后，它能沿着山路出门，带回一口热乎乎的地方消息。",
+    title: "出门看看",
+    text: "小包袱准备好了。",
     action: "打开探险袋",
     expression: "ready",
     motion: "step",
+    observeSelector: "#dispatchButton",
+    pauseAfter: 1700,
   },
   {
-    selector: '.duration-picker [data-duration="2h"]',
+    selector: "#dispatchButton",
     panel: "panel-expedition",
     sprigId: "fisheye",
     speaker: "苔藓种种 · 嘴硬的路队长",
     mascot: sprigs.fisheye.image,
-    title: "体力要省着花",
-    text: "折折先闻一闻路况。短途轻装，远行带灯；体力格子亮着，队伍才走得稳。",
-    action: "掂量这趟路",
+    title: "派一小队",
+    text: "先走短路，带回风物。",
+    action: "开始探险",
     expression: "thinking",
     motion: "tilt",
+    pauseAfter: 2600,
   },
   {
     selector: ".garden-action-button--nursery",
     sprigId: "clover",
     speaker: "三叶草种种 · 好运保管员",
     mascot: sprigs.clover.image,
-    title: "种子要慢慢孵",
-    text: "有种子时，把它拖进种子温室就会开始倒计时。成熟后先解锁图鉴，不会直接住进花园，这样探险和扫描才有意义。",
+    title: "种子睡这里",
+    text: "把种子拖进温室，慢慢发芽。",
     action: "打开温室",
     expression: "happy",
     motion: "bounce",
+    observeSelector: "#nurseryDropZone",
+    observeClass: "is-dragging",
+    pauseAfter: 2200,
   },
 ];
 
@@ -592,18 +747,18 @@ const specialtyLevels = [
 ];
 
 const atlasMilestones = [
-  { level: 1, count: 5 },
-  { level: 2, count: 10 },
-  { level: 3, count: 25 },
-  { level: 4, count: 50 },
-  { level: 5, count: 100 },
+  { level: 1, count: 5, rewards: { seeds: 3, stamina: 5, badge: "新芽章" } },
+  { level: 2, count: 10, rewards: { seeds: 5, stamina: 8, badge: "叶片章" } },
+  { level: 3, count: 25, rewards: { seeds: 8, stamina: 10, badge: "花苞章" } },
+  { level: 4, count: 50, rewards: { seeds: 12, stamina: 12, badge: "开花章" } },
+  { level: 5, count: 100, rewards: { seeds: 18, stamina: 15, badge: "风物章" } },
 ];
 
 const atlasCategories = [
   {
     id: "all",
     label: "全部",
-    icon: "✣",
+    icon: "all",
     tone: "all",
     scaleLabel: "30000+",
     description: "所有已经记录和等待发现的种种。",
@@ -614,7 +769,7 @@ const atlasCategories = [
   {
     id: "region",
     label: "地域",
-    icon: "▰",
+    icon: "region",
     tone: "region",
     scaleLabel: "9000+",
     description: "按地方气候、山海水土和城市环境归类。",
@@ -623,9 +778,21 @@ const atlasCategories = [
     match: (entry) => (entry.regionScope || []).some((region) => region !== "全国广布"),
   },
   {
+    id: "garden",
+    label: "花园",
+    icon: "garden",
+    tone: "garden",
+    scaleLabel: "DLC",
+    description: "全国各地已经记录和正在生长的地方花园。",
+    empty: "附近花园还在长叶。去地图里读取一个地方。",
+    modelCount: 8,
+    match: () => false,
+    virtual: "gardens",
+  },
+  {
     id: "land",
     label: "陆生",
-    icon: "♣",
+    icon: "land",
     tone: "land",
     scaleLabel: "18000+",
     description: "在土地、林下、路边和草坡生活的种种。",
@@ -636,7 +803,7 @@ const atlasCategories = [
   {
     id: "aquatic",
     label: "水生",
-    icon: "≈",
+    icon: "aquatic",
     tone: "aquatic",
     scaleLabel: "2000+",
     description: "靠近池塘、湿地、溪流和水边的种种。",
@@ -647,7 +814,7 @@ const atlasCategories = [
   {
     id: "pot",
     label: "盆生",
-    icon: "▤",
+    icon: "pot",
     tone: "pot",
     scaleLabel: "1000+",
     description: "花盆、庭院、阳台和小温室里的种种。",
@@ -658,7 +825,7 @@ const atlasCategories = [
   {
     id: "epiphyte",
     label: "附生",
-    icon: "⌁",
+    icon: "epiphyte",
     tone: "epiphyte",
     scaleLabel: "900+",
     description: "依附在树干、石面或潮湿角落生活的种种。",
@@ -669,27 +836,80 @@ const atlasCategories = [
 ];
 
 const specialtyPool = [
-  { name: "风干种子包", terrain: "北方平原", icon: "◇" },
-  { name: "山泉茶芽", terrain: "闽东山海", icon: "✦" },
-  { name: "青瓦花签", terrain: "丘陵水乡", icon: "▧" },
-  { name: "江南露米", terrain: "江南水网", icon: "◌" },
-  { name: "竹影香囊", terrain: "川西盆地", icon: "✧" },
-  { name: "岭南花砖", terrain: "岭南丘陵", icon: "▣" },
-  { name: "海风贝扣", terrain: "热带海岛", icon: "◇" },
-  { name: "高原石叶", terrain: "高原河谷", icon: "◆" },
-  { name: "绿洲葡萄签", terrain: "绿洲戈壁", icon: "✹" },
-  { name: "本地小礼物", terrain: "default", icon: "◇" },
+  { name: "风干种子包", terrain: "北方平原", icon: "seed" },
+  { name: "山泉茶芽", terrain: "闽东山海", icon: "tea" },
+  { name: "青瓦花签", terrain: "丘陵水乡", icon: "tile" },
+  { name: "江南露米", terrain: "江南水网", icon: "rice" },
+  { name: "竹影香囊", terrain: "川西盆地", icon: "bamboo" },
+  { name: "岭南花砖", terrain: "岭南丘陵", icon: "brick" },
+  { name: "海风贝扣", terrain: "热带海岛", icon: "shell" },
+  { name: "高原石叶", terrain: "高原河谷", icon: "stone" },
+  { name: "绿洲葡萄签", terrain: "绿洲戈壁", icon: "grape" },
+  { name: "本地小礼物", terrain: "default", icon: "parcel" },
 ];
+
+const specialtyRegions = [
+  {
+    id: "jiangnan",
+    title: "江南水网",
+    shortTitle: "水网",
+    cities: "杭州 / 苏州 / 宁波",
+    landform: "河埠、湿地、石桥和低丘",
+    terrains: ["丘陵水乡", "江南水网"],
+  },
+  {
+    id: "mountain",
+    title: "山地林野",
+    shortTitle: "山林",
+    cities: "宁德 / 成都 / 贵阳",
+    landform: "山路、竹林、云雾坡地",
+    terrains: ["闽东山海", "川西盆地", "岭南丘陵"],
+  },
+  {
+    id: "northwest",
+    title: "平原与绿洲",
+    shortTitle: "绿洲",
+    cities: "北京 / 西安 / 吐鲁番",
+    landform: "田埂、风口、戈壁边缘",
+    terrains: ["北方平原", "绿洲戈壁"],
+  },
+  {
+    id: "coast",
+    title: "海岸岛屿",
+    shortTitle: "海岸",
+    cities: "厦门 / 海口 / 三亚",
+    landform: "潮线、礁石、海风林带",
+    terrains: ["热带海岛"],
+  },
+  {
+    id: "plateau",
+    title: "高原河谷",
+    shortTitle: "高原",
+    cities: "昆明 / 拉萨 / 大理",
+    landform: "高原水边、石坡、日照河谷",
+    terrains: ["高原河谷", "default"],
+  },
+];
+
+const futureGardenRegions = [
+  { name: "川西高山花园", description: "高山草甸和针叶林边缘的种种还在长叶。", status: "growing" },
+  { name: "岭南雨林花园", description: "潮湿树影、藤蔓和墙角会藏着新的种种。", status: "growing" },
+  { name: "江南水网花园", description: "河埠、池塘和石桥边的水汽正在发芽。", status: "growing" },
+  { name: "西北绿洲花园", description: "风沙和灌丛之间还没有完整图鉴。", status: "locked" },
+  { name: "云贵山地花园", description: "坡地、石缝和雾气里的线索等待记录。", status: "locked" },
+  { name: "北方平原花园", description: "田埂、路边和季风里的种种还在整理。", status: "locked" },
+];
+
 
 const runtimeLocaleCopy = {
   "zh-CN": {
-    identityTitle: "▣ 种种背包 ◒",
-    atlasRelation: "▤ 图鉴收集关系",
-    specialtyBag: "◇ 风物集合",
-    carryItems: "🎒 携带物品",
-    house: "⌂ 房屋",
-    sprigFriends: "♣ 种种好友",
-    story: "▤ 小传",
+    identityTitle: "种种背包",
+    atlasRelation: "图鉴收集关系",
+    specialtyBag: "风物集合",
+    carryItems: "携带物品",
+    house: "房屋",
+    sprigFriends: "种种好友",
+    story: "小传",
     edit: "编辑",
     save: "保存",
     expeditionIdle: "读取你所在的花园",
@@ -706,13 +926,13 @@ const runtimeLocaleCopy = {
     expeditionLabel: "探险",
   },
   en: {
-    identityTitle: "▣ Sprig Pack ◒",
-    atlasRelation: "▤ Atlas Links",
-    specialtyBag: "◇ Local Souvenirs",
-    carryItems: "🎒 Items",
-    house: "⌂ Home",
-    sprigFriends: "♣ Sprig Friends",
-    story: "▤ Story",
+    identityTitle: "Sprig Pack",
+    atlasRelation: "Atlas Links",
+    specialtyBag: "Local Souvenirs",
+    carryItems: "Items",
+    house: "Home",
+    sprigFriends: "Sprig Friends",
+    story: "Story",
     edit: "Edit",
     save: "Save",
     expeditionIdle: "Reading your garden",
@@ -729,13 +949,13 @@ const runtimeLocaleCopy = {
     expeditionLabel: "Trip",
   },
   "zh-TW": {
-    identityTitle: "▣ 種種背包 ◒",
-    atlasRelation: "▤ 圖鑑收集關係",
-    specialtyBag: "◇ 地方特產袋",
-    carryItems: "🎒 攜帶物品",
-    house: "⌂ 房屋",
-    sprigFriends: "♣ 種種好友",
-    story: "▤ 小傳",
+    identityTitle: "種種背包",
+    atlasRelation: "圖鑑收集關係",
+    specialtyBag: "地方特產袋",
+    carryItems: "攜帶物品",
+    house: "房屋",
+    sprigFriends: "種種好友",
+    story: "小傳",
     edit: "編輯",
     save: "保存",
     expeditionIdle: "讀取你所在的花園",
@@ -752,13 +972,13 @@ const runtimeLocaleCopy = {
     expeditionLabel: "探險",
   },
   ja: {
-    identityTitle: "▣ 種々バッグ ◒",
-    atlasRelation: "▤ 図鑑リンク",
-    specialtyBag: "◇ 地元のおみやげ",
-    carryItems: "🎒 持ち物",
-    house: "⌂ 家",
-    sprigFriends: "♣ 種々の友だち",
-    story: "▤ ストーリー",
+    identityTitle: "種々バッグ",
+    atlasRelation: "図鑑リンク",
+    specialtyBag: "地元のおみやげ",
+    carryItems: "持ち物",
+    house: "家",
+    sprigFriends: "種々の友だち",
+    story: "ストーリー",
     edit: "編集",
     save: "保存",
     expeditionIdle: "庭を読み込み中",
@@ -794,16 +1014,20 @@ const featureTips = [
   [".quest-claim", "领取体力"],
 ];
 
-function openPanel(id) {
-  panels.forEach((panel) => panel.classList.toggle("is-open", panel.id === id));
+function openPanel(id, options = {}) {
+  const targetId = id === "panel-atlas" ? "panel-identity" : id;
+  panels.forEach((panel) => panel.classList.toggle("is-open", panel.id === targetId));
   gardenStage.classList.add("has-open-panel");
-  gardenStage.classList.toggle("has-identity-panel", id === "panel-identity");
-  if (id === "panel-identity") setIdentityTab("card");
+  gardenStage.classList.toggle("has-identity-panel", targetId === "panel-identity");
+  if (targetId === "panel-identity") {
+    const requestedTab = id === "panel-atlas" ? "atlas" : options.identityTab;
+    setIdentityTab(requestedTab || "card");
+  }
   syncDockActive(id);
   knowledgePop.classList.add("is-hidden");
   hideSprigInfo();
   hideFeatureTip();
-  if (id !== "panel-discover") stopArCamera();
+  if (targetId !== "panel-discover") stopArCamera();
 }
 
 function closePanels() {
@@ -824,6 +1048,8 @@ function syncDockActive(activePanelId) {
 }
 
 function setIdentityTab(tab = "card") {
+  const identityPanel = document.querySelector("#panel-identity");
+  if (identityPanel) identityPanel.dataset.activeIdentityTab = tab;
   document.querySelectorAll("[data-identity-tab]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.identityTab === tab);
   });
@@ -897,6 +1123,9 @@ function resetGuideSeen() {
 }
 
 function prepareGuideStep(step) {
+  document.querySelectorAll(".guide-scroll-glow, .guide-observe-glow").forEach((element) => {
+    element.classList.remove("guide-scroll-glow", "guide-observe-glow", "is-dragging");
+  });
   if (step.panel) {
     openPanel(step.panel);
   } else {
@@ -916,6 +1145,15 @@ function stopGuideTransition() {
   if (!state.guideTransitionTimer) return;
   clearTimeout(state.guideTransitionTimer);
   state.guideTransitionTimer = null;
+}
+
+function setGuideObservationReady(ready) {
+  state.guideObservationReady = ready;
+  guideNext.disabled = !ready;
+  guideNext.setAttribute("aria-disabled", String(!ready));
+  if (ready) {
+    guideNext.textContent = state.guideStep >= guideSteps.length - 1 ? "完成" : "下一步";
+  }
 }
 
 function typeGuideText(text) {
@@ -957,7 +1195,10 @@ function restartGuideMotion() {
 }
 
 function moveGuideToTarget(selector) {
-  const target = document.querySelector(selector);
+  let target = document.querySelector(selector);
+  if ((!target || target.offsetParent === null) && selector?.startsWith(".sprig--")) {
+    target = document.querySelector(".sprig:not(.is-hidden)");
+  }
   const stageRect = gardenStage.getBoundingClientRect();
   const stagePadding = 12;
 
@@ -1018,6 +1259,7 @@ function showGuideStep(index) {
   state.guideStep = clamp(index, 0, guideSteps.length - 1);
   state.guidePrimed = false;
   state.guideObserving = false;
+  state.guideObservationReady = false;
   const step = guideSteps[state.guideStep];
   prepareGuideStep(step);
   guideLayer.classList.remove("is-hidden");
@@ -1048,12 +1290,25 @@ function completeCurrentGuideStep() {
 
   const step = guideSteps[state.guideStep];
   const pauseAfter = step.pauseAfter || GUIDE_ADVANCE_MS;
+  const observeTarget = step.observeSelector ? document.querySelector(step.observeSelector) : null;
+  if (observeTarget) {
+    guideLayer.classList.remove("is-confirming");
+    guideLayer.classList.add("is-observing");
+    requestAnimationFrame(() => moveGuideToTarget(step.observeSelector));
+    observeTarget.classList.add(step.observeClass || "guide-observe-glow");
+    setGuideObservationReady(false);
+    state.guideTransitionTimer = window.setTimeout(() => {
+      setGuideObservationReady(true);
+      state.guideTransitionTimer = null;
+    }, pauseAfter);
+    return;
+  }
 
   if (state.guideStep >= guideSteps.length - 1) {
     window.setTimeout(() => {
       closeGuide(true);
       openPanel("panel-nursery");
-      nurseryResult.textContent = "把种子拖进温室槽，成熟后会解锁图鉴。";
+      nurseryResult.textContent = "拖进温室，种子才会醒。";
     }, pauseAfter);
     return;
   }
@@ -1071,6 +1326,38 @@ function isGuideTargetClick(target) {
   if (!state.guidePrimed) return false;
   const selector = guideSteps[state.guideStep]?.selector;
   return Boolean(selector && target.closest(selector));
+}
+
+function openPlantScanPanelFromMap() {
+  state.selectedMapPoi = null;
+  state.lastScan = null;
+  updateCaptureUi();
+  captureText.textContent = `拍眼前的叶片、花或整株植物。`;
+  openPanel("panel-discover");
+}
+
+function playGuideTargetFeedback(target) {
+  const selector = guideSteps[state.guideStep]?.selector;
+  const guideTarget = selector ? target.closest(selector) : null;
+  if (!guideTarget) return;
+
+  guideTarget.classList.add("guide-target-nudge");
+  window.setTimeout(() => guideTarget.classList.remove("guide-target-nudge"), 650);
+
+  if (guideTarget.dataset.panel) {
+    openPanel(guideTarget.dataset.panel);
+  } else if (guideTarget.id === "homeButton") {
+    closePanels();
+  } else if (guideTarget.id === "mapPlantScanButton") {
+    openPlantScanPanelFromMap();
+  } else if (guideTarget.id === "captureButton") {
+    captureArRecognition();
+  } else if (guideTarget.id === "dispatchButton") {
+    dispatchExpedition();
+  } else if (guideTarget.classList.contains("sprig")) {
+    const sprig = sprigs[guideTarget.dataset.sprig] || atlasEntryById[guideTarget.dataset.sprig];
+    if (sprig) showKnowledgeForSprig(guideTarget, sprig);
+  }
 }
 
 function goToGuideStep(index) {
@@ -1110,12 +1397,16 @@ function closeGuide(remember = true) {
   state.guideTransitioning = false;
   state.guidePrimed = false;
   state.guideObserving = false;
+  state.guideObservationReady = false;
   guideLayer.classList.add("is-hidden");
   guideLayer.classList.remove("is-transitioning", "is-stepping", "is-awaiting-target", "is-observing", "is-confirming");
   guideLayer.setAttribute("aria-hidden", "true");
   guideHighlight.classList.add("is-hidden");
   guideCard.classList.remove("is-leaving", "is-stepping");
   guideMascotFrame.classList.remove("is-acting");
+  document.querySelectorAll(".guide-scroll-glow, .guide-observe-glow").forEach((element) => {
+    element.classList.remove("guide-scroll-glow", "guide-observe-glow", "is-dragging");
+  });
   closePanels();
   if (remember) markGuideSeen();
   state.checkinAfterGuide = false;
@@ -1199,7 +1490,7 @@ function syncGuideStarterStep(starter = getBirthdaySeasonStarter()) {
     ...guideSteps[0],
     speaker: `${starter.sprig.name} · 第一位住民`,
     mascot: starter.sprig.image,
-    text: `${starter.sprig.name}刚从生日种子里醒来。先点身份卡，它会把你们的第一段缘分盖进护照。`,
+    text: "先看护照。",
     action: "点左上身份卡",
   };
   guideSteps[1] = {
@@ -1208,10 +1499,117 @@ function syncGuideStarterStep(starter = getBirthdaySeasonStarter()) {
     sprigId: starter.id,
     speaker: `${starter.sprig.name} · ${starter.term}`,
     mascot: starter.sprig.image,
-    title: "生日节令的第一颗芽",
-    text: `${starter.line} 现在点花园里的${starter.sprig.name.replace("种种", "")}，它会把只对你说的第一句悄悄话讲出来。`,
+    title: "第一颗芽",
+    text: "它在等你点一下。",
     action: `点${starter.sprig.name.replace("种种", "")}`,
   };
+}
+
+function hashSprigMoment(id = "", salt = "") {
+  const source = `${id}|${salt}|${todayKey()}`;
+  let hash = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash * 31 + source.charCodeAt(index)) % 9973;
+  }
+  return hash;
+}
+
+function getSprigWeatherScene() {
+  return state.currentWeather?.scene || weatherScene || "calm";
+}
+
+function chooseSprigBehavior(sprig, reason = "idle") {
+  const scene = getSprigWeatherScene();
+  const hour = new Date().getHours();
+  const weatherMatched = sprigBehaviorProfiles.filter((behavior) => behavior.weather.includes(scene));
+  if (["rain", "storm"].includes(scene)) {
+    return weatherMatched.find((behavior) => behavior.id === "rain") || sprigBehaviorProfiles[0];
+  }
+  if (scene === "snow") {
+    return weatherMatched.find((behavior) => behavior.id === "snow") || sprigBehaviorProfiles[0];
+  }
+  if (hour >= 22 || hour < 7) {
+    return sprigBehaviorProfiles.find((behavior) => behavior.id === "sleeping");
+  }
+  if (reason === "tap") {
+    return sprigBehaviorProfiles.find((behavior) => ["singing", "playing", "reading"][hashSprigMoment(sprig?.id, reason) % 3] === behavior.id);
+  }
+  const pool = weatherMatched.length ? weatherMatched : sprigBehaviorProfiles.filter((behavior) => behavior.weather.includes("calm"));
+  return pool[hashSprigMoment(sprig?.id, reason) % pool.length] || sprigBehaviorProfiles[0];
+}
+
+function applySprigBehavior(button, behavior) {
+  if (!button || !behavior) return;
+  button.dataset.action = behavior.id;
+  button.dataset.mood = behavior.mood || "curious";
+  button.title = behavior.label;
+}
+
+function getSprigCompanionLine(sprigId) {
+  const visible = Array.from(document.querySelectorAll(".sprig:not(.is-hidden)"))
+    .map((button) => button.dataset.sprig)
+    .filter((id) => id && id !== sprigId);
+  const companion = visible[hashSprigMoment(sprigId, "companion") % Math.max(1, visible.length)];
+  return companion && atlasEntryById[companion] ? `旁边可以有${atlasEntryById[companion].name}一起互动，但不要抢主角。` : "画面里只有这一只小精灵也可以。";
+}
+
+function buildSprigAnimationPrompt(sprig, behavior, reason = "idle") {
+  const weather = state.currentWeather || {};
+  const label = weather.label || "花园天气";
+  const temperature = Number.isFinite(weather.temperature) ? `${weather.temperature}度` : "温度不明显";
+  return [
+    "生成一段适合手机端像素风植物养成游戏的短动画。",
+    `主角：${sprig.name}，植物原型是${sprig.plant || "地方植物"}，性格是${sprig.personality || "亲近、好奇"}。`,
+    `动作：${behavior.prompt}。`,
+    `天气：${label}，${temperature}，场景保持在种种花园中。`,
+    `${getSprigCompanionLine(sprig.id)}重点表现小精灵之间自然的互动关系、表情和情绪变化。`,
+    "风格：可爱像素质感，年轻明亮，2.5D 游戏感，不要写实摄影，不要油腻3D，不要人形角色，不要文字字幕。",
+    `触发来源：${reason}。时长约5秒，可循环。`,
+  ].join("\n");
+}
+
+async function requestSprigAnimation(sprig, behavior, reason = "idle") {
+  if (!sprig || window.location.protocol === "file:") return null;
+  const key = `${sprig.id}:${behavior.id}`;
+  const lastRequested = sprigAnimationCooldown.get(key) || 0;
+  if (Date.now() - lastRequested < 3 * 60 * 1000) return state.sprigAnimationTasks[key] || null;
+  sprigAnimationCooldown.set(key, Date.now());
+  try {
+    const response = await fetch("/api/generate-animation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: buildSprigAnimationPrompt(sprig, behavior, reason),
+        duration: 5,
+        ratio: "9:16",
+        watermark: false,
+        generate_audio: false,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    state.sprigAnimationTasks[key] = {
+      requestedAt: Date.now(),
+      configured: Boolean(payload.configured),
+      task: payload.task || null,
+      behavior: behavior.id,
+    };
+    saveGardenProfile();
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function runSprigDailyLife(reason = "idle") {
+  document.querySelectorAll(".sprig:not(.is-hidden)").forEach((button) => {
+    const sprig = atlasEntryById[button.dataset.sprig] || sprigs[button.dataset.sprig];
+    if (!sprig) return;
+    const behavior = chooseSprigBehavior(sprig, reason);
+    applySprigBehavior(button, behavior);
+    button.classList.add("is-expressing");
+    window.setTimeout(() => button.classList.remove("is-expressing"), 1700);
+  });
+  syncKnowledgePopSpeakerPosition();
 }
 
 function setStarterSprigFromBirthday(birthday = state.onboarding.birthday, { unlock = true } = {}) {
@@ -1239,7 +1637,12 @@ function syncGardenSprigs() {
     }
     const isUnlocked = state.gardenSprigs.has(button.dataset.sprig);
     button.classList.toggle("is-hidden", !isUnlocked);
-    button.dataset.mood = isUnlocked ? ["curious", "happy", "sleepy"][Math.floor(Math.random() * 3)] : "";
+    if (isUnlocked) {
+      applySprigBehavior(button, chooseSprigBehavior(entry, "sync"));
+    } else {
+      button.dataset.mood = "";
+      button.dataset.action = "";
+    }
   });
 }
 
@@ -1259,8 +1662,10 @@ function wanderSprigs() {
     const driftY = (Math.random() - 0.5) * 4.2;
     button.style.setProperty("--x", `${clamp(baseX + driftX, 12, 88)}%`);
     button.style.setProperty("--y", `${clamp(baseY + driftY, 20, 78)}%`);
+    const sprig = atlasEntryById[button.dataset.sprig] || sprigs[button.dataset.sprig];
+    const behavior = chooseSprigBehavior(sprig, "wander");
     button.classList.add("is-expressing");
-    button.dataset.mood = ["curious", "happy", "sleepy"][Math.floor(Math.random() * 3)];
+    applySprigBehavior(button, behavior);
     window.setTimeout(() => button.classList.remove("is-expressing"), 1700);
   });
   syncKnowledgePopSpeakerPosition();
@@ -1269,29 +1674,49 @@ function wanderSprigs() {
 function createAtlasArticle(entry, locked = false) {
   const article = document.createElement("article");
   article.classList.toggle("locked", locked);
+  if (locked) {
+    article.tabIndex = 0;
+    article.setAttribute("role", "button");
+    article.setAttribute("aria-label", "查看未解锁图鉴线索");
+  }
   article.dataset.sprig = entry.id;
+  article.dataset.lockedAtlas = locked ? "true" : "false";
   article.dataset.habitat = entry.habitat || "";
   article.dataset.atlasTone = entry.tone || getActiveAtlasCategory().tone || "all";
 
   const icon = document.createElement("b");
   const image = document.createElement("img");
   image.src = entry.image || "./assets/ui/seed.png";
-  image.alt = locked ? "" : entry.name;
+  image.alt = locked ? "未解锁线索" : entry.name;
   icon.append(image);
 
   const copy = document.createElement("div");
   const title = document.createElement("strong");
-  title.textContent = locked ? entry.slotName || "等待发现" : entry.name;
+  title.textContent = locked ? "???" : entry.name;
   const text = document.createElement("span");
   text.textContent = locked
-    ? `${getAtlasCategoryLabel(entry)} · ${entry.modelHint || "待发现线索"}`
+    ? "编号 ???"
     : `${entry.habitat || "植物线索"} · ${entry.knowledge?.[0] || entry.hint}`;
   copy.append(title, text);
 
   const count = document.createElement("em");
-  count.textContent = locked ? entry.slotCode || "??" : "1/5";
+  count.textContent = locked ? "" : "1/5";
   article.append(icon, copy, count);
   return article;
+}
+
+function getAtlasShortType(entry = {}) {
+  const habitat = `${entry.habitat || ""}${entry.modelHint || ""}`;
+  if (habitat.includes("水生") || habitat.includes("湿地")) return "水生";
+  if (habitat.includes("盆生") || habitat.includes("庭院")) return "盆生";
+  if (habitat.includes("附生") || habitat.includes("林下")) return "附生";
+  if (habitat.includes("陆生")) return "陆生";
+  if (entry.tone === "aquatic") return "水生";
+  if (entry.tone === "pot") return "盆生";
+  if (entry.tone === "epiphyte") return "附生";
+  if (entry.tone === "land") return "陆生";
+  if (entry.tone === "garden") return "花园";
+  return "地域";
 }
 
 function createAtlasStoryBook(entries, category) {
@@ -1343,6 +1768,41 @@ function createAtlasStoryBook(entries, category) {
   return article;
 }
 
+function createLockedAtlasDetail(entry, category) {
+  const article = document.createElement("article");
+  article.className = "atlas-storybook atlas-storybook--locked";
+  article.dataset.sprig = entry.id;
+  article.dataset.atlasTone = entry.tone || category.tone || "all";
+  const image = entry.image || "./assets/ui/seed.png";
+  const unlockText = "继续扫描植物，并到对应地点完成发现，问号会一点点亮起来。";
+
+  article.innerHTML = `
+    <section class="atlas-story-page atlas-story-page--portrait" aria-label="未解锁图鉴左页">
+      <p class="atlas-story-kicker">${category.label} · 未解锁</p>
+      <div class="atlas-story-portrait atlas-story-portrait--locked">
+        <img src="${image}" alt="未解锁种种剪影" />
+      </div>
+      <h3>???</h3>
+      <dl>
+        <div><dt>生态</dt><dd>???</dd></div>
+        <div><dt>编号</dt><dd>???</dd></div>
+        <div><dt>风土</dt><dd>???</dd></div>
+      </dl>
+    </section>
+    <section class="atlas-story-page atlas-story-page--notes" aria-label="未解锁图鉴右页">
+      <p class="atlas-story-kicker">解锁条件</p>
+      <h3>???</h3>
+      <blockquote>???</blockquote>
+      <p>${unlockText}</p>
+      <dl>
+        <div><dt>扫描</dt><dd>拍到植物后，名字会出现。</dd></div>
+        <div><dt>实地</dt><dd>到附近地点发现后，性格和关系会补全。</dd></div>
+      </dl>
+    </section>
+  `;
+  return article;
+}
+
 function getAtlasCategoryLabel(entry) {
   if (entry.habitat?.includes("水生") || entry.habitat?.includes("湿地")) return "水生";
   if (entry.habitat?.includes("盆生") || entry.habitat?.includes("庭院")) return "盆生";
@@ -1356,6 +1816,10 @@ function getActiveAtlasCategory() {
 }
 
 function getAtlasCategoryCount(category) {
+  if (category.virtual === "gardens") {
+    const packs = Array.isArray(window.SPRIG_MAP_PACKS) ? window.SPRIG_MAP_PACKS : [activeMapPack].filter(Boolean);
+    return Math.max(category.modelCount || 0, packs.length);
+  }
   const realCount = atlasEntries.filter(category.match).length;
   return Math.max(category.modelCount || realCount, realCount);
 }
@@ -1368,6 +1832,7 @@ function getAtlasMilestone(unlockedCount) {
   return atlasMilestones.find((milestone) => unlockedCount < milestone.count) || {
     level: Math.max(6, Math.floor(unlockedCount / 50) + 1),
     count: Math.ceil((unlockedCount + 1) / 50) * 50,
+    rewards: { seeds: 20, stamina: 18, badge: "远行章" },
   };
 }
 
@@ -1379,13 +1844,71 @@ function getAtlasGrowthProgress(unlockedCount) {
   return { milestone, percent };
 }
 
+function getClaimableAtlasMilestone(unlockedCount) {
+  return atlasMilestones.find((milestone) => unlockedCount >= milestone.count && !state.claimedAtlasLevels.has(String(milestone.level))) || null;
+}
+
+function getAtlasRewardMilestone(unlockedCount) {
+  return getClaimableAtlasMilestone(unlockedCount) || getAtlasMilestone(unlockedCount);
+}
+
 function getPassportStageName(level) {
   const stages = ["新芽阶段", "叶片阶段", "花苞阶段", "开花阶段", "风物守护阶段"];
   return stages[Math.max(0, Math.min(stages.length - 1, level - 1))] || "风物守护阶段";
 }
 
+function createAtlasRewardChip(type, label) {
+  const chip = document.createElement("span");
+  chip.className = `atlas-reward-chip atlas-reward-chip--${type}`;
+  chip.innerHTML = `<i aria-hidden="true"></i><b>${label}</b>`;
+  return chip;
+}
+
+function renderAtlasRewards(milestone, unlockedCount) {
+  if (!atlasRewardList) return;
+  const rewards = milestone.rewards || {};
+  const isClaimable = unlockedCount >= milestone.count && !state.claimedAtlasLevels.has(String(milestone.level));
+  const isClaimed = state.claimedAtlasLevels.has(String(milestone.level));
+  atlasRewardList.replaceChildren(
+    createAtlasRewardChip("seed", `种子 +${rewards.seeds || 0}`),
+    createAtlasRewardChip("stamina", `体力 +${rewards.stamina || 0}`),
+    createAtlasRewardChip("badge", rewards.badge || "徽章"),
+  );
+  if (atlasRewardButton) {
+    atlasRewardButton.classList.toggle("is-ready", isClaimable);
+    atlasRewardButton.classList.toggle("is-claimed", isClaimed);
+    atlasRewardButton.dataset.rewardLevel = String(milestone.level);
+    atlasRewardButton.setAttribute("aria-label", isClaimable ? `领取 Lv.${milestone.level} 图鉴奖励` : `查看 Lv.${milestone.level} 图鉴奖励`);
+  }
+  if (atlasRewardButtonText) {
+    atlasRewardButtonText.textContent = isClaimable ? "可领" : isClaimed ? "已领" : "奖励";
+  }
+  if (atlasRewardTitle) {
+    atlasRewardTitle.textContent = `Lv.${milestone.level} 礼包`;
+  }
+  if (atlasRewardText) {
+    atlasRewardText.textContent = isClaimable ? "已经成熟，点一下收进背包。" : `收集到 ${milestone.count} 只后打开。`;
+  }
+}
+
 function createVirtualAtlasEntry(category, offset) {
   const safeOffset = Math.max(1, offset);
+  if (category.virtual === "gardens") {
+    const packs = Array.isArray(window.SPRIG_MAP_PACKS) ? window.SPRIG_MAP_PACKS : [activeMapPack].filter(Boolean);
+    const pack = packs[safeOffset - 1];
+    const future = futureGardenRegions[(safeOffset - packs.length - 1) % futureGardenRegions.length];
+    const garden = pack || future || {};
+    return {
+      id: `virtual-garden-${garden.id || safeOffset}`,
+      image: "./assets/ui/seed.png",
+      habitat: getMapPackStatusLabel(garden.status || "growing"),
+      regionScope: [garden.name || "未来花园"],
+      tone: category.tone,
+      slotName: garden.name || "未来花园",
+      slotCode: `GD-${String(safeOffset).padStart(3, "0")}`,
+      modelHint: garden.description || "这片地方还在长叶。",
+    };
+  }
   const source = atlasEntries[safeOffset % Math.max(1, atlasEntries.length)] || {};
   const habitatMap = {
     region: "地方特有线索",
@@ -1401,9 +1924,9 @@ function createVirtualAtlasEntry(category, offset) {
     habitat: habitatMap[category.id] || "植物线索",
     regionScope: category.id === "region" ? [state.onboarding.province || "中国"] : ["全国"],
     tone: category.tone,
-    slotName: `第 ${String(safeOffset).padStart(4, "0")} 号剪影`,
-    slotCode: "???",
-    modelHint: `${ATLAS_MODEL_SOURCE} 预留位`,
+    slotName: "待发现种种",
+    slotCode: `ZZ-${String(safeOffset).padStart(4, "0")}`,
+    modelHint: habitatMap[category.id] || "植物线索",
   };
 }
 
@@ -1417,9 +1940,9 @@ function getLockedAtlasPage(category, realLocked, lockedTotal) {
     if (index < realLocked.length) {
       pageEntries.push({
         ...realLocked[index],
-        slotName: `第 ${String(index + 1).padStart(4, "0")} 号剪影`,
-        slotCode: "???",
-        modelHint: "真实种种线索",
+        slotName: "待发现种种",
+        slotCode: `ZZ-${String(index + 1).padStart(4, "0")}`,
+        modelHint: realLocked[index].habitat || getAtlasCategoryLabel(realLocked[index]),
         tone: category.tone,
       });
     } else {
@@ -1439,7 +1962,7 @@ function renderAtlasBookmarks() {
       button.dataset.atlasTone = category.tone;
       button.setAttribute("aria-label", `${category.label}：${category.description}`);
       button.classList.toggle("is-active", category.id === state.atlasCategory);
-      button.innerHTML = `<strong aria-hidden="true">${category.icon || category.label}</strong><i>${category.label}</i><span>${category.description}<small>${category.scaleLabel}</small></span>`;
+      button.innerHTML = `<strong class="atlas-tab-icon atlas-tab-icon--${category.icon || category.id}" aria-hidden="true"><em></em></strong><i>${category.label}</i><span>${category.description}</span>`;
       return button;
     }),
   );
@@ -1449,25 +1972,33 @@ function renderAtlas() {
   const unlocked = getUnlockedEntries();
   const locked = atlasEntries.filter((entry) => !state.unlockedSprigs.has(entry.id));
   const category = getActiveAtlasCategory();
-  const visibleUnlocked = unlocked.filter(category.match);
-  const visibleLocked = locked.filter(category.match);
+  const isGardenCategory = category.virtual === "gardens";
+  const visibleUnlocked = isGardenCategory ? [] : unlocked.filter(category.match);
+  const visibleLocked = isGardenCategory ? [] : locked.filter(category.match);
   const categoryCount = getAtlasCategoryCount(category);
   const lockedTotal = Math.max(categoryCount - visibleUnlocked.length, visibleLocked.length);
   const pageCount = Math.max(1, Math.ceil(lockedTotal / ATLAS_LOCKED_PAGE_SIZE));
   const visibleLockedPage = getLockedAtlasPage(category, visibleLocked, lockedTotal);
+  currentLockedAtlasPage = visibleLockedPage;
+  if (!visibleLockedPage.some((entry) => entry.id === state.atlasSelectedLocked?.id)) {
+    state.atlasSelectedLocked = null;
+  }
   const { milestone, percent } = getAtlasGrowthProgress(unlocked.length);
+  const rewardMilestone = getAtlasRewardMilestone(unlocked.length);
 
-  atlasProgress.textContent = `图鉴经验 Lv.${milestone.level} · ${unlocked.length} / ${milestone.count}`;
+  atlasProgress.textContent = `图鉴成就 Lv.${milestone.level} · ${unlocked.length} / ${milestone.count}`;
   atlasProgressBar.style.width = `${percent}%`;
-  atlasSeedCount.textContent = unlocked.length;
+  renderAtlasRewards(rewardMilestone, unlocked.length);
   renderAtlasBookmarks();
-  atlasCollectedTitle.innerHTML = `<span>☘</span> ${category.label} · 已收集（${visibleUnlocked.length}）`;
-  atlasLockedTitle.innerHTML = `<span>▣</span> ${category.label} · 待发现`;
+  atlasCollectedTitle.textContent = `${category.label} · 已收集（${visibleUnlocked.length}）`;
+  atlasLockedTitle.textContent = `${category.label} · 待发现`;
   atlasPageLabel.textContent = `第 ${state.atlasPage + 1} 页`;
   atlasPrevPage.disabled = state.atlasPage <= 0;
   atlasNextPage.disabled = state.atlasPage >= pageCount - 1;
   atlasCollectedList.replaceChildren(
-    visibleUnlocked.length
+    state.atlasSelectedLocked
+      ? createLockedAtlasDetail(state.atlasSelectedLocked, category)
+      : visibleUnlocked.length
       ? createAtlasStoryBook(visibleUnlocked, category)
       : createAtlasEmpty(category.empty || "这一页还没有记录。去花园或地图里遇见一只种种。"),
   );
@@ -1475,6 +2006,30 @@ function renderAtlas() {
     ...(visibleLockedPage.length ? visibleLockedPage.map((entry) => createAtlasArticle(entry, true)) : [createAtlasEmpty("这一页暂时没有新的待发现线索。")]),
   );
   renderIdentityCard();
+}
+
+function toggleAtlasRewardPopover(force) {
+  if (!atlasRewardPopover || !atlasRewardButton) return;
+  const willOpen = typeof force === "boolean" ? force : atlasRewardPopover.classList.contains("is-hidden");
+  atlasRewardPopover.classList.toggle("is-hidden", !willOpen);
+  atlasRewardButton.setAttribute("aria-expanded", String(willOpen));
+}
+
+function claimAtlasReward() {
+  const unlockedCount = getUnlockedEntries().length;
+  const milestone = getClaimableAtlasMilestone(unlockedCount);
+  if (!milestone) {
+    toggleAtlasRewardPopover();
+    return;
+  }
+  const rewards = milestone.rewards || {};
+  state.claimedAtlasLevels.add(String(milestone.level));
+  if (rewards.seeds) addSeeds(rewards.seeds);
+  if (rewards.stamina) setStamina(state.stamina + rewards.stamina);
+  renderAtlasRewards(getAtlasRewardMilestone(unlockedCount), unlockedCount);
+  if (atlasRewardText) atlasRewardText.textContent = `${rewards.badge || "徽章"} 已收进背包。`;
+  toggleAtlasRewardPopover(true);
+  saveGardenProfile();
 }
 
 function createAtlasEmpty(text) {
@@ -1525,7 +2080,7 @@ function rebuildActiveMapPack(mapPack) {
 
 function getGardenLabel() {
   if (state.currentMapPack) return state.currentMapPack.locationLabel || state.currentMapPack.name;
-  if (state.explorationMode === "unknown") return "未知花园";
+  if (state.explorationMode === "unknown") return state.user.location || "未知花园";
   return "种种大世界";
 }
 
@@ -1553,6 +2108,15 @@ function getSelectedCityCenter() {
   return onboardingCityCenters.find(
     (item) => item.province === state.onboarding.province && item.city === state.onboarding.city,
   ) || onboardingCityCenters.find((item) => item.province === "浙江省" && item.city === "杭州市");
+}
+
+function getCityCenterByRegion(province = "", city = "") {
+  return onboardingCityCenters.find((item) => item.province === province && item.city === city) || null;
+}
+
+function getCityCenterFromText(value = "") {
+  const text = String(value || "");
+  return onboardingCityCenters.find((item) => text.includes(item.city) || text.includes(item.province)) || null;
 }
 
 function populateRegionSelects() {
@@ -1786,6 +2350,7 @@ function getOnboardingRegionLabel() {
 function renderMapPackPicker(message = "") {
   if (!mapPackPicker) return;
   mapPackPicker.replaceChildren();
+  mapPackPicker.classList.remove("is-expanded");
 
   if (message) {
     const note = document.createElement("p");
@@ -1793,9 +2358,17 @@ function renderMapPackPicker(message = "") {
     mapPackPicker.append(note);
   }
 
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "map-pack-toggle";
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.textContent = "选择花园";
+  mapPackPicker.append(toggle);
+
   mapPacks.forEach((pack) => {
     const button = document.createElement("button");
     button.type = "button";
+    button.className = "map-pack-option";
     button.dataset.mapPackId = pack.id;
     button.dataset.status = pack.status;
     button.disabled = pack.status === "locked";
@@ -1812,7 +2385,7 @@ function clearMapPackPicker() {
   if (mapPackPicker) mapPackPicker.replaceChildren();
 }
 
-function unlockSprig(id, scan = null) {
+function unlockSprig(id, scan = null, reward = null) {
   const entry = atlasEntryById[id] || atlasEntryById.mystery;
   const wasLocked = !state.unlockedSprigs.has(entry.id);
   state.unlockedSprigs.add(entry.id);
@@ -1823,11 +2396,11 @@ function unlockSprig(id, scan = null) {
   renderAtlas();
 
   if (wasLocked) {
-    captureTask.textContent = "1 / 1";
-    atlasTask.textContent = "1 / 1";
+    setQuestProgress("capture", "1 / 1");
+    setQuestProgress("atlas", "1 / 1");
     syncQuestClaims();
-    addSeeds(5);
-    updateLevel(35);
+    addSeeds(reward?.seeds ?? 5);
+    updateLevel(reward?.xp ?? 35);
   }
 
   saveGardenProfile();
@@ -1842,7 +2415,7 @@ function unlockAtlasEntryOnly(id) {
   renderAtlas();
   updateCaptureUi();
   if (wasLocked) {
-    atlasTask.textContent = "1 / 1";
+    setQuestProgress("atlas", "1 / 1");
     syncQuestClaims();
   }
   saveGardenProfile();
@@ -1868,6 +2441,36 @@ function matchSprigFromScan(suggestion) {
   return match?.id || "mystery";
 }
 
+function hashScanSeed(value) {
+  return Array.from(String(value || "")).reduce((hash, char) => {
+    return (hash * 31 + char.charCodeAt(0)) % 9973;
+  }, 17);
+}
+
+function resolveScanRarity(entry, suggestion = null, sourceLabel = "") {
+  if (!entry || entry.id === "mystery") {
+    return { id: "unknown", label: "未知", tone: "unknown", seeds: 2, xp: 18 };
+  }
+
+  const dayKey = new Date().toISOString().slice(0, 10);
+  const confidence = Math.round((suggestion?.probability || 0) * 100);
+  const sourceBonus = sourceLabel.includes("照片") ? 6 : 0;
+  const poiBonus = state.selectedMapPoi?.sprigId === entry.id ? -16 : 0;
+  const packBonus = activeMapPack?.sprigs?.some((sprig) => sprig.id === entry.id) ? -8 : 0;
+  const confidenceBonus = confidence >= 85 ? -8 : confidence && confidence < 50 ? 10 : 0;
+  const roll = clamp(
+    hashScanSeed(`${entry.id}:${getGardenLabel()}:${dayKey}:${sourceLabel}`) % 100
+      + sourceBonus
+      + poiBonus
+      + packBonus
+      + confidenceBonus,
+    0,
+    100,
+  );
+
+  return scanRarityTiers.find((tier) => roll < tier.threshold) || scanRarityTiers[0];
+}
+
 function readImageAsBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1884,12 +2487,24 @@ function setScanBusy(isBusy, label = "识别中") {
   captureButton.disabled = true;
   uploadScanButton.disabled = isBusy;
   captureButton.disabled = isBusy;
-  if (isBusy) captureButton.textContent = label;
+  if (isBusy) setCaptureButtonLabel(label);
+}
+
+function setCaptureButtonLabel(label) {
+  captureButton.textContent = label;
+  captureButton.dataset.actionLabel = label;
 }
 
 function appendPlantScanRecord(record) {
   if (!scanRecordList || !record) return;
-  state.scanRecords = [record, ...state.scanRecords].slice(0, 4);
+  const center = getSelectedCityCenter();
+  const enrichedRecord = {
+    province: state.onboarding.province || center?.province || "",
+    city: state.onboarding.city || center?.city || "",
+    adcode: center?.adcode || "",
+    ...record,
+  };
+  state.scanRecords = [enrichedRecord, ...state.scanRecords].slice(0, 4);
   saveGardenProfile();
   scanRecordList.replaceChildren(
     ...state.scanRecords.map((item) => {
@@ -1916,6 +2531,7 @@ function createTemporaryPlantScan(sourceLabel, reason = "pending-identification"
     probability: 0,
     temporary: true,
     source: reason,
+    rarity: "未知",
     commonNames: [],
   };
 
@@ -1924,11 +2540,12 @@ function createTemporaryPlantScan(sourceLabel, reason = "pending-identification"
   discoverTitle.textContent = sprig.name;
   arTarget.src = sprig.image;
   arTarget.alt = sprig.name;
-  arTarget.classList.add("is-visible");
+  arTarget.classList.add("is-visible", "is-encounter");
+  scanResultText.textContent = "未知 · 线索";
   appendPlantScanRecord({
     title: `${sourceLabel} · ${sprig.name}`,
-    meta: `${locationLabel}${coordinateLabel}`,
-    text: "已保存为临时植物线索，之后可以用植物识别或人工整理加入正式地图包。",
+    meta: `未知 · ${locationLabel}${coordinateLabel}`,
+    text: "先收进线索页。",
   });
   return generated;
 }
@@ -1945,10 +2562,11 @@ function getArFrameBase64() {
   return dataUrl.split(",")[1] || "";
 }
 
-async function identifyPlantImage(image, sourceLabel = "AR画面") {
+async function identifyPlantImage(image, sourceLabel = "取景画面") {
   if (!image) return;
   setScanBusy(true);
-  scanResultText.textContent = "正在连接植物识别 API。";
+  arTarget.classList.remove("is-encounter");
+  scanResultText.textContent = "识别中";
 
   try {
     const response = await fetch("/api/identify-plant", {
@@ -1964,8 +2582,7 @@ async function identifyPlantImage(image, sourceLabel = "AR画面") {
 
     if (!result.configured) {
       const generated = createTemporaryPlantScan(sourceLabel, "plant-api-missing");
-      scanResultText.textContent = "已生成临时未知种种。";
-      captureText.textContent = `还没有配置 PLANT_ID_API_KEY，${generated.sprig.name} 已先作为植物线索保存。`;
+      captureText.textContent = `${generated.sprig.name} 先躲进线索页。`;
       return;
     }
 
@@ -1976,32 +2593,33 @@ async function identifyPlantImage(image, sourceLabel = "AR画面") {
     const suggestion = result.suggestions?.[0];
     if (!suggestion) {
       const generated = createTemporaryPlantScan(sourceLabel, "unclear-plant");
-      scanResultText.textContent = "发现一只未知种种。";
-      captureText.textContent = `没有识别出明确植物，${generated.sprig.name} 已先保存为未知线索。`;
+      captureText.textContent = `${generated.sprig.name} 还没报上名字。`;
       return;
     }
 
     const sprigId = matchSprigFromScan(suggestion);
-    const entry = unlockSprig(sprigId, suggestion);
+    const entry = atlasEntryById[sprigId] || atlasEntryById.mystery;
+    const rarity = resolveScanRarity(entry, suggestion, sourceLabel);
+    const entryAfterUnlock = unlockSprig(sprigId, { ...suggestion, rarity: rarity.label }, rarity);
     const probability = Math.round((suggestion.probability || 0) * 100);
-    discoverTitle.textContent = entry.name;
-    arTarget.src = entry.image;
-    arTarget.alt = entry.name;
-    arTarget.classList.add("is-visible");
-    scanResultText.textContent = `${suggestion.name}${probability ? ` · ${probability}%` : ""}`;
-    captureText.textContent = `${sourceLabel}识别到了 ${suggestion.commonNames?.[0] || suggestion.name}，${entry.name} 已写入图鉴。`;
+    discoverTitle.textContent = entryAfterUnlock.name;
+    arTarget.src = entryAfterUnlock.image;
+    arTarget.alt = entryAfterUnlock.name;
+    arTarget.dataset.rarity = rarity.tone;
+    arTarget.classList.add("is-visible", "is-encounter");
+    scanResultText.textContent = `${rarity.label}${probability ? ` · ${probability}%` : ""}`;
+    captureText.textContent = `${entryAfterUnlock.name} 出现了。`;
     appendPlantScanRecord({
-      title: `${sourceLabel} · ${entry.name}`,
-      meta: `${suggestion.name}${probability ? ` · ${probability}%` : ""}`,
-      text: `已写入图鉴，并和${getGardenLabel()}的探索记录关联。`,
+      title: `${sourceLabel} · ${entryAfterUnlock.name}`,
+      meta: `${rarity.label} · ${suggestion.commonNames?.[0] || suggestion.name}`,
+      text: `种子 +${rarity.seeds} · 经验 +${rarity.xp}`,
     });
   } catch (error) {
     const generated = createTemporaryPlantScan(sourceLabel, "scan-offline");
-    scanResultText.textContent = "离线保存为未知种种。";
-    captureText.textContent = `识别服务暂时不可用，${generated.sprig.name} 已先作为临时线索保存。`;
+    captureText.textContent = `${generated.sprig.name} 先躲进线索页。`;
   } finally {
     setScanBusy(false);
-    captureButton.textContent = arStream ? "识别当前画面" : "开启 AR 识别";
+    setCaptureButtonLabel(arStream ? "识别画面" : "打开取景");
     if (scanInput) scanInput.value = "";
   }
 }
@@ -2033,9 +2651,9 @@ async function startArCamera() {
     arCamera.srcObject = arStream;
     await arCamera.play();
     arCamera.classList.add("is-active");
-    captureButton.textContent = "识别当前画面";
-    scanResultText.textContent = "AR 取景已开启。";
-    captureText.textContent = "把植物放进扫描框里，再识别当前画面。";
+    setCaptureButtonLabel("识别画面");
+    scanResultText.textContent = "取景已开启。";
+    captureText.textContent = "把植物放进扫描框里，再点一下。";
     return true;
   } catch {
     scanResultText.textContent = "摄像头没有打开。";
@@ -2060,10 +2678,10 @@ async function captureArRecognition() {
 
   const image = getArFrameBase64();
   if (!image) {
-    scanResultText.textContent = "还没有取到 AR 画面。";
+    scanResultText.textContent = "还没有取到画面。";
     return;
   }
-  await identifyPlantImage(image, "AR画面");
+  await identifyPlantImage(image, "取景画面");
 }
 
 function normalizePosition(position) {
@@ -2197,6 +2815,67 @@ function getAmapCenter(AMap) {
     } catch {
       resolve(fallback);
     }
+  });
+}
+
+function requestAmapUserLocation() {
+  return loadAmap().then(
+    (AMap) =>
+      new Promise((resolve, reject) => {
+        try {
+          AMap.plugin("AMap.Geolocation", () => {
+            const geolocation = new AMap.Geolocation({
+              enableHighAccuracy: true,
+              timeout: 8000,
+              GeoLocationFirst: true,
+              needAddress: true,
+            });
+
+            geolocation.getCurrentPosition((status, result) => {
+              const center = normalizePosition(result?.position);
+              if (status === "complete" && center) {
+                const address = result.addressComponent || {};
+                resolve({
+                  ...center,
+                  province: address.province || "",
+                  city: address.city || address.district || "",
+                  adcode: address.adcode || "",
+                  source: "amap",
+                });
+                return;
+              }
+              reject(new Error(result?.message || "amap-geolocation-failed"));
+            });
+          });
+        } catch (error) {
+          reject(error);
+        }
+      }),
+  );
+}
+
+function requestBrowserUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("geolocation-unsupported"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lng: position.coords.longitude,
+          lat: position.coords.latitude,
+          source: "browser",
+        });
+      },
+      (error) => reject(error || new Error("geolocation-failed")),
+      {
+        enableHighAccuracy: true,
+        timeout: 9000,
+        maximumAge: 60 * 1000,
+      },
+    );
   });
 }
 
@@ -2343,23 +3022,23 @@ function selectMapPoi(index) {
 
 async function scanNearbySprigs() {
   discoverFromMap.disabled = true;
-  mapStatus.textContent = "雷达正在连接高德地图。";
+  mapStatus.textContent = "正在向地图取线索。";
 
   try {
     const AMap = await loadAmap();
-    mapStatus.textContent = "雷达正在定位附近环境。";
+    mapStatus.textContent = "正在读取附近。";
     const { center, label } = await getAmapCenter(AMap);
-    mapStatus.textContent = "雷达正在识别附近地点。";
+    mapStatus.textContent = "正在筛选植物线索。";
     const rawPois = await searchAmapPois(AMap, center);
     const pois = normalizeAmapPois(rawPois, center);
     if (!pois.length) throw new Error("no-amap-pois");
-    renderMapPois(pois, `高德地图 · ${label} · ${pois.length} 条线索`);
+    renderMapPois(pois, `${label} · ${pois.length} 条线索`);
   } catch (error) {
     const gardenLabel = getGardenLabel();
     const fallbackText =
       error?.message === "missing-amap-key"
-        ? `未配置高德 key，先使用${gardenLabel}的地图包线索。`
-        : `高德定位或搜索暂时不可用，先使用${gardenLabel}的地图包线索。`;
+        ? `地图 key 还没接好，先看${gardenLabel}。`
+        : `附近线索暂时没回来，先看${gardenLabel}。`;
     renderFallbackMapPois(fallbackText);
   } finally {
     discoverFromMap.disabled = false;
@@ -2368,18 +3047,62 @@ async function scanNearbySprigs() {
 
 function showKnowledgeForSprig(button, sprig) {
   closePanels();
-  const currentIndex = state.knowledgeIndexes[sprig.name] || 0;
-  const lines = sprig.voiceLines?.length ? sprig.voiceLines : sprig.knowledge;
-  knowledgePop.textContent = lines[currentIndex % lines.length];
-  state.knowledgeIndexes[sprig.name] = (currentIndex + 1) % lines.length;
-  knowledgePop.dataset.speakerSprig = button.dataset.sprig || "";
+  const behavior = chooseSprigBehavior(sprig, "tap");
+  applySprigBehavior(button, behavior);
+  button.classList.add("is-expressing");
+  window.setTimeout(() => button.classList.remove("is-expressing"), 1900);
+  knowledgePop.textContent = getNextSprigLine(sprig, behavior, "talk");
+  anchorKnowledgePopToSprig(button);
   positionKnowledgePopOnSprig(button);
+  requestSprigAnimation(sprig, behavior, "tap").then((payload) => {
+    if (!payload?.configured) return;
+    button.dataset.animationState = "requested";
+  });
 
   infoImage.src = sprig.image;
   infoImage.alt = sprig.name;
   infoName.textContent = sprig.name;
-  infoMeta.textContent = `${sprig.npcRole || sprig.plant} · ${sprig.personality || sprig.status}`;
+  infoMeta.textContent = `${behavior.label} · ${sprig.npcRole || sprig.plant}`;
   showSprigInfo();
+  hideSprigInfo();
+}
+
+function getNextSprigLine(sprig, behavior = {}, mode = "talk") {
+  if (!sprig) return "花园里有一点小动静。";
+  const weatherSceneLines = ["rain", "storm", "cloud", "mist", "snow"].includes(state.currentWeather?.scene)
+    ? sprig.weatherLines || []
+    : [];
+  const touchLines = mode === "touch" ? sprig.touchLines || [] : [];
+  const talkLines = mode === "touch" ? [] : sprig.voiceLines || [];
+  const behaviorLine = behavior?.line && mode !== "touch" ? [behavior.line] : [];
+  const fallbackLines = sprig.knowledge || [];
+  const lines = [...touchLines, ...talkLines, ...weatherSceneLines, ...fallbackLines, ...behaviorLine].filter(Boolean);
+  const key = `${sprig.id || sprig.name}-${mode}`;
+  const currentIndex = state.knowledgeIndexes[key] || 0;
+  const nextLine = lines[currentIndex % Math.max(1, lines.length)] || "我在这里。";
+  state.knowledgeIndexes[key] = currentIndex + 1;
+  return nextLine;
+}
+
+function anchorKnowledgePopToSprig(button) {
+  knowledgePop.dataset.speakerSprig = button?.dataset?.sprig || "";
+  knowledgePop.dataset.anchor = button ? "sprig" : "";
+}
+
+function showTouchForSprig(button, sprig) {
+  if (!button || !sprig || button.classList.contains("is-hidden")) return;
+  closePanels();
+  knowledgePop.classList.add("is-hidden");
+  knowledgePop.dataset.speakerSprig = "";
+  knowledgePop.dataset.anchor = "";
+  const behavior = { id: "touch", label: "心情变好", mood: "happy", line: "" };
+  applySprigBehavior(button, behavior);
+  button.classList.add("is-petted", "is-expressing");
+  window.setTimeout(() => button.classList.remove("is-petted", "is-expressing"), 1500);
+  infoImage.src = sprig.image;
+  infoImage.alt = sprig.name;
+  infoName.textContent = sprig.name;
+  infoMeta.textContent = `${behavior.label} · ${sprig.personality || sprig.plant}`;
   hideSprigInfo();
 }
 
@@ -2398,11 +3121,11 @@ function positionKnowledgePopOnSprig(button) {
   const popRect = knowledgePop.getBoundingClientRect();
   const padding = 12;
   const anchorX = buttonRect.left - stageRect.left + buttonRect.width / 2;
-  const anchorY = buttonRect.top - stageRect.top + buttonRect.height * 0.18;
+  const anchorY = buttonRect.top - stageRect.top + buttonRect.height * 0.04;
   const minLeft = popRect.width / 2 + padding;
   const maxLeft = stageRect.width - popRect.width / 2 - padding;
-  const minTop = popRect.height * 1.3 + padding;
-  const maxTop = stageRect.height - padding;
+  const minTop = popRect.height + padding + 6;
+  const maxTop = stageRect.height - buttonRect.height * 0.5;
   knowledgePop.style.left = `${clamp(anchorX, minLeft, Math.max(minLeft, maxLeft))}px`;
   knowledgePop.style.top = `${clamp(anchorY, minTop, Math.max(minTop, maxTop))}px`;
   knowledgePop.style.visibility = previousVisibility;
@@ -2418,14 +3141,12 @@ function syncKnowledgePopSpeakerPosition() {
 function showSystemMessage(title, text, label = "System", sprigId = getDefaultSpeakingSprigId()) {
   closePanels();
   knowledgePop.textContent = text;
-  knowledgePop.dataset.speakerSprig = sprigId || "";
-  if (!positionKnowledgePopOnSprig(getSprigButtonById(sprigId))) {
-    knowledgePop.style.left = "50%";
-    knowledgePop.style.top = "52%";
-    knowledgePop.classList.remove("is-hidden");
-  }
+  const speakerId = sprigId || getDefaultSpeakingSprigId();
+  const speakerButton = getSprigButtonById(speakerId) || getSprigButtonById(getDefaultSpeakingSprigId());
+  anchorKnowledgePopToSprig(speakerButton);
+  positionKnowledgePopOnSprig(speakerButton);
 
-  const speakerSprig = atlasEntryById[sprigId] || sprigs[sprigId] || atlasEntryById[state.discoverySprigId] || atlasEntries[0] || sprigs.fern;
+  const speakerSprig = atlasEntryById[speakerId] || sprigs[speakerId] || atlasEntryById[state.discoverySprigId] || atlasEntries[0] || sprigs.fern;
   infoImage.src = speakerSprig?.image || sprigs.fern.image;
   infoImage.alt = speakerSprig?.name || "";
   infoName.textContent = title;
@@ -2436,14 +3157,10 @@ function showSystemMessage(title, text, label = "System", sprigId = getDefaultSp
 function showSprigSystemMessage(sprigId, title, text, label = "System") {
   closePanels();
   const sprig = atlasEntryById[sprigId] || sprigs[sprigId] || sprigs.plantain || atlasEntries[0];
-  const button = getSprigButtonById(sprigId);
+  const button = getSprigButtonById(sprigId) || getSprigButtonById(getDefaultSpeakingSprigId());
   knowledgePop.textContent = text;
-  knowledgePop.dataset.speakerSprig = sprigId || "";
-  if (!positionKnowledgePopOnSprig(button)) {
-    knowledgePop.style.left = "50%";
-    knowledgePop.style.top = "52%";
-  }
-  knowledgePop.classList.remove("is-hidden");
+  anchorKnowledgePopToSprig(button);
+  positionKnowledgePopOnSprig(button);
 
   infoImage.src = sprig?.image || "./assets/ui/seed.png";
   infoImage.alt = sprig?.name || "";
@@ -2694,16 +3411,24 @@ function setWeatherScene(scene = "calm") {
 
 function getWeatherFallback(label) {
   return {
-    icon: "◐",
     text: `${label} 天气读取中`,
     scene: "calm",
   };
 }
 
+function setWeatherIconScene(scene = "calm") {
+  if (!weatherIcon) return;
+  const normalizedScene = ["sunny", "rainbow", "cloud", "rain", "storm", "snow", "mist"].includes(scene)
+    ? scene
+    : "calm";
+  weatherIcon.className = `weather-icon weather-icon--${normalizedScene}`;
+  weatherIcon.dataset.scene = normalizedScene;
+}
+
 function renderWeatherFallback(label = state.onboarding.city || "杭州") {
   if (!weatherValue || !weatherIcon) return;
   const fallback = getWeatherFallback(label);
-  weatherIcon.textContent = fallback.icon;
+  setWeatherIconScene(fallback.scene);
   weatherValue.textContent = fallback.text;
   setWeatherScene(fallback.scene);
 }
@@ -2761,6 +3486,26 @@ async function fetchWeatherFromOpenMeteo(lat, lng) {
   };
 }
 
+async function fetchWeatherWithFallbacks(lat, lng, cityCode = "") {
+  const attempts = [
+    ["local", () => fetchWeatherFromLocal(lat, lng, cityCode)],
+    ["amap", () => fetchWeatherFromAmap(cityCode)],
+    ["open-meteo", () => fetchWeatherFromOpenMeteo(lat, lng)],
+  ];
+  const errors = [];
+
+  for (const [source, fetcher] of attempts) {
+    try {
+      const data = await fetcher();
+      if (data) return data;
+    } catch (error) {
+      errors.push(`${source}:${error?.message || "failed"}`);
+    }
+  }
+
+  throw new Error(errors.join(",") || "weather-unavailable");
+}
+
 async function updateWeather(location = null) {
   if (!weatherPill) return;
   const cityCenter = getSelectedCityCenter();
@@ -2768,26 +3513,27 @@ async function updateWeather(location = null) {
   const lat = Number(location?.lat ?? cityCenter?.lat ?? 30.2741);
   const label = state.onboarding.city || cityCenter?.city || "杭州";
   const cityCode = cityCenter?.adcode || "";
-  weatherIcon.textContent = "◐";
+  setWeatherIconScene("calm");
   weatherValue.textContent = `${label} 天气读取中`;
   setWeatherScene("calm");
   try {
-    const data =
-      (await fetchWeatherFromLocal(lat, lng, cityCode)) ||
-      (await fetchWeatherFromAmap(cityCode)) ||
-      (await fetchWeatherFromOpenMeteo(lat, lng));
+    const data = await fetchWeatherWithFallbacks(lat, lng, cityCode);
     const weather = normalizeWeatherData(data);
-    weatherIcon.textContent = weather.icon;
+    state.currentWeather = weather;
+    setWeatherIconScene(weather.scene);
     weatherValue.textContent = Number.isFinite(weather.temperature)
       ? `${label} ${weather.label} ${weather.temperature}°`
       : `${label} ${weather.label} --°`;
     weatherPill.title = `天气源：${weather.source}${weather.observedAt ? ` · ${weather.observedAt}` : ""}`;
     setWeatherScene(weather.scene);
+    runSprigDailyLife("weather");
   } catch {
-    weatherIcon.textContent = "◐";
+    state.currentWeather = { label: "暂不可用", scene: "calm", temperature: null, source: "", observedAt: "" };
+    setWeatherIconScene("calm");
     weatherValue.textContent = `${label} 天气暂不可用`;
     weatherPill.title = "天气源暂不可用";
     setWeatherScene("calm");
+    runSprigDailyLife("weather");
   }
 }
 
@@ -2803,7 +3549,10 @@ function syncDailyCheckin() {
     dailyCheckinModalButton.textContent = claimed ? "已领取" : "领取";
   }
   if (dailyCheckinReward) {
-    dailyCheckinReward.textContent = state.dailyStreak > 0 && (state.dailyStreak + 1) % 3 === 0 ? "体力 +6 · 种子 +2" : "体力 +6";
+    const seedBonus = state.dailyStreak > 0 && (state.dailyStreak + 1) % 3 === 0;
+    dailyCheckinReward.innerHTML = seedBonus
+      ? `<span class="daily-pixel-icon daily-pixel-icon--seed" aria-hidden="true"><i></i></span><strong>体力 +6 · 种子 +2</strong>`
+      : `<span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><i></i></span><strong>体力 +6</strong>`;
   }
 }
 
@@ -2851,8 +3600,13 @@ function serializeGardenProfile() {
     specialties: state.specialties,
     scanRecords: state.scanRecords,
     lastScan: state.lastScan,
+    sprigAnimationTasks: state.sprigAnimationTasks,
+    firstLoginAt: state.firstLoginAt || "",
+    lastLoginAt: state.lastLoginAt || "",
+    loginCount: state.loginCount || 0,
     dailyStreak: state.dailyStreak,
     lastDailyCheckin: state.lastDailyCheckin,
+    claimedAtlasLevels: Array.from(state.claimedAtlasLevels),
     nurserySprigId: state.nurserySprigId,
     nurseryStartedAt: state.nurseryStartedAt,
     nurseryEndAt: state.nurseryEndAt,
@@ -2875,8 +3629,13 @@ function applyGardenProfile(profile = {}) {
   state.specialties = Array.isArray(profile.specialties) ? profile.specialties : state.specialties;
   state.scanRecords = Array.isArray(profile.scanRecords) ? profile.scanRecords.slice(0, 4) : state.scanRecords;
   state.lastScan = profile.lastScan || state.lastScan;
+  state.sprigAnimationTasks = profile.sprigAnimationTasks && typeof profile.sprigAnimationTasks === "object" ? profile.sprigAnimationTasks : state.sprigAnimationTasks;
+  state.firstLoginAt = profile.firstLoginAt || state.firstLoginAt || "";
+  state.lastLoginAt = profile.lastLoginAt || state.lastLoginAt || "";
+  state.loginCount = Number.isFinite(Number(profile.loginCount)) ? Number(profile.loginCount) : state.loginCount || 0;
   state.dailyStreak = Number.isFinite(Number(profile.dailyStreak)) ? Number(profile.dailyStreak) : state.dailyStreak;
   state.lastDailyCheckin = profile.lastDailyCheckin || state.lastDailyCheckin;
+  state.claimedAtlasLevels = new Set(Array.isArray(profile.claimedAtlasLevels) ? profile.claimedAtlasLevels.map(String) : Array.from(state.claimedAtlasLevels));
   state.nurserySprigId = profile.nurserySprigId || state.nurserySprigId;
   state.nurseryStartedAt = Number(profile.nurseryStartedAt || state.nurseryStartedAt || 0);
   state.nurseryEndAt = Number(profile.nurseryEndAt || state.nurseryEndAt || 0);
@@ -2936,6 +3695,30 @@ async function restoreGardenProfileFromServer() {
   }
 }
 
+async function recordPlayerLogin() {
+  if (window.location.protocol === "file:") return;
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        playerId: state.playerId,
+        profile: serializeGardenProfile(),
+      }),
+    });
+    if (!response.ok) return;
+    const payload = await response.json();
+    if (payload.profile) {
+      state.firstLoginAt = payload.profile.firstLoginAt || state.firstLoginAt || "";
+      state.lastLoginAt = payload.profile.lastLoginAt || state.lastLoginAt || "";
+      state.loginCount = Number(payload.profile.loginCount || state.loginCount || 0);
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(payload.profile));
+    }
+  } catch {
+    // The garden still works offline; login analytics resumes when the server is available.
+  }
+}
+
 function saveGardenProfile() {
   const profile = serializeGardenProfile();
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
@@ -2969,9 +3752,22 @@ function setStamina(value) {
 }
 
 function updateGoalCount() {
-  const left = Math.max(0, 7 - state.completedTasks.size);
   if (!goalCount) return;
+  const dailyIds = ["capture", "dispatch", "atlas"];
+  const left = dailyIds.filter((id) => !state.completedTasks.has(id)).length;
   goalCount.textContent = `今日还有 ${left} 个任务`;
+}
+
+function setQuestProgress(taskId, value) {
+  const targets = {
+    capture: [captureTask],
+    dispatch: [dispatchTask],
+    atlas: [atlasTask],
+  }[taskId] || [];
+
+  targets.forEach((target) => {
+    if (target) target.textContent = value;
+  });
 }
 
 function formatClock(date) {
@@ -3015,6 +3811,7 @@ function syncQuestClaims() {
     button.classList.toggle("is-ready", canClaim && !isClaimed);
     button.classList.toggle("is-claimed", isClaimed);
     button.textContent = isClaimed ? "✓" : "+";
+    button.setAttribute("aria-label", isClaimed ? "奖励已领取" : "领取奖励");
   });
 }
 
@@ -3023,27 +3820,46 @@ function getSelectedExpedition() {
 }
 
 function requestUserLocation() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("geolocation-unsupported"));
-      return;
-    }
+  return requestAmapUserLocation().catch(() => requestBrowserUserLocation());
+}
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lng: position.coords.longitude,
-          lat: position.coords.latitude,
-        });
-      },
-      (error) => reject(error || new Error("geolocation-failed")),
-      {
-        enableHighAccuracy: true,
-        timeout: 9000,
-        maximumAge: 60 * 1000,
-      },
-    );
+function getKnownCityExplorationCandidates() {
+  const candidates = [];
+  const pushCenter = (center, reason = "known") => {
+    if (!center) return;
+    const key = `${center.province || ""}:${center.city || ""}:${center.lng}:${center.lat}`;
+    if (candidates.some((item) => item.key === key)) return;
+    candidates.push({
+      key,
+      reason,
+      province: center.province || "",
+      city: center.city || "",
+      lng: Number(center.lng),
+      lat: Number(center.lat),
+      adcode: center.adcode || "",
+      source: reason,
+    });
+  };
+
+  pushCenter(getCityCenterByRegion(state.onboarding.province, state.onboarding.city), "onboarding-city");
+  state.scanRecords.forEach((record) => {
+    pushCenter(getCityCenterByRegion(record.province, record.city), "scan-city");
+    pushCenter(getCityCenterFromText(`${record.title} ${record.meta} ${record.text}`), "scan-text");
   });
+  pushCenter(getSelectedCityCenter(), "selected-city");
+  return candidates;
+}
+
+function enterKnownCityExploration(candidate) {
+  if (!candidate) return false;
+  const userLocation = { lng: candidate.lng, lat: candidate.lat, source: candidate.source };
+  const match = findNearestMapPack(userLocation, mapPacks);
+  if (match.mapPack) {
+    enterMapPack(match.mapPack, match.userLocation || userLocation, candidate.reason);
+    return true;
+  }
+  enterUnknownGarden(match.userLocation || userLocation, candidate.city ? `${candidate.city}野外探索` : "野外探索");
+  return true;
 }
 
 function applyGeneratedSprig(generated) {
@@ -3070,13 +3886,13 @@ function enterMapPack(mapPack, userLocation = null, mode = "manual") {
   renderFallbackMapPois(`${mapPack.name} · ${getMapPackStatusLabel(mapPack.status)}`);
 }
 
-function enterUnknownGarden(userLocation = null) {
+function enterUnknownGarden(userLocation = null, label = "未知花园") {
   state.currentMapPack = null;
   state.userLocation = userLocation;
   state.explorationMode = "unknown";
   state.explorationReady = true;
   state.locationError = "";
-  state.user.location = "未知花园";
+  state.user.location = label;
   applyGeneratedSprig(generateSprigFromLocation(userLocation, null));
   clearMapPackPicker();
   mapTitle.textContent = "野外探索雷达";
@@ -3096,6 +3912,18 @@ async function startLocationExploration() {
 
   try {
     const userLocation = await requestUserLocation();
+    const inferred = userLocation.city
+      ? getCityCenterFromText(`${userLocation.province || ""} ${userLocation.city || ""}`) || inferOnboardingRegionFromLocation(userLocation)
+      : inferOnboardingRegionFromLocation(userLocation);
+    if (inferred) {
+      state.onboarding = {
+        ...state.onboarding,
+        province: inferred.province,
+        city: inferred.city,
+        located: true,
+      };
+      updateWeather(userLocation);
+    }
     const match = findNearestMapPack(userLocation, mapPacks);
     if (match.mapPack) {
       enterMapPack(match.mapPack, match.userLocation || userLocation, "located");
@@ -3103,6 +3931,12 @@ async function startLocationExploration() {
     }
     enterUnknownGarden(match.userLocation || userLocation);
   } catch (error) {
+    const knownCandidate = getKnownCityExplorationCandidates()[0];
+    if (enterKnownCityExploration(knownCandidate)) {
+      expeditionTimer.textContent = "已读取城市";
+      expeditionText.textContent = `${knownCandidate.city || "已记录城市"}附近可派出小队。`;
+      return;
+    }
     state.explorationReady = false;
     state.explorationMode = "manual";
     state.locationError = error?.message || "geolocation-failed";
@@ -3112,8 +3946,8 @@ async function startLocationExploration() {
     mapTitle.textContent = "附近花园雷达";
     expeditionTitle.textContent = "选择一片花园开始探险";
     expeditionTimer.textContent = "等待选择";
-    expeditionText.textContent = "无法读取你的位置。你也可以选择一片花园开始探险。";
-    renderMapPackPicker("无法读取你的位置。你也可以选择一片花园开始探险。");
+    expeditionText.textContent = "位置没读到，先手动选一片花园。";
+    renderMapPackPicker("位置没读到，先选花园。");
   } finally {
     dispatchButton.disabled = false;
     syncExpeditionChoice();
@@ -3135,7 +3969,7 @@ function syncExpeditionChoice() {
       expeditionTitle.textContent = pack.name;
       expeditionPlanText.textContent = `${pack.expeditionLabel || pack.name} · ${selected.label}`;
       expeditionTimer.textContent = "可立即出发";
-      expeditionText.textContent = `${pack.description} 推荐：${generated?.name || "未知种种"}。${selected.reward}`;
+      expeditionText.textContent = `附近可探索。${generated?.name ? `遇见：${generated.name}。` : ""}`;
       return;
     }
 
@@ -3143,7 +3977,7 @@ function syncExpeditionChoice() {
       expeditionTitle.textContent = "野外探索";
       expeditionPlanText.textContent = `未知花园 · ${selected.label}`;
       expeditionTimer.textContent = "可立即出发";
-      expeditionText.textContent = `你来到了一片尚未记录的花园。这里还没有完整地图包，但也许可以发现新的种种。${generated?.name ? `发现一只${generated.name}。` : ""}`;
+      expeditionText.textContent = `这里还没建图。${generated?.name ? `发现：${generated.name}。` : "先记录线索。"}`;
       return;
     }
 
@@ -3152,14 +3986,15 @@ function syncExpeditionChoice() {
     expeditionTimer.textContent = state.explorationMode === "manual" ? "等待选择" : "等待定位";
     expeditionText.textContent =
       state.explorationMode === "manual"
-        ? "无法读取你的位置。你也可以选择一片花园开始探险。"
-        : "读取你所在的花园，正在寻找附近的种种。";
+        ? "位置没读到，先手动选一片花园。"
+        : "正在寻找附近的种种。";
   }
 }
 
 function syncUserHud() {
   hudName.textContent = state.user.name;
   hudLocation.textContent = state.user.location;
+  renderExpeditionSquad();
   renderIdentityCard();
 }
 
@@ -3181,7 +4016,8 @@ function applyLanguage() {
   const runtime = getRuntimeCopy();
   document.documentElement.lang = state.onboarding.language;
   setupSteps[0].querySelector("h1").textContent = copy.nameTitle;
-  setupSteps[0].querySelector("p").textContent = copy.nameText;
+  const nameIntro = setupSteps[0].querySelector("p");
+  if (nameIntro) nameIntro.textContent = copy.nameText;
   setupSteps[0].querySelector("label span").textContent = copy.nameLabel;
   languageSelect.closest("label").querySelector("span").textContent = copy.languageLabel;
   setupSteps[1].querySelector("h1").textContent = copy.regionTitle;
@@ -3196,8 +4032,8 @@ function applyLanguage() {
   setupNext.textContent = copy.next;
   setupSubmit.textContent = copy.submit;
   document.querySelector(".identity-topbar h2").textContent = runtime.identityTitle;
-  document.querySelector(".specialty-section h3").textContent = runtime.specialtyBag;
-  document.querySelector(".seed-pouch-section h3").textContent = state.onboarding.language === "en" ? "◇ Seeds" : "◇ 种子";
+  if (specialtyBagTitle) specialtyBagTitle.textContent = runtime.specialtyBag;
+  document.querySelector(".seed-pouch-section h3").textContent = state.onboarding.language === "en" ? "Seed Pouch" : "种子袋";
   setOptionalText(".house-section h3", runtime.house);
   setOptionalText(".relation-section h3", runtime.sprigFriends);
   setOptionalText(".story-section h3", runtime.story);
@@ -3205,12 +4041,13 @@ function applyLanguage() {
   if (growthTitle) growthTitle.textContent = runtime.atlasShort;
   document.querySelector(".garden-action-button--expedition b").textContent = runtime.expeditionLabel;
   editIdentityName.setAttribute("aria-label", runtime.edit);
-  saveIdentityName.textContent = runtime.save;
+  if (saveIdentityName) saveIdentityName.textContent = runtime.save;
   if (!state.explorationReady && !state.dispatched) {
     expeditionTitle.textContent = runtime.expeditionIdle;
     dispatchButton.textContent = runtime.expeditionButton;
   }
   renderExpeditionLoot(state.specialties[0] || null);
+  renderExpeditionSquad();
   renderIdentityCard();
   setOnboardingStep(getOnboardingStep());
 }
@@ -3258,6 +4095,12 @@ function renderIdentityCard() {
   const { milestone, percent } = getAtlasGrowthProgress(unlocked.length);
   identityName.textContent = state.user.name;
   identityNameInput.value = state.user.name;
+  const defaultBio =
+    state.onboarding.language === "en"
+      ? `A garden keeper from ${state.onboarding.city || "nearby"}.`
+      : `${state.onboarding.city || "附近"}的花园观察员。`;
+  const signature = state.user.bio || defaultBio;
+  if (identityBioInput) identityBioInput.value = signature;
   identityGardenName.textContent = state.gardenName;
   identityBirthday.textContent = formatBirthday(state.onboarding.birthday);
   identityLocation.textContent = getOnboardingRegionLabel();
@@ -3268,14 +4111,13 @@ function renderIdentityCard() {
   passportShareId.textContent = `ID ${passportId}`;
   passportShareRegion.textContent = getOnboardingRegionLabel();
   identityProfileLabels(runtime);
-  identityBio.textContent =
-    state.onboarding.language === "en"
-      ? `A garden keeper from ${state.onboarding.city || "nearby"}, collecting sprigs into the atlas.`
-      : `${state.onboarding.city || "附近"}的花园观察员，正在把遇见的种种收进图鉴。`;
-  identityWorldLine.textContent =
-    state.onboarding.language === "en"
-      ? `You wandered into Sprig Garden by chance, and the garden stamped this passport for you.`
-      : `你恰巧进入了种种世界，花园把这本护照认给了你。`;
+  identityBio.textContent = signature;
+  if (identityWorldLine) {
+    identityWorldLine.textContent =
+      state.onboarding.language === "en"
+        ? `You wandered into Sprig Garden by chance, and the garden stamped this passport for you.`
+        : `你恰巧进入了种种世界，花园把这本护照认给了你。`;
+  }
   const starterSprig = getBirthdaySeasonStarter().sprig;
   passportStampImage.src = starterSprig.image;
   passportStampImage.alt = starterSprig.name;
@@ -3351,64 +4193,151 @@ async function setupWechatShare(payload) {
 async function sharePassportCard() {
   renderIdentityCard();
   passportShareCard.classList.remove("is-hidden");
+  passportShareCard.focus?.({ preventScroll: true });
   const payload = {
     title: `${state.user.name}的种种护照`,
     text: `${state.gardenName} · ${getOnboardingRegionLabel()} · ${getPassportId()}`,
     url: location.href,
   };
-  const wechatReady = await setupWechatShare({
+  await setupWechatShare({
     title: payload.title,
     desc: payload.text,
     link: payload.url,
     imgUrl: new URL(passportStampImage.getAttribute("src"), location.href).href,
   });
 
-  if (navigator.share) {
-    try {
+  try {
+    if (navigator.share) {
       await navigator.share(payload);
       return;
-    } catch (error) {
-      if (error?.name === "AbortError") return;
     }
-  }
-
-  try {
-    await navigator.clipboard.writeText(`${payload.title}\n${payload.text}\n${payload.url}`);
-    showSystemMessage("护照已生成", wechatReady ? "微信分享资料已准备好，也复制了一份分享文字。" : "已复制分享文字。朋友圈发布需要正式域名和微信 JS-SDK 签名。", "种种护照");
+    await navigator.clipboard?.writeText(`${payload.title}\n${payload.text}\n${payload.url}`);
   } catch {
-    showSystemMessage("护照已生成", wechatReady ? "微信分享资料已准备好。" : "朋友圈发布需要正式域名和微信 JS-SDK 签名。", "种种护照");
+    // Keep the passport card visible so the player can still save or screenshot it.
   }
 }
 
 function renderSpecialtyShelf() {
   if (!specialtyShelf) return;
-  const collected = sortSpecialties(state.specialties).slice(0, 12);
   const discoveredNames = new Set(state.specialties.map((item) => item.name));
-  const locked = specialtyPool.filter((item) => !discoveredNames.has(item.name)).slice(0, Math.max(4, 8 - collected.length));
+  renderLandformOverview(discoveredNames);
   specialtyShelf.replaceChildren(
-    ...(collected.length ? collected.map((item) => createSpecialtyCard(item)) : [createSpecialtyEmptyCard()]),
+    ...specialtyRegions.map((region) => {
+      const collected = sortSpecialties(state.specialties.filter((item) => getSpecialtyRegion(item).id === region.id)).slice(0, 4);
+      const locked = specialtyPool.filter((item) => !discoveredNames.has(item.name) && getSpecialtyRegion(item).id === region.id).slice(0, 3);
+      return createSpecialtyRegionSection(region, collected, locked);
+    }),
+  );
+}
+
+function renderLandformOverview(discoveredNames = new Set()) {
+  if (!landformRegionList) return;
+  currentLandformIndex = Math.min(currentLandformIndex, specialtyRegions.length - 1);
+  landformRegionList.replaceChildren(
+    ...specialtyRegions.map((region, index) => {
+      const collected = state.specialties.filter((item) => getSpecialtyRegion(item).id === region.id);
+      const total = specialtyPool.filter((item) => getSpecialtyRegion(item).id === region.id).length;
+      const locked = Math.max(0, total - collected.length);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.landformRegion = region.id;
+      button.title = `${region.title} ${collected.length}/${total}`;
+      button.setAttribute("aria-label", `${region.title}，已点亮 ${collected.length}/${total}`);
+      button.className = `landform-region-chip landform-region-chip--${region.id}`;
+      button.classList.toggle("is-active", index === currentLandformIndex);
+      button.innerHTML = `
+        <i aria-hidden="true"></i>
+        <strong>${region.shortTitle}</strong>
+        <em>${collected.length}/${total}</em>
+      `;
+      return button;
+    }),
+  );
+}
+
+function selectLandformRegion(regionId, options = {}) {
+  const { scrollSection = true } = options;
+  const index = specialtyRegions.findIndex((region) => region.id === regionId);
+  if (index < 0) return;
+  currentLandformIndex = index;
+
+  landformRegionList?.querySelectorAll("[data-landform-region]").forEach((button) => {
+    const isTarget = button.dataset.landformRegion === regionId;
+    button.classList.toggle("is-active", isTarget);
+    if (isTarget) button.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  });
+
+  const section = specialtyShelf?.querySelector(`[data-specialty-region="${regionId}"]`);
+  const toggle = section?.querySelector(".specialty-region-toggle");
+  const grid = section?.querySelector(".specialty-region-grid");
+  if (!section || !toggle || !grid) return;
+
+  specialtyShelf.querySelectorAll(".specialty-region").forEach((region) => {
+    const regionToggle = region.querySelector(".specialty-region-toggle");
+    const regionGrid = region.querySelector(".specialty-region-grid");
+    const isTarget = region === section;
+    region.classList.toggle("is-collapsed", !isTarget);
+    regionToggle?.setAttribute("aria-expanded", String(isTarget));
+    if (regionGrid) regionGrid.hidden = !isTarget;
+  });
+
+  if (scrollSection) section.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function shiftLandformRegion(step) {
+  if (!specialtyRegions.length) return;
+  const nextIndex = (currentLandformIndex + step + specialtyRegions.length) % specialtyRegions.length;
+  selectLandformRegion(specialtyRegions[nextIndex].id);
+}
+
+function getSpecialtyRegion(item) {
+  const terrain = item?.terrain || "default";
+  return specialtyRegions.find((region) => region.terrains.includes(terrain)) || specialtyRegions[specialtyRegions.length - 1];
+}
+
+function createSpecialtyRegionSection(region, collected, locked) {
+  const section = document.createElement("section");
+  const totalCount = collected.length + locked.length;
+  section.className = `specialty-region specialty-region--${region.id}`;
+  section.dataset.specialtyRegion = region.id;
+  section.innerHTML = `
+    <button class="specialty-region-toggle" type="button" aria-expanded="true">
+      <div>
+        <h4>${region.title}</h4>
+        <span>${region.cities}</span>
+      </div>
+      <small>${region.landform}</small>
+      <em>${collected.length} / ${totalCount} 已收纳</em>
+    </button>
+    <div class="specialty-region-grid"></div>
+  `;
+  const grid = section.querySelector(".specialty-region-grid");
+  grid.replaceChildren(
+    ...(collected.length ? collected.map((item) => createSpecialtyCard(item)) : [createSpecialtyEmptyCard(region)]),
     ...locked.map((item) => createLockedSpecialtyCard(item)),
   );
+  return section;
 }
 
 function createSpecialtyCard(item) {
   const article = document.createElement("article");
   article.className = `specialty-card specialty-card--${item.tone}`;
-  article.innerHTML = `<b>${item.icon}</b><div><strong>${item.name}</strong><span>${item.region} · ${item.rarity}</span></div><em>${"★".repeat(item.level)}</em>`;
+  article.innerHTML = `${specialtyIconMarkup(item)}<div><strong>${item.name}</strong><span>${item.region} · ${item.rarity}</span></div>${rarityPipsMarkup(item.level, item.rarity)}`;
   return article;
 }
 
-function createSpecialtyEmptyCard() {
+function createSpecialtyEmptyCard(region = null) {
   const article = document.createElement("article");
   article.className = "specialty-empty";
-  article.textContent = getRuntimeCopy().specialtyEmptyText;
+  article.textContent = region ? `${region.title}还没有收进风物。` : getRuntimeCopy().specialtyEmptyText;
   return article;
 }
 
 function createLockedSpecialtyCard(item) {
   const article = document.createElement("article");
   article.className = "specialty-card specialty-card--locked";
-  article.innerHTML = `<b>?</b><div><strong>待发现风物</strong><span>${item.terrain === "default" ? "未知地方" : item.terrain}</span></div><em>未解锁</em>`;
+  const place = item.terrain === "default" ? "未知地方" : item.terrain;
+  article.innerHTML = `${specialtyIconMarkup(item, "specialty-icon--locked")}<div><strong>${place}</strong><span>还没有解锁</span></div><em class="rarity-pips rarity-pips--locked" aria-label="未解锁"><i></i><i></i><i></i></em>`;
   return article;
 }
 
@@ -3427,8 +4356,8 @@ function showSpecialtyReward(items, selected = getSelectedExpedition()) {
     archiveSpecialties(list);
     return;
   }
-  specialtyRewardTitle.textContent = `带回 ${list.length} 件风物`;
-  specialtyRewardText.textContent = `${getGardenLabel()}的${selected.label}探险结束了，风物会收进背包里的风物集合。`;
+  specialtyRewardTitle.textContent = "巡回风物";
+  specialtyRewardText.textContent = `小队从${getGardenLabel()}巡回归来，带回 ${list.length} 件地方风物。收进背包后会归档到风物集合。`;
   specialtyRewardList.replaceChildren(
     ...list.map((item) => {
       const article = createSpecialtyCard(item);
@@ -3467,6 +4396,17 @@ function sortSpecialties(items) {
   return [...items].sort((a, b) => b.level - a.level || a.name.localeCompare(b.name, "zh-Hans-CN"));
 }
 
+function specialtyIconMarkup(item, extraClass = "") {
+  const icon = item?.icon || "parcel";
+  const tone = item?.tone || "common";
+  return `<b class="specialty-icon specialty-icon--${icon} specialty-icon--${tone} ${extraClass}" aria-hidden="true"><i></i></b>`;
+}
+
+function rarityPipsMarkup(level = 1, label = "") {
+  const count = Math.max(1, Math.min(5, Number(level) || 1));
+  return `<em class="rarity-pips" aria-label="${label}">${Array.from({ length: count }, () => "<i></i>").join("")}</em>`;
+}
+
 function generateExpeditionLoot(selected = getSelectedExpedition()) {
   const count = selected.seconds >= 8 * 60 * 60 ? 4 : selected.seconds >= 2 * 60 * 60 ? 3 : 2;
   const specialReaction = state.explorationReady && Math.random() > 0.72;
@@ -3479,13 +4419,45 @@ function renderExpeditionLoot(items = null) {
   if (!list.length) {
     const runtime = getRuntimeCopy();
     expeditionLoot.classList.add("is-empty");
-    expeditionLoot.innerHTML = `<span>◇</span><div><strong>${runtime.specialtyEmptyTitle}</strong><p>${runtime.specialtyEmptyText}</p></div>`;
+    expeditionLoot.innerHTML = `${specialtyIconMarkup({ icon: "parcel", tone: "common" }, "specialty-icon--empty")}<div><strong>${runtime.specialtyEmptyTitle}</strong><p>${runtime.specialtyEmptyText}</p></div>`;
     return;
   }
   expeditionLoot.classList.remove("is-empty");
   expeditionLoot.innerHTML = `<div class="loot-list">${list
-    .map((item) => `<article class="loot-chip loot-chip--${item.tone}"><b>${item.icon}</b><span>${item.name}</span><em>${item.rarity}</em></article>`)
+    .map(
+      (item) =>
+        `<article class="loot-chip loot-chip--${item.tone}">${specialtyIconMarkup(item)}<span>${item.name}</span>${rarityPipsMarkup(item.level, item.rarity)}</article>`,
+    )
     .join("")}</div>`;
+}
+
+function getExpeditionSquadEntries() {
+  const ids = [
+    ...Array.from(state.gardenSprigs || []),
+    state.discoverySprigId,
+    ...Array.from(state.unlockedSprigs || []),
+  ];
+  const unique = [...new Set(ids)].filter((id) => atlasEntryById[id]).slice(0, 3);
+  return unique.map((id) => atlasEntryById[id]);
+}
+
+function renderExpeditionSquad() {
+  if (!expeditionSquad) return;
+  const entries = getExpeditionSquadEntries();
+  const slots = Array.from({ length: 3 }, (_, index) => entries[index] || null);
+  expeditionSquad.replaceChildren(
+    ...slots.map((entry, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `squad-slot${entry ? "" : " is-empty"}`;
+      button.setAttribute("aria-label", entry ? `${entry.name} 已入队` : "安置种种");
+      button.innerHTML = entry
+        ? `<img src="${entry.image}" alt="" /><span>${entry.name}</span>`
+        : `<b aria-hidden="true">+</b><span>空位</span>`;
+      button.dataset.slot = String(index + 1);
+      return button;
+    }),
+  );
 }
 
 function growSeedInNursery() {
@@ -3560,7 +4532,7 @@ function showHatchReward(sprig, wasLocked = true) {
   hatchRewardImage.src = sprig.image;
   hatchRewardImage.alt = sprig.name;
   hatchRewardText.textContent = wasLocked
-    ? `得到了一页 ${sprig.name} 图鉴。`
+    ? `解锁了一页 ${sprig.name} 图鉴。`
     : `${sprig.name} 的图鉴熟悉度增加了。`;
   if (hatchRewardButton) {
     hatchRewardButton.disabled = true;
@@ -3587,13 +4559,13 @@ function renderNurseryState() {
   }
   syncIdentityNurseryStatus();
   growSeedButton.disabled = isGrowing;
-  growSeedButton.textContent = isGrowing ? "温室照料中" : "指引拖入";
+  growSeedButton.textContent = isGrowing ? "正在发芽" : "唤醒种种";
   nurseryDropZone.classList.toggle("is-growing", isGrowing);
 
   if (isGrowing) {
     const total = Math.max(1, Math.ceil((state.nurseryEndAt - state.nurseryStartedAt) / 1000));
     const progress = clamp(((total - remaining) / total) * 100, 0, 100);
-    nurseryResult.innerHTML = `<span class="nursery-result-icon" aria-hidden="true"></span><div><strong>种子正在温室里生长</strong><p>${formatDuration(remaining)}</p><i class="nursery-progress" aria-hidden="true"><em style="width: ${progress}%"></em></i></div>`;
+    nurseryResult.innerHTML = `<span class="nursery-result-icon" aria-hidden="true"></span><div><strong>种子正在发芽</strong><p>${formatDuration(remaining)}</p><i class="nursery-progress" aria-hidden="true"><em style="width: ${progress}%"></em></i></div>`;
     return;
   }
 
@@ -3608,6 +4580,7 @@ function finishLogin({ autoGuide = true, showWakeMessage = true, showCheckin = t
     name: getRuntimeCopy().defaultUserName,
     avatar: "园",
     location: getOnboardingRegionLabel(),
+    bio: state.user.bio || "",
   };
   syncUserHud();
   nameScreen.classList.add("is-hidden");
@@ -3618,6 +4591,7 @@ function finishLogin({ autoGuide = true, showWakeMessage = true, showCheckin = t
     showSprigSystemMessage(starterId, state.gardenName, "第一颗芽芽已经醒来，去读取你所在的花园，会遇见更多种种。", "园丁登入");
   }
   saveGardenProfile();
+  recordPlayerLogin();
   if (autoGuide) {
     state.checkinAfterGuide = showCheckin && !hasSeenGuide();
     window.setTimeout(() => {
@@ -3641,33 +4615,39 @@ function playStarterReveal(starter) {
     starterRevealImage.src = starter.sprig.image;
     starterRevealImage.alt = starter.sprig.name;
     starterRevealKicker.textContent = "生日种子";
-    starterRevealName.textContent = "有一点光落在花园里";
-    starterRevealText.textContent = "轻轻点一下，看看它为什么等你。";
+    starterRevealName.textContent = "一点光";
+    starterRevealText.textContent = "点一下。";
     starterAcceptButton.classList.add("is-hidden");
     starterRevealStage.dataset.phase = "glow";
     starterReveal.classList.remove("is-hidden");
 
     const revealSprig = () => {
       starterLightButton.disabled = true;
-      starterRevealStage.dataset.phase = "seed";
-      starterRevealName.textContent = "种子听见了你的生日";
-      starterRevealText.textContent = "它在土里翻了个身，像是认出了你。";
+      starterRevealStage.dataset.phase = "listening";
+      starterRevealName.textContent = "落土";
+      starterRevealText.textContent = "嘘。";
+
+      window.setTimeout(() => {
+        starterRevealStage.dataset.phase = "seed";
+        starterRevealName.textContent = "醒了";
+        starterRevealText.textContent = "壳里有声音。";
+      }, 900);
 
       window.setTimeout(() => {
         starterRevealStage.dataset.phase = "sprout";
-        starterRevealName.textContent = "种子发芽了";
-        starterRevealText.textContent = starter.line;
-      }, 1600);
+        starterRevealName.textContent = "冒芽";
+        starterRevealText.textContent = "你的节令到了。";
+      }, 2500);
 
       window.setTimeout(() => {
         starterRevealStage.dataset.phase = "sprig";
-        starterRevealKicker.textContent = `${starter.term} · 登记奖励`;
+        starterRevealKicker.textContent = starter.term;
         starterRevealName.textContent = starter.sprig.name;
         starterRevealText.textContent = starter.greeting || starter.line;
         starterAcceptButton.textContent = "确定";
         starterAcceptButton.classList.remove("is-hidden");
         starterAcceptButton.focus({ preventScroll: true });
-      }, 3600);
+      }, 4900);
     };
 
     const finishReveal = () => {
@@ -3687,19 +4667,11 @@ function playStarterReveal(starter) {
 function enterGardenAfterLoading() {
   const starter = setStarterSprigFromBirthday(state.onboarding.birthday, { unlock: false });
   const copy = getCopy();
-  const bootLines = [
-    starter?.line || copy.loadingStart,
-    copy.loadingMid,
-    `${state.onboarding.city || "杭州"}的风把门牌吹亮了`,
-    `${starter?.sprig?.name || "第一颗芽芽"}在入口等你`,
-  ];
   bootLoading.classList.remove("is-hidden");
-  bootLoadingText.textContent = bootLines[0];
-  bootLines.slice(1).forEach((line, index) => {
-    window.setTimeout(() => {
-      if (!bootLoading.classList.contains("is-hidden")) bootLoadingText.textContent = line;
-    }, 1600 * (index + 1));
-  });
+  bootLoadingText.textContent = copy.loadingStart;
+  window.setTimeout(() => {
+    if (!bootLoading.classList.contains("is-hidden")) bootLoadingText.textContent = copy.loadingEnd;
+  }, BOOT_LOADING_LINE_MS);
   window.setTimeout(async () => {
     finishLogin({ autoGuide: false, showWakeMessage: false, showCheckin: false });
     state.unlockedSprigs = new Set();
@@ -3714,15 +4686,18 @@ function enterGardenAfterLoading() {
 
 function updateCaptureUi() {
   const context = getDiscoveryContext();
-  captureButton.textContent = arStream ? "识别当前画面" : "开启 AR 识别";
+  setCaptureButtonLabel(arStream ? "识别画面" : "打开取景");
   discoverTitle.textContent = context.scan ? context.sprig.name : "植物扫描";
   captureText.textContent = context.poi
-    ? `在${context.poi.name}附近打开 AR 取景，识别当前植物画面。`
-    : "打开 AR 取景，对准植物后识别当前画面。";
-  scanResultText.textContent = context.scan ? context.scan.name : "等待 AR 画面。";
+    ? `${context.poi.name}附近，拍一株植物。`
+    : "拍植物，或上传照片。";
+  scanResultText.textContent = context.scan?.rarity
+    ? `${context.scan.rarity} · ${context.scan.name}`
+    : context.scan?.name || "等待取景。";
   arTarget.src = context.sprig.image;
   arTarget.alt = context.sprig.name;
   arTarget.classList.toggle("is-visible", Boolean(context.scan));
+  arTarget.classList.toggle("is-encounter", Boolean(context.scan));
 }
 
 function finishExpedition() {
@@ -3737,8 +4712,9 @@ function finishExpedition() {
   dispatchButton.textContent = "再次派遣";
   expeditionTitle.textContent = "探险完成";
   expeditionTimer.textContent = "已返回";
-  expeditionText.textContent = `${getGardenLabel()}的 ${selected.label} 探险带回了 ${loot.length} 件特产。${selected.reward}`;
+  expeditionText.textContent = `小队巡回结束，带回 ${loot.length} 件风物。`;
   renderExpeditionLoot(loot);
+  renderExpeditionSquad();
   showSpecialtyReward(loot, selected);
   addSeeds(5);
   updateLevel(20);
@@ -3762,7 +4738,8 @@ function restoreExpeditionState() {
   dispatchButton.textContent = "探险中";
   expeditionTitle.textContent = "探险中";
   expeditionTimer.textContent = formatRemaining(remaining);
-  expeditionText.textContent = `种种还在路上，回来时会把特产放进背包。`;
+  expeditionText.textContent = `种种小队还在路上，回来时会带回地方风物。`;
+  renderExpeditionSquad();
   syncExpeditionChoice();
 }
 
@@ -3778,7 +4755,7 @@ function tickGameTime() {
     ? Math.max(0, Math.ceil((state.expeditionEndAt - now) / 1000))
     : Math.max(0, state.expeditionRemainingSeconds - elapsedSeconds);
   expeditionTimer.textContent = formatRemaining(state.expeditionRemainingSeconds);
-  expeditionText.textContent = `探险进行中，${formatRemaining(state.expeditionRemainingSeconds)}。`;
+  expeditionText.textContent = `小队巡回中，${formatRemaining(state.expeditionRemainingSeconds)}。`;
 
   if (state.expeditionRemainingSeconds <= 0) {
     finishExpedition();
@@ -3808,6 +4785,20 @@ guidePrev.addEventListener("click", () => goToGuideStep(state.guideStep - 1));
 
 guideNext.addEventListener("click", () => {
   if (state.guideTransitioning) return;
+  if (state.guideObserving) {
+    if (!state.guideObservationReady) return;
+    state.guideObserving = false;
+    state.guideObservationReady = false;
+    guideLayer.classList.remove("is-observing", "is-confirming");
+    if (state.guideStep >= guideSteps.length - 1) {
+      closeGuide(true);
+      openPanel("panel-nursery");
+      nurseryResult.textContent = "拖进温室，种子才会醒。";
+      return;
+    }
+    goToGuideStep(state.guideStep + 1);
+    return;
+  }
   const step = guideSteps[state.guideStep];
   state.guidePrimed = true;
   guideLayer.classList.add("is-awaiting-target");
@@ -3830,7 +4821,10 @@ document.addEventListener("click", (event) => {
     }
     return;
   }
-  window.setTimeout(completeCurrentGuideStep, 80);
+  event.preventDefault();
+  event.stopPropagation();
+  playGuideTargetFeedback(event.target);
+  window.setTimeout(completeCurrentGuideStep, 520);
 }, true);
 
 window.addEventListener("resize", () => {
@@ -3865,7 +4859,7 @@ photoButton.addEventListener("click", () => {
   gardenStage.classList.add("is-photo-mode");
   setTimeout(() => {
     gardenStage.classList.remove("is-photo-mode");
-    showSystemMessage("纪念照片已生成", "今日花园照片已保存。", "花园相机");
+    showSystemMessage("照片已存入", "今日花园照收进照片记录。", "花园相机");
   }, 1200);
 });
 
@@ -3903,14 +4897,78 @@ setupNext.addEventListener("click", () => {
 
 locateOnboardingButton.addEventListener("click", locateForOnboarding);
 
-editIdentityName.addEventListener("click", () => {
-  identityNameEditor.classList.toggle("is-hidden");
+function beginInlineNameEdit() {
+  if (!identityBioInput.classList.contains("is-hidden")) finishInlineBioEdit(false);
+  identityNameInput.value = state.user.name || identityName.textContent.trim();
+  identityName.classList.add("is-hidden");
+  identityNameInput.classList.remove("is-hidden");
+  identityNameInput.closest(".identity-name-row")?.classList.add("is-editing");
   identityNameInput.focus();
-});
+  identityNameInput.select();
+}
 
-editIdentityNameQuick.addEventListener("click", () => {
-  identityNameEditor.classList.toggle("is-hidden");
-  identityNameInput.focus();
+function finishInlineNameEdit(save = true) {
+  if (save) {
+    const value = identityNameInput.value.trim() || getRuntimeCopy().defaultUserName;
+    state.user.name = value;
+    syncUserHud();
+    saveGardenProfile();
+  }
+  identityNameInput.classList.add("is-hidden");
+  identityName.classList.remove("is-hidden");
+  identityNameInput.closest(".identity-name-row")?.classList.remove("is-editing");
+  renderIdentityCard();
+}
+
+function beginInlineBioEdit() {
+  if (!identityNameInput.classList.contains("is-hidden")) finishInlineNameEdit(false);
+  identityBioInput.value = state.user.bio || identityBio.textContent.trim();
+  identityBio.classList.add("is-hidden");
+  identityBioInput.classList.remove("is-hidden");
+  identityBioInput.closest(".identity-signature")?.classList.add("is-editing");
+  identityBioInput.focus();
+  identityBioInput.select();
+}
+
+function finishInlineBioEdit(save = true) {
+  if (save) {
+    state.user.bio = identityBioInput.value.trim();
+    saveGardenProfile();
+  }
+  identityBioInput.classList.add("is-hidden");
+  identityBio.classList.remove("is-hidden");
+  identityBioInput.closest(".identity-signature")?.classList.remove("is-editing");
+  renderIdentityCard();
+}
+
+editIdentityName.addEventListener("click", beginInlineNameEdit);
+editIdentityNameQuick.addEventListener("click", beginInlineNameEdit);
+editIdentityBio.addEventListener("click", beginInlineBioEdit);
+identityBio.addEventListener("dblclick", beginInlineBioEdit);
+identityBio.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") beginInlineBioEdit();
+});
+identityNameInput.addEventListener("blur", () => finishInlineNameEdit(true));
+identityNameInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    finishInlineNameEdit(true);
+  }
+  if (event.key === "Escape") {
+    event.preventDefault();
+    finishInlineNameEdit(false);
+  }
+});
+identityBioInput.addEventListener("blur", () => finishInlineBioEdit(true));
+identityBioInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    finishInlineBioEdit(true);
+  }
+  if (event.key === "Escape") {
+    event.preventDefault();
+    finishInlineBioEdit(false);
+  }
 });
 
 shareIdentityCard.addEventListener("click", sharePassportCard);
@@ -3919,17 +4977,21 @@ closePassportShare.addEventListener("click", () => {
   passportShareCard.classList.add("is-hidden");
 });
 
-identityTabButtons.forEach((button) => {
-  button.addEventListener("click", () => setIdentityTab(button.dataset.identityTab));
+identityTabs?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-identity-tab]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  setIdentityTab(button.dataset.identityTab);
 });
 
-saveIdentityName.addEventListener("click", () => {
-  const value = identityNameInput.value.trim() || getRuntimeCopy().defaultUserName;
-  state.user.name = value;
-  syncUserHud();
-  identityNameEditor.classList.add("is-hidden");
-  renderIdentityCard();
-});
+if (saveIdentityName) {
+  saveIdentityName.addEventListener("click", () => finishInlineNameEdit(true));
+}
+
+if (saveIdentityBio) {
+  saveIdentityBio.addEventListener("click", () => finishInlineBioEdit(true));
+}
 
 nameForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -3965,7 +5027,37 @@ loginForm.addEventListener("submit", (event) => {
 });
 
 document.querySelectorAll(".sprig").forEach((button) => {
+  button.addEventListener("pointerenter", (event) => {
+    if (event.pointerType && event.pointerType !== "mouse") return;
+    const sprig = sprigs[button.dataset.sprig];
+    showTouchForSprig(button, sprig);
+  });
+
+  button.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse") return;
+    const sprigId = button.dataset.sprig;
+    window.clearTimeout(state.touchTimers[sprigId]);
+    state.touchTimers[sprigId] = window.setTimeout(() => {
+      button.dataset.justPetted = "1";
+      showTouchForSprig(button, sprigs[sprigId]);
+    }, 420);
+  });
+
+  button.addEventListener("pointerup", () => {
+    const sprigId = button.dataset.sprig;
+    window.clearTimeout(state.touchTimers[sprigId]);
+  });
+
+  button.addEventListener("pointercancel", () => {
+    const sprigId = button.dataset.sprig;
+    window.clearTimeout(state.touchTimers[sprigId]);
+  });
+
   button.addEventListener("click", () => {
+    if (button.dataset.justPetted === "1") {
+      button.dataset.justPetted = "";
+      return;
+    }
     const sprig = sprigs[button.dataset.sprig];
     showKnowledgeForSprig(button, sprig);
   });
@@ -3973,15 +5065,21 @@ document.querySelectorAll(".sprig").forEach((button) => {
 
 discoverFromMap.addEventListener("click", scanNearbySprigs);
 
-mapPlantScanButton.addEventListener("click", () => {
-  state.selectedMapPoi = null;
-  state.lastScan = null;
-  updateCaptureUi();
-  captureText.textContent = `在${getGardenLabel()}打开植物扫描，拍下眼前的叶片、花或整株植物。`;
-  openPanel("panel-discover");
-});
+mapPlantScanButton.addEventListener("click", openPlantScanPanelFromMap);
 
 mapPackPicker?.addEventListener("click", (event) => {
+  const toggle = event.target.closest(".map-pack-toggle");
+  if (toggle) {
+    const expanded = !mapPackPicker.classList.contains("is-expanded");
+    mapPackPicker.classList.toggle("is-expanded", expanded);
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.textContent = expanded ? "收起花园" : "选择花园";
+    if (expanded) {
+      window.setTimeout(() => mapPackPicker.querySelector(".map-pack-option")?.scrollIntoView({ block: "nearest" }), 60);
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-map-pack-id]");
   if (!button) return;
   const mapPack = mapPacks.find((pack) => pack.id === button.dataset.mapPackId);
@@ -4041,7 +5139,7 @@ growSeedButton.addEventListener("click", () => {
   if (state.nurseryEndAt > Date.now()) return;
   seedPill.classList.add("guide-target-nudge");
   nurseryDropZone.classList.add("is-dragging");
-  nurseryResult.textContent = "按住上方种子数量，把种子拖进温室槽。";
+  nurseryResult.textContent = "按住上方，把种子拖到这里";
   window.setTimeout(() => {
     seedPill.classList.remove("guide-target-nudge");
     nurseryDropZone.classList.remove("is-dragging");
@@ -4056,6 +5154,7 @@ atlasBookmarks?.addEventListener("click", (event) => {
   state.atlasCategory = button.dataset.atlasCategory;
   state.atlasPage = 0;
   state.atlasStoryIndex = 0;
+  state.atlasSelectedLocked = null;
   renderAtlas();
 });
 
@@ -4069,13 +5168,52 @@ atlasCollectedList?.addEventListener("click", (event) => {
   renderAtlas();
 });
 
+function showLockedAtlasEntry(tile) {
+  if (!tile?.dataset?.sprig) return;
+  const entry = currentLockedAtlasPage.find((item) => item.id === tile.dataset.sprig);
+  if (!entry) return;
+  state.atlasSelectedLocked = entry;
+  state.atlasStoryIndex = 0;
+  renderAtlas();
+}
+
+atlasLockedGrid?.addEventListener("click", (event) => {
+  const tile = event.target.closest("[data-locked-atlas='true']");
+  showLockedAtlasEntry(tile);
+});
+
+atlasLockedGrid?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const tile = event.target.closest("[data-locked-atlas='true']");
+  if (!tile) return;
+  event.preventDefault();
+  showLockedAtlasEntry(tile);
+});
+
+atlasRewardButton?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  claimAtlasReward();
+});
+
+atlasRewardPopover?.addEventListener("click", (event) => {
+  event.stopPropagation();
+});
+
+document.addEventListener("click", (event) => {
+  if (!atlasRewardPopover || atlasRewardPopover.classList.contains("is-hidden")) return;
+  if (event.target.closest("#atlasRewardButton") || event.target.closest("#atlasRewardPopover")) return;
+  toggleAtlasRewardPopover(false);
+});
+
 atlasPrevPage?.addEventListener("click", () => {
   state.atlasPage = Math.max(0, state.atlasPage - 1);
+  state.atlasSelectedLocked = null;
   renderAtlas();
 });
 
 atlasNextPage?.addEventListener("click", () => {
   state.atlasPage += 1;
+  state.atlasSelectedLocked = null;
   renderAtlas();
 });
 
@@ -4103,11 +5241,32 @@ scanInput.addEventListener("change", () => {
   identifyPlantFile(scanInput.files?.[0]);
 });
 
-function dispatchExpedition() {
+specialtyShelf?.addEventListener("click", (event) => {
+  const toggle = event.target.closest(".specialty-region-toggle");
+  if (!toggle) return;
+  const section = toggle.closest(".specialty-region");
+  const grid = section?.querySelector(".specialty-region-grid");
+  if (!section || !grid) return;
+  const willOpen = section.classList.contains("is-collapsed");
+  section.classList.toggle("is-collapsed", !willOpen);
+  toggle.setAttribute("aria-expanded", String(willOpen));
+  grid.hidden = !willOpen;
+});
+
+landformRegionList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-landform-region]");
+  if (!button) return;
+  selectLandformRegion(button.dataset.landformRegion);
+});
+
+landformPrev?.addEventListener("click", () => shiftLandformRegion(-1));
+landformNext?.addEventListener("click", () => shiftLandformRegion(1));
+
+async function dispatchExpedition() {
   if (state.dispatched) return;
   if (!state.explorationReady) {
-    startLocationExploration();
-    return;
+    await startLocationExploration();
+    if (!state.explorationReady) return;
   }
 
   const selected = getSelectedExpedition();
@@ -4127,7 +5286,8 @@ function dispatchExpedition() {
   expeditionTimer.textContent = formatRemaining(state.expeditionRemainingSeconds);
   expeditionText.textContent = `已派遣 ${selected.label}，种种正在${getGardenLabel()}寻找线索。`;
   renderExpeditionLoot(null);
-  dispatchTask.textContent = "1 / 1";
+  renderExpeditionSquad();
+  setQuestProgress("dispatch", "1 / 1");
   syncQuestClaims();
   syncExpeditionChoice();
   setStamina(state.stamina - selected.cost);

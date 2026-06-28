@@ -14,7 +14,6 @@
           <form class="name-card" id="nameForm">
             <section class="setup-step is-active" data-setup-step="0" aria-label="花园命名">
               <h1>给花园起名</h1>
-              <p>门牌要亮起来了。</p>
               <label>
                 <span>花园名</span>
                 <input id="gardenNameInput" name="gardenName" type="text" maxlength="12" value="种种大世界" autocomplete="off" />
@@ -104,7 +103,7 @@
           <div class="hatch-reward-stage">
             <img id="hatchRewardImage" src="./assets/sprigs/new-lilybell.png" alt="" />
           </div>
-          <p id="hatchRewardText">得到了一页新的种种图鉴。</p>
+          <p id="hatchRewardText">解锁了一页新的种种图鉴。</p>
           <button class="hatch-reward-button" type="button" id="hatchRewardButton">确定</button>
         </section>
 
@@ -120,7 +119,17 @@
           <article class="daily-checkin-card">
             <p>今日签到</p>
             <h2 id="dailyCheckinTitle">花园醒来了</h2>
-            <span id="dailyCheckinReward">体力 +6</span>
+            <div class="daily-task-card">
+              <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><i></i></span>
+              <div>
+                <strong>今日小任务</strong>
+                <small>领体力，去花园走一圈。</small>
+              </div>
+            </div>
+            <div class="daily-reward-card" id="dailyCheckinReward">
+              <span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><i></i></span>
+              <strong>体力 +6</strong>
+            </div>
             <button class="daily-checkin-button" type="button" id="dailyCheckinModalButton">领取</button>
             <button class="daily-checkin-close" type="button" id="dailyCheckinClose" aria-label="稍后再领">稍后</button>
           </article>
@@ -146,29 +155,36 @@
 
         <header class="hud hud--top" aria-label="园丁状态">
           <button class="user-chip" type="button" id="profileButton" data-panel="panel-identity" aria-label="打开种种护照">
-            <span class="user-avatar" id="hudAvatar" aria-hidden="true">
-              <i class="avatar-sprout"></i>
+            <span class="user-avatar svg-icon-frame" id="hudAvatar" aria-hidden="true">
+              <img src="./assets/nav-icons/id-card.svg" alt="" />
             </span>
             <span>
               <b id="hudName">花园观察员</b>
               <small id="hudLocation">种种大世界</small>
             </span>
           </button>
-          <div class="hud-resources" aria-label="资源状态">
-            <div class="pill pill--level"><span>★</span> 等级 <b id="levelValue">1</b></div>
-            <div class="pill pill--seed" id="seedPill" draggable="true"><span><img src="./assets/ui/seed.png" alt="种子" /></span> <b id="seedValue">10</b></div>
-            <div class="stamina-pill" aria-label="体力">
-              <span><img src="./assets/ui/lighting.png" alt="" /></span>
-              <b id="staminaValue">30</b>
-              <i><em id="staminaBar"></em></i>
-            </div>
-            <div class="weather-pill" id="weatherPill" aria-label="当前天气">
-              <span id="weatherIcon">☼</span>
-              <b id="weatherValue">杭州 --°</b>
-            </div>
-          </div>
           <div class="hud-tools" aria-label="快捷工具">
-            <button class="round-button" type="button" id="photoButton" aria-label="拍照纪念">▣</button>
+            <div class="hud-resources" aria-label="资源状态">
+              <div class="pill pill--level"><span>★</span> 等级 <b id="levelValue">1</b></div>
+              <div class="pill pill--seed" id="seedPill" draggable="true"><span><img src="./assets/ui/icon-seed.svg" alt="种子" /></span> <b id="seedValue">10</b></div>
+              <div class="stamina-pill" aria-label="体力">
+                <span><img src="./assets/ui/lighting.png" alt="" /></span>
+                <b id="staminaValue">30</b>
+                <i><em id="staminaBar"></em></i>
+              </div>
+              <div class="weather-pill" id="weatherPill" aria-label="当前天气">
+                <span class="weather-icon weather-icon--calm" id="weatherIcon" aria-hidden="true">
+                  <i class="weather-icon__sun"></i>
+                  <i class="weather-icon__cloud"></i>
+                  <i class="weather-icon__drop"></i>
+                  <i class="weather-icon__flake"></i>
+                </span>
+                <b id="weatherValue">杭州 --°</b>
+              </div>
+            </div>
+            <button class="round-button photo-tool-button" type="button" id="photoButton" aria-label="拍照纪念">
+              <span class="camera-tool-icon svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-camera.svg" alt="" /></span>
+            </button>
             <button class="guide-help-button" type="button" id="guideButton" aria-label="打开玩家指引">?</button>
             <div class="clock" id="gameClock">周五&nbsp;&nbsp;11 55</div>
           </div>
@@ -228,21 +244,22 @@
           data-panel="panel-nursery"
           aria-label="打开种子温室"
         >
-          <span class="dock-button-icon pixel-icon pixel-icon--nursery" aria-hidden="true"></span>
+          <span class="dock-button-icon svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-seed.svg" alt="" /></span>
           <b>培育</b>
         </button>
 
         <section class="panel panel--map" id="panel-map" aria-label="地图探索">
           <button class="close-panel" type="button" data-close-panel>×</button>
-          <p class="panel-kicker">地图探索</p>
-          <h2 id="mapTitle">附近花园雷达</h2>
+          <header class="panel-header">
+            <h2 id="mapTitle">附近花园雷达</h2>
+            <p class="map-status" id="mapStatus">雷达待机，等待附近线索。</p>
+          </header>
           <div class="radar" id="mapRadar" aria-live="polite">
             <span class="radar-ring ring-one"></span>
             <span class="radar-ring ring-two"></span>
             <span class="player">你</span>
             <span class="map-dots" id="mapDots"></span>
           </div>
-          <p class="map-status" id="mapStatus">雷达待机，等待附近线索。</p>
           <div class="map-actions">
             <button class="primary" type="button" id="discoverFromMap">扫描附近地点</button>
             <button class="secondary scan-button" type="button" id="mapPlantScanButton" data-panel="panel-discover">扫描植物</button>
@@ -250,10 +267,12 @@
           <div class="map-results" id="mapResults" aria-live="polite"></div>
         </section>
 
-        <section class="panel panel--discover" id="panel-discover" aria-label="AR发现">
+        <section class="panel panel--discover" id="panel-discover" aria-label="植物扫描">
           <button class="close-panel" type="button" data-close-panel>×</button>
-          <p class="panel-kicker">植物扫描</p>
-          <h2 id="discoverTitle">蒲公英种种</h2>
+          <header class="panel-header">
+            <h2 id="discoverTitle">植物扫描</h2>
+            <p id="captureText">打开取景，对准植物后拍一下。</p>
+          </header>
           <div class="ar-card">
             <div class="ar-view">
               <video class="ar-camera" id="arCamera" autoplay muted playsinline></video>
@@ -263,14 +282,16 @@
               <img class="ar-target" id="arTarget" src="./assets/sprigs/dandelion-front.png" alt="蒲公英种种" />
             </div>
             <div class="scan-copy">
-              <p id="captureText">打开 AR 取景，对准植物后识别当前画面。</p>
-              <small id="scanResultText">等待 AR 画面。</small>
+              <small id="scanResultText" aria-live="polite">等待取景。</small>
             </div>
           </div>
           <input id="scanInput" type="file" accept="image/*" capture="environment" hidden />
           <div class="scan-actions">
-            <button class="primary scan-button" type="button" id="captureButton">开启 AR 识别</button>
-            <button class="secondary" type="button" id="uploadScanButton">上传照片</button>
+            <button class="primary scan-button" type="button" id="captureButton" data-action-label="打开取景">打开取景</button>
+            <button class="secondary upload-photo-button" type="button" id="uploadScanButton" title="上传照片" aria-label="上传照片">
+              <span class="pixel-album-icon" aria-hidden="true"><i></i></span>
+              <span class="scan-action-label">上传照片</span>
+            </button>
           </div>
           <div class="scan-records" aria-label="植物扫描记录">
             <h3>发现记录</h3>
@@ -284,13 +305,27 @@
           <button class="atlas-back" type="button" data-close-panel aria-label="返回">‹</button>
           <button class="atlas-map" type="button" data-panel="panel-map" aria-label="地图探索">⌖</button>
           <div class="atlas-book-layout">
-            <nav class="atlas-bookmarks" id="atlasBookmarks" aria-label="图鉴分类书签"></nav>
             <div class="atlas-pages">
               <div class="atlas-summary">
-                <p id="atlasProgress">图鉴经验 Lv.1 · 1 / 5</p>
-                <i aria-hidden="true"><em id="atlasProgressBar"></em></i>
-                <span><img src="./assets/sprigs/plantain-front.png" alt="" /> <b id="atlasSeedCount">1</b></span>
+                <div class="atlas-progress-track">
+                  <p id="atlasProgress">图鉴成就 Lv.1 · 1 / 5</p>
+                  <i aria-hidden="true"><em id="atlasProgressBar"></em></i>
+                </div>
+                <button class="atlas-reward-button" id="atlasRewardButton" type="button" aria-expanded="false" aria-controls="atlasRewardPopover">
+                  <span class="atlas-reward-bag" aria-hidden="true"><i></i></span>
+                  <b id="atlasRewardButtonText">奖励</b>
+                </button>
+                <div class="atlas-reward-popover is-hidden" id="atlasRewardPopover" role="status">
+                  <strong id="atlasRewardTitle">下一档奖励</strong>
+                  <p id="atlasRewardText">继续收集即可领取。</p>
+                  <div class="atlas-reward-list" id="atlasRewardList" aria-label="图鉴等级奖励">
+                    <span class="atlas-reward-chip atlas-reward-chip--seed"><i aria-hidden="true"></i><b>种子 +3</b></span>
+                    <span class="atlas-reward-chip atlas-reward-chip--stamina"><i aria-hidden="true"></i><b>体力 +5</b></span>
+                    <span class="atlas-reward-chip atlas-reward-chip--badge"><i aria-hidden="true"></i><b>徽章</b></span>
+                  </div>
+                </div>
               </div>
+              <nav class="atlas-bookmarks" id="atlasBookmarks" aria-label="图鉴分类书签"></nav>
               <div class="atlas-card atlas-card--collected">
                 <h2 id="atlasCollectedTitle"><span>☘</span> 已收集（1）</h2>
                 <div class="atlas-list" id="atlasCollectedList"></div>
@@ -310,18 +345,19 @@
 
         <section class="panel panel--expedition" id="panel-expedition" aria-label="探险派遣">
           <button class="close-panel" type="button" data-close-panel>×</button>
+          <header class="panel-header adventure-header">
+            <h2 id="expeditionTitle">读取你所在的花园</h2>
+            <p id="expeditionText" class="expedition-note">读取你所在的花园，正在寻找附近的种种。</p>
+          </header>
           <div class="adventure-scene" aria-hidden="true">
             <img src="./assets/expedition-scene.png" alt="地方花园探险场景" />
           </div>
           <div class="adventure-content">
             <div class="adventure-status">
-              <div>
-                <p class="panel-kicker">探险</p>
-                <h2 id="expeditionTitle">读取你所在的花园</h2>
-              </div>
+              <span>状态</span>
               <strong id="expeditionTimer">可立即出发</strong>
             </div>
-            <div class="adventure-energy">
+            <div class="adventure-energy" aria-hidden="true">
               <span><img src="./assets/ui/lighting.png" alt="" /></span>
               <div>
                 <b>体力</b>
@@ -334,92 +370,111 @@
               <b id="expeditionPlanText">选择一片花园 · 30分钟</b>
               <button type="button" id="dispatchButton">开始探险</button>
             </div>
+            <div class="expedition-squad" role="group" aria-label="探险小队">
+              <header>
+                <h3>探险小队</h3>
+                <p>安置种种，出发巡回。</p>
+              </header>
+              <div class="squad-slots" id="expeditionSquad">
+                <button class="squad-slot is-empty" type="button" aria-label="安置种种">+</button>
+                <button class="squad-slot is-empty" type="button" aria-label="安置种种">+</button>
+                <button class="squad-slot is-empty" type="button" aria-label="安置种种">+</button>
+              </div>
+            </div>
+            <section class="quest-section" aria-label="每日任务">
+              <header class="quest-heading">
+                <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><i></i></span>
+                <div>
+                  <h3>每日任务</h3>
+                  <p id="goalCount">今日还有 3 个任务</p>
+                </div>
+              </header>
+              <div class="quest-list">
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--scan" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>植物记录</small>
+                    <strong>拍摄 1 种植物</strong>
+                    <span id="captureTask">0 / 1</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" data-claim="capture" aria-label="领取奖励">+</button>
+                </article>
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--expedition" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>地方探险</small>
+                    <strong>派遣 1 次探险</strong>
+                    <span id="dispatchTask">0 / 1</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" id="questDispatchButton" data-claim="dispatch" aria-label="领取奖励">+</button>
+                </article>
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--plant" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>植物识别</small>
+                    <strong>认识一种新植物</strong>
+                    <span>0 / 1</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" data-claim="plant" aria-label="领取奖励">+</button>
+                </article>
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--atlas" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>图鉴收集</small>
+                    <strong>解锁 1 个新图鉴</strong>
+                    <span id="atlasTask">0 / 1</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" data-claim="atlas" aria-label="领取奖励">+</button>
+                </article>
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--walk" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>现实行走</small>
+                    <strong>完成 3000 步散步</strong>
+                    <span>820 / 3000</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" data-claim="walk" aria-label="领取奖励">+</button>
+                </article>
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--water" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>花园照料</small>
+                    <strong>给植物浇一次水</strong>
+                    <span>0 / 1</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" data-claim="water" aria-label="领取奖励">+</button>
+                </article>
+                <article class="quest-card">
+                  <b><span class="daily-pixel-icon daily-pixel-icon--friend" aria-hidden="true"><i></i></span></b>
+                  <div>
+                    <small>花园照料</small>
+                    <strong>和 3 只种种互动</strong>
+                    <span>0 / 3</span>
+                  </div>
+                  <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
+                  <button class="quest-claim" type="button" data-claim="friend" aria-label="领取奖励">+</button>
+                </article>
+              </div>
+            </section>
             <div class="duration-picker" aria-label="选择探险时长">
               <button class="is-selected" type="button" data-duration="30m" data-cost="5体力" title="消耗5体力">30分钟</button>
               <button type="button" data-duration="2h" data-cost="10体力" title="消耗10体力">2小时</button>
               <button type="button" data-duration="8h" data-cost="20体力" title="消耗20体力">8小时</button>
               <button type="button" data-duration="24h" data-cost="30体力" title="消耗30体力">24小时</button>
             </div>
-            <p id="expeditionText" class="expedition-note">读取你所在的花园，正在寻找附近的种种。</p>
+            <div class="map-pack-picker" id="mapPackPicker" aria-label="手动选择地图包"></div>
             <div class="expedition-loot is-empty" id="expeditionLoot" aria-live="polite">
               <span>◇</span>
               <div>
                 <strong>特产袋还空着</strong>
-                <p>探险结束后，会根据当地地貌带回一组特产。</p>
+                <p>归来后收进风物集合。</p>
               </div>
-            </div>
-            <div class="map-pack-picker" id="mapPackPicker" aria-label="手动选择地图包"></div>
-            <div class="quest-list">
-              <article class="quest-card">
-                <b><img src="./assets/garden-icons/camera.png" alt="" /></b>
-                <div>
-                  <small>植物记录</small>
-                  <strong>拍摄 1 种植物</strong>
-                  <span id="captureTask">0 / 1</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" data-claim="capture">+</button>
-              </article>
-              <article class="quest-card">
-                <b><img src="./assets/nav-icons/expedition.svg" alt="" /></b>
-                <div>
-                  <small>地方探险</small>
-                  <strong>派遣 1 次探险</strong>
-                  <span id="dispatchTask">0 / 1</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" id="questDispatchButton" data-claim="dispatch">+</button>
-              </article>
-              <article class="quest-card">
-                <b><img src="./assets/sprigs/huangjing-front.png" alt="" /></b>
-                <div>
-                  <small>植物识别</small>
-                  <strong>认识一种新植物</strong>
-                  <span>0 / 1</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" data-claim="plant">+</button>
-              </article>
-              <article class="quest-card">
-                <b><img src="./assets/sprigs/tea-front.png" alt="" /></b>
-                <div>
-                  <small>图鉴收集</small>
-                  <strong>解锁 1 个新图鉴</strong>
-                  <span id="atlasTask">0 / 1</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" data-claim="atlas">+</button>
-              </article>
-              <article class="quest-card">
-                <b><img src="./assets/sprigs/plantain-front.png" alt="" /></b>
-                <div>
-                  <small>现实行走</small>
-                  <strong>完成 3000 步散步</strong>
-                  <span>820 / 3000</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" data-claim="walk">+</button>
-              </article>
-              <article class="quest-card">
-                <b><img src="./assets/garden-icons/friends.png" alt="" /></b>
-                <div>
-                  <small>花园照料</small>
-                  <strong>给植物浇一次水</strong>
-                  <span>0 / 1</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" data-claim="water">+</button>
-              </article>
-              <article class="quest-card">
-                <b><img src="./assets/sprigs/fisheye-front.png" alt="" /></b>
-                <div>
-                  <small>花园照料</small>
-                  <strong>和 3 只种种互动</strong>
-                  <span>0 / 3</span>
-                </div>
-                <mark aria-label="奖励体力 5"><img src="./assets/ui/lighting-small.png" alt="" /></mark>
-                <button class="quest-claim" type="button" data-claim="friend">+</button>
-              </article>
             </div>
           </div>
         </section>
@@ -428,10 +483,10 @@
           <button class="close-panel" type="button" data-close-panel>×</button>
           <h2>种子温室</h2>
           <div class="nursery-drop" id="nurseryDropZone">
-            <span class="nursery-drop-icon" aria-hidden="true"></span>
-            <strong>把种子拖进这里</strong>
+            <span class="nursery-drop-icon svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-seed.svg" alt="" /></span>
+            <strong>按住上方，把种子拖到这里</strong>
           </div>
-          <button class="primary" type="button" id="growSeedButton">指引拖入</button>
+          <button class="primary" type="button" id="growSeedButton">唤醒种种</button>
           <div class="nursery-result" id="nurseryResult" aria-live="polite">
             种子还在睡觉。
           </div>
@@ -439,15 +494,21 @@
 
         <section class="panel panel--identity" id="panel-identity" aria-label="种种护照">
           <header class="identity-topbar">
-            <button class="identity-back" type="button" data-close-panel aria-label="返回花园">‹</button>
-            <h2><span>▣</span> 种种背包 <span>◒</span></h2>
+            <button class="identity-back" type="button" data-close-panel aria-label="返回花园">
+              <span class="identity-top-icon identity-top-icon--back svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-passport-back.svg" alt="" /></span>
+            </button>
+            <h2>种种背包</h2>
             <div class="identity-tools">
-              <button type="button" id="shareIdentityCard" aria-label="生成分享护照">⌯</button>
-              <button type="button" id="editIdentityNameQuick" aria-label="编辑名字">✎</button>
+              <button type="button" id="shareIdentityCard" aria-label="生成分享护照">
+                <span class="identity-top-icon identity-top-icon--share svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-passport-share.svg" alt="" /></span>
+              </button>
+              <button type="button" id="editIdentityNameQuick" aria-label="编辑名字">
+                <span class="identity-top-icon identity-top-icon--edit svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-passport-edit.svg" alt="" /></span>
+              </button>
             </div>
           </header>
 
-          <section class="passport-share-card is-hidden" id="passportShareCard" aria-live="polite">
+          <section class="passport-share-card is-hidden" id="passportShareCard" aria-live="polite" tabindex="-1">
             <button type="button" id="closePassportShare" aria-label="关闭分享卡">×</button>
             <p>种种护照</p>
             <h3 id="passportShareName">花园观察员</h3>
@@ -457,9 +518,18 @@
           </section>
 
           <nav class="identity-tabs" aria-label="背包分页">
-            <button type="button" class="is-active" data-identity-tab="card">▣ 护照</button>
-            <button type="button" data-identity-tab="atlas">▤ 图鉴</button>
-            <button type="button" data-identity-tab="items">▰ 物品</button>
+            <button type="button" class="is-active" data-identity-tab="card">
+              <span class="backpack-tab-icon svg-icon-frame" aria-hidden="true"><img src="./assets/nav-icons/passport.svg" alt="" /></span>
+              <b>护照</b>
+            </button>
+            <button type="button" data-identity-tab="atlas">
+              <span class="backpack-tab-icon backpack-tab-icon--atlas" aria-hidden="true"><i></i></span>
+              <b>图鉴</b>
+            </button>
+            <button type="button" data-identity-tab="items">
+              <span class="backpack-tab-icon backpack-tab-icon--items" aria-hidden="true"><i></i></span>
+              <b>物品</b>
+            </button>
           </nav>
 
           <div class="identity-hero passport-card identity-page" id="passportCard" data-identity-page="card">
@@ -468,7 +538,6 @@
               <button type="button" aria-label="更换照片">▣</button>
               <figcaption class="passport-stamp">
                 <img id="passportStampImage" src="./assets/sprigs/plantain-front.png" alt="" />
-                <span>种种印章</span>
                 <i aria-hidden="true"></i>
               </figcaption>
             </figure>
@@ -477,24 +546,25 @@
                 <span>护照编号</span>
                 <b id="identityPassportId">SG-0000</b>
               </div>
-              <div class="identity-name-row">
-                <h3 id="identityName">花园观察员</h3>
-                <span class="identity-certified-mark" aria-label="种种身份认证">种种</span>
-                <button type="button" id="editIdentityName" aria-label="编辑名字">✎</button>
+              <div class="identity-name-block">
+                <div class="identity-name-row">
+                  <h3 id="identityName">花园观察员</h3>
+                  <input class="identity-inline-input is-hidden" id="identityNameInput" type="text" maxlength="12" value="花园观察员" aria-label="编辑名字" />
+                  <span class="identity-certified-mark" aria-label="种种身份认证">种种</span>
+                  <button type="button" id="editIdentityName" class="identity-icon-edit" aria-label="编辑名字"><span aria-hidden="true"></span></button>
+                </div>
               </div>
-              <label class="identity-name-editor is-hidden" id="identityNameEditor">
-                <span>新名字</span>
-                <input id="identityNameInput" type="text" maxlength="12" value="花园观察员" />
-                <button type="button" id="saveIdentityName">保存</button>
-              </label>
-              <p id="identityBio">刚来到花园的小园丁，正在认识附近的种种。</p>
-              <p class="identity-world-line" id="identityWorldLine">恰巧进入种种世界，护照已经被花园认领。</p>
+              <div class="identity-signature">
+                <p id="identityBio" tabindex="0" aria-label="双击编辑个性短句">刚来到花园的小园丁，正在认识附近的种种。</p>
+                <input class="identity-inline-input identity-inline-input--bio is-hidden" id="identityBioInput" type="text" maxlength="28" value="刚来到花园的小园丁，正在认识附近的种种。" aria-label="编辑个性短句" />
+                <button type="button" id="editIdentityBio" class="identity-icon-edit identity-icon-edit--small" aria-label="编辑个性短句"><span aria-hidden="true"></span></button>
+              </div>
               <ul>
-                <li><span>☘</span><b>花园</b><em id="identityGardenName">种种大世界</em></li>
-                <li><span>☼</span><b>生日</b><em id="identityBirthday">等待填写</em></li>
-                <li><span>⌖</span><b>地区</b><em id="identityLocation">种种大世界</em></li>
-                <li><span>⌂</span><b>房屋</b><em id="identityHouse">芽屋</em></li>
-                <li><span>✦</span><b>阶段</b><em id="identityPassportStage">Lv.1 · 新芽阶段</em></li>
+                <li><b>花园</b><em id="identityGardenName">种种大世界</em></li>
+                <li><b>生日</b><em id="identityBirthday">等待填写</em></li>
+                <li><b>地区</b><em id="identityLocation">种种大世界</em></li>
+                <li><b>房屋</b><em id="identityHouse">芽屋</em></li>
+                <li><b>阶段</b><em id="identityPassportStage">Lv.1 · 新芽阶段</em></li>
               </ul>
             </div>
             <div class="growth-card" hidden>
@@ -509,16 +579,29 @@
           </div>
 
           <section class="identity-section specialty-section identity-page is-hidden" data-identity-page="items">
-            <h3>◇ 风物集合</h3>
+            <h3><span class="section-title-icon svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-specialty-collection.svg" alt="" /></span><b id="specialtyBagTitle">风物集合</b></h3>
+            <article class="landform-overview" aria-label="地貌总览">
+              <div class="landform-panorama">
+                <img src="./assets/landforms/china-landform-overview-pixel.png" alt="中国地貌像素风总览" />
+              </div>
+              <div class="landform-overview-copy">
+                <strong>地貌</strong>
+              </div>
+              <div class="landform-switcher" aria-label="切换地貌">
+                <button type="button" id="landformPrev" aria-label="上一个地貌">‹</button>
+                <button type="button" id="landformNext" aria-label="下一个地貌">›</button>
+              </div>
+              <div class="landform-region-strip" id="landformRegionList" aria-label="地貌区域"></div>
+            </article>
             <div class="specialty-shelf" id="specialtyShelf">
               <article class="specialty-empty">探险结束后，这里会出现当地特产。</article>
             </div>
           </section>
 
           <section class="identity-section seed-pouch-section identity-page is-hidden" data-identity-page="items">
-            <h3>◇ 种子</h3>
+            <h3>种子袋</h3>
             <div class="seed-pouch-card">
-              <span><img src="./assets/ui/seed.png" alt="" /></span>
+              <span><img src="./assets/ui/icon-seed-pouch.svg" alt="" /></span>
               <div>
                 <strong id="identitySeedCount">10 颗种子</strong>
                 <p id="identityNurseryStatus">可以拖进种子温室，成熟后解锁图鉴。</p>
@@ -531,9 +614,8 @@
 
         <section class="login-screen is-hidden" id="loginScreen" aria-label="种种花园首页">
           <form class="login-card" id="loginForm">
-            <p class="panel-kicker">种种大世界</p>
             <h2 id="landingTitle">种种大世界</h2>
-            <p>从一颗芽芽开始，把现实里遇见的植物慢慢收进图鉴。</p>
+            <p class="panel-helper">回到你的花园。</p>
             <div class="login-location">
               <span>第一位伙伴</span>
               <strong>按生日节令唤醒</strong>
@@ -547,11 +629,11 @@
 
         <nav class="dock" aria-label="底部菜单">
           <button type="button" data-panel="panel-identity">
-            <span class="dock-button-icon pixel-icon pixel-icon--identity" aria-hidden="true"></span>
+            <span class="dock-button-icon svg-icon-frame" aria-hidden="true"><img src="./assets/nav-icons/backpack.svg" alt="" /></span>
             <b>背包</b>
           </button>
           <button class="home-button is-active" type="button" id="homeButton">
-            <span class="dock-button-icon pixel-icon pixel-icon--garden" aria-hidden="true"></span>
+            <span class="dock-button-icon pixel-icon pixel-icon--garden" aria-hidden="true"><i></i></span>
             <b>花园</b>
           </button>
           <button type="button" data-panel="panel-map">

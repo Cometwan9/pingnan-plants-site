@@ -20,10 +20,13 @@ if (existsSync(envPath)) {
 
 const port = Number(process.env.PORT || 8765);
 const plantIdApiKey = process.env.PLANT_ID_API_KEY || "";
+const arkApiKey = process.env.ARK_API_KEY || process.env.VOLC_ARK_API_KEY || "";
+const arkVideoModel = process.env.ARK_VIDEO_MODEL || "doubao-seedance-2-0-260128";
 const amapWebKey = process.env.AMAP_WEB_KEY || "";
 const amapSecurityJsCode = process.env.AMAP_SECURITY_JS_CODE || "";
 const wechatAppId = process.env.WECHAT_APP_ID || "";
 const wechatSignatureEndpoint = process.env.WECHAT_SIGNATURE_ENDPOINT || "";
+const adminPassword = process.env.ADMIN_PASSWORD || "sprig-admin";
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -60,6 +63,34 @@ function writeProfileDb(db) {
 
 function normalizePlayerId(value = "") {
   return String(value).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+}
+
+function getClientIp(request) {
+  const forwarded = request.headers["x-forwarded-for"];
+  if (typeof forwarded === "string" && forwarded.trim()) return forwarded.split(",")[0].trim();
+  return request.socket?.remoteAddress || "";
+}
+
+function getTodayKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function isSameDay(timestamp, dayKey = getTodayKey()) {
+  if (!timestamp) return false;
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return false;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` === dayKey;
+}
+
+function requireAdmin(request, response) {
+  const provided = request.headers["x-admin-password"] || "";
+  if (provided === adminPassword) return true;
+  sendJson(response, 401, {
+    error: "admin-auth-required",
+    message: "Admin password is required.",
+  });
+  return false;
 }
 
 function getWeatherCacheKey({ lat, lng, city }) {
@@ -237,9 +268,16 @@ async function serveProfile(request, response) {
     try {
       const body = await readRequestJson(request);
       const db = readProfileDb();
+      const previous = db[playerId] || {};
       db[playerId] = {
+        ...previous,
         ...(body.profile || {}),
         playerId,
+        firstLoginAt: previous.firstLoginAt || body.profile?.firstLoginAt || "",
+        lastLoginAt: previous.lastLoginAt || body.profile?.lastLoginAt || "",
+        loginCount: Number(previous.loginCount || body.profile?.loginCount || 0),
+        loginDays: Array.isArray(previous.loginDays) ? previous.loginDays : [],
+        loginHistory: Array.isArray(previous.loginHistory) ? previous.loginHistory : [],
         savedAt: Date.now(),
       };
       writeProfileDb(db);
@@ -257,6 +295,95 @@ async function serveProfile(request, response) {
 
   response.writeHead(405);
   response.end("Method not allowed");
+}
+
+async function serveLogin(request, response) {
+  try {
+    const body = await readRequestJson(request);
+    const playerId = normalizePlayerId(body.playerId);
+    if (!playerId) {
+      sendJson(response, 400, { error: "missing-player-id" });
+      return;
+    }
+
+    const now = Date.now();
+    const today = getTodayKey();
+    const db = readProfileDb();
+    const previous = db[playerId] || {};
+    const profile = {
+      ...previous,
+      ...(body.profile || {}),
+      playerId,
+      firstLoginAt: previous.firstLoginAt || now,
+      lastLoginAt: now,
+      loginCount: Number(previous.loginCount || 0) + 1,
+      loginDays: Array.from(new Set([...(Array.isArray(previous.loginDays) ? previous.loginDays : []), today])).slice(-120),
+      loginHistory: [
+        {
+          at: now,
+          userAgent: String(request.headers["user-agent"] || "").slice(0, 180),
+          ip: getClientIp(request),
+        },
+        ...(Array.isArray(previous.loginHistory) ? previous.loginHistory : []),
+      ].slice(0, 30),
+      savedAt: now,
+    };
+    db[playerId] = profile;
+    writeProfileDb(db);
+    sendJson(response, 200, {
+      configured: true,
+      profile,
+    });
+  } catch (error) {
+    sendJson(response, error?.message === "request-too-large" ? 413 : 400, {
+      error: error?.message || "login-failed",
+    });
+  }
+}
+
+function summarizeProfile(profile) {
+  const unlockedCount = Array.isArray(profile.unlockedSprigs) ? profile.unlockedSprigs.length : 0;
+  const specialtyCount = Array.isArray(profile.specialties) ? profile.specialties.length : 0;
+  const scanCount = Array.isArray(profile.scanRecords) ? profile.scanRecords.length : 0;
+  return {
+    playerId: profile.playerId || "",
+    gardenName: profile.gardenName || "未命名花园",
+    playerName: profile.user?.name || "花园观察员",
+    region: [profile.onboarding?.province || profile.onboarding?.region, profile.onboarding?.city].filter(Boolean).join(" · "),
+    birthday: profile.onboarding?.birthday || "",
+    language: profile.onboarding?.language || "zh-CN",
+    seeds: Number(profile.seeds || 0),
+    stamina: Number(profile.stamina || 0),
+    unlockedCount,
+    specialtyCount,
+    scanCount,
+    loginCount: Number(profile.loginCount || 0),
+    firstLoginAt: profile.firstLoginAt || "",
+    lastLoginAt: profile.lastLoginAt || "",
+    savedAt: profile.savedAt || "",
+  };
+}
+
+function serveAdminSummary(request, response) {
+  if (!requireAdmin(request, response)) return;
+  const db = readProfileDb();
+  const profiles = Object.values(db).map(summarizeProfile).sort((a, b) => Number(b.lastLoginAt || b.savedAt || 0) - Number(a.lastLoginAt || a.savedAt || 0));
+  const today = getTodayKey();
+  const todayLoginCount = profiles.filter((profile) => isSameDay(profile.lastLoginAt, today)).length;
+  const totalLoginCount = profiles.reduce((total, profile) => total + Number(profile.loginCount || 0), 0);
+  sendJson(response, 200, {
+    configured: true,
+    generatedAt: Date.now(),
+    totals: {
+      players: profiles.length,
+      todayLogins: todayLoginCount,
+      totalLogins: totalLoginCount,
+      totalUnlockedSprigs: profiles.reduce((total, profile) => total + profile.unlockedCount, 0),
+      totalSpecialties: profiles.reduce((total, profile) => total + profile.specialtyCount, 0),
+      totalScans: profiles.reduce((total, profile) => total + profile.scanCount, 0),
+    },
+    profiles,
+  });
 }
 
 function readRequestJson(request) {
@@ -349,6 +476,72 @@ async function identifyPlant(request, response) {
   }
 }
 
+function normalizeArkAnimationRequest(body = {}) {
+  const prompt = String(body.prompt || "").trim();
+  const content = Array.isArray(body.content) && body.content.length
+    ? body.content
+    : [
+        {
+          type: "text",
+          text: prompt || "像素风植物小精灵轻轻眨眼，叶片摆动，温柔治愈，适合手机游戏界面。",
+        },
+      ];
+  const duration = Number(body.duration);
+  return {
+    model: String(body.model || arkVideoModel),
+    content,
+    generate_audio: Boolean(body.generate_audio ?? body.generateAudio ?? false),
+    ratio: String(body.ratio || "9:16"),
+    duration: Number.isFinite(duration) ? Math.max(4, Math.min(15, Math.round(duration))) : 5,
+    watermark: Boolean(body.watermark ?? false),
+  };
+}
+
+async function generateArkAnimation(request, response) {
+  if (!arkApiKey) {
+    sendJson(response, 200, {
+      configured: false,
+      error: "ark-api-key-not-configured",
+      message: "Set ARK_API_KEY in .env before generating animations.",
+    });
+    return;
+  }
+
+  try {
+    const body = await readRequestJson(request);
+    const payload = normalizeArkAnimationRequest(body);
+    const arkResponse = await fetch("https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${arkApiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const result = await arkResponse.json().catch(() => ({}));
+    if (!arkResponse.ok) {
+      sendJson(response, arkResponse.status, {
+        configured: true,
+        error: "ark-animation-error",
+        detail: result,
+      });
+      return;
+    }
+
+    sendJson(response, 200, {
+      configured: true,
+      model: payload.model,
+      task: result,
+    });
+  } catch (error) {
+    const status = error?.message === "request-too-large" ? 413 : 502;
+    sendJson(response, status, {
+      configured: true,
+      error: error?.message || "ark-animation-failed",
+    });
+  }
+}
+
 function serveStatic(request, response) {
   const url = new URL(request.url, `http://${request.headers.host || "127.0.0.1"}`);
   const pathname = decodeURIComponent(url.pathname === "/" ? "/index.html" : url.pathname);
@@ -376,6 +569,11 @@ const server = createServer((request, response) => {
     return;
   }
 
+  if (request.method === "POST" && request.url === "/api/generate-animation") {
+    generateArkAnimation(request, response);
+    return;
+  }
+
   if ((request.method === "GET" || request.method === "HEAD") && request.url === "/config.local.js") {
     serveLocalConfig(response);
     return;
@@ -393,6 +591,16 @@ const server = createServer((request, response) => {
 
   if ((request.method === "GET" || request.method === "PUT") && request.url.startsWith("/api/profile")) {
     serveProfile(request, response);
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/login") {
+    serveLogin(request, response);
+    return;
+  }
+
+  if ((request.method === "GET" || request.method === "HEAD") && request.url.startsWith("/api/admin/summary")) {
+    serveAdminSummary(request, response);
     return;
   }
 
