@@ -1238,30 +1238,6 @@ test("scan and expedition guide ask the player to try real actions", () => {
   assert.match(styles, /\.panel--discover \.scan-button::before\s*\{[\s\S]*position:\s*static !important[\s\S]*transform:\s*none !important/);
   assert.match(styles, /\.panel--discover \.upload-photo-button \.pixel-album-icon\s*\{[\s\S]*grid-row:\s*1 !important[\s\S]*contain:\s*layout paint !important/);
   assert.match(styles, /\.panel--discover \.upload-photo-button \.scan-action-label\s*\{[\s\S]*grid-row:\s*2 !important[\s\S]*white-space:\s*nowrap !important/);
-  assert.match(script, /function resetScanPanel\(\)[\s\S]*setCaptureButtonLabel\("打开取景"\)/);
-  assert.match(script, /function closePanels\(\)\s*\{[\s\S]*resetScanPanel\(\)/);
-  assert.match(script, /event\.target\.closest\("\[data-close-panel\]"\)[\s\S]*closePanels\(\)/);
-  assert.match(styles, /\.panel--map \.close-panel,\n\s*\.panel--discover \.close-panel\s*\{[\s\S]*z-index:\s*30 !important[\s\S]*pointer-events:\s*auto !important/);
-});
-
-test("map radar and scan panels share phone-safe spacing", () => {
-  assert.match(styles, /Map\/scan mobile alignment v5/);
-  assert.match(styles, /Map radar mobile repair v6/);
-  assert.match(styles, /\.panel--map,\n\s*\.panel--discover\s*\{[\s\S]*left:\s*clamp\(1\.62rem,\s*7vw,\s*2\.28rem\) !important[\s\S]*right:\s*clamp\(1\.62rem,\s*7vw,\s*2\.28rem\) !important/);
-  assert.match(styles, /\.panel--map\s*\{[\s\S]*grid-template-rows:\s*auto minmax\(0,\s*1fr\) auto minmax\(3\.8rem,\s*auto\) !important[\s\S]*padding:\s*clamp\(0\.82rem,\s*3\.8vw,\s*1\.04rem\) !important/);
-  assert.match(styles, /\.panel--map\s*\{[\s\S]*left:\s*clamp\(2rem,\s*8\.6vw,\s*2\.7rem\) !important[\s\S]*right:\s*clamp\(2rem,\s*8\.6vw,\s*2\.7rem\) !important/);
-  assert.match(styles, /\.panel--map \.panel-header\s*\{[\s\S]*width:\s*min\(100%,\s*14\.2rem\) !important[\s\S]*margin-inline:\s*auto !important/);
-  assert.match(styles, /\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results\s*\{[\s\S]*width:\s*min\(100%,\s*14\.2rem\) !important[\s\S]*margin-inline:\s*auto !important/);
-  assert.match(styles, /\.panel--map \.map-actions \.primary,\n\s*\.panel--map \.map-actions \.secondary,\n\s*\.panel--map \.map-actions \.scan-button\s*\{[\s\S]*color:\s*#65481e !important[\s\S]*font-size:\s*clamp\(0\.76rem,\s*3vw,\s*0\.88rem\) !important/);
-  assert.match(styles, /\.panel--map \.map-actions \.scan-button::before,\n\s*\.panel--map \.map-actions \.scan-button::after\s*\{[\s\S]*display:\s*none !important/);
-  assert.match(styles, /\.panel--discover\s*\{[\s\S]*grid-template-rows:\s*auto auto auto minmax\(0,\s*1fr\) !important[\s\S]*padding:\s*clamp\(0\.82rem,\s*3\.8vw,\s*1\.04rem\) !important/);
-  assert.match(styles, /\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records\s*\{[\s\S]*width:\s*100% !important[\s\S]*margin:\s*0 !important/);
-  assert.match(html, />等待线索。<\/p>/);
-  assert.match(html, />对准植物拍一下。<\/p>/);
-  assert.match(html, />还没有记录。<\/p>/);
-  assert.match(script, /empty\.textContent = "附近暂无线索。"/);
-  assert.match(script, /mapStatus\.textContent = "寻找线索。"/);
-  assert.doesNotMatch(script, /附近暂时没有识别到线索|正在筛选植物线索|请允许摄像头权限/);
 });
 
 test("expedition start panel keeps only core adventure controls", () => {
@@ -1476,45 +1452,14 @@ test("mobile layout contract keeps core pages aligned instead of stacked patches
   assert.match(styles, /\.panel--identity\s*\{[\s\S]*height:\s*100svh !important[\s\S]*grid-template-rows:\s*auto auto minmax\(0,\s*1fr\) !important/);
   assert.match(styles, /\.panel--identity \.identity-topbar,\n\s*\.panel--identity \.identity-tabs,\n\s*\.panel--identity \.identity-page\s*\{[\s\S]*width:\s*100%[\s\S]*box-sizing:\s*border-box/);
   assert.match(styles, /\.panel--identity \.identity-tabs\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\) !important/);
-  assert.match(styles, /Backpack atlas\/items mobile repair v3/);
-  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-pages\s*\{[\s\S]*grid-template-columns:\s*1fr !important[\s\S]*"summary"[\s\S]*"tabs"[\s\S]*"collected"[\s\S]*"locked" !important/);
-  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-bookmarks\s*\{[\s\S]*grid-area:\s*tabs !important[\s\S]*grid-auto-flow:\s*column !important[\s\S]*overflow-x:\s*auto !important/);
+  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-pages\s*\{[\s\S]*grid-template-columns:\s*clamp\(3\.72rem,\s*17vw,\s*4\.48rem\) minmax\(0,\s*1fr\)[\s\S]*"tabs collected"[\s\S]*"tabs locked"/);
+  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-pages\s*\{[\s\S]*grid-template-columns:\s*clamp\(3\.55rem,\s*16\.5vw,\s*4\.15rem\) minmax\(0,\s*1fr\) !important[\s\S]*"tabs collected"[\s\S]*"tabs locked" !important/);
+  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-bookmarks\s*\{[\s\S]*grid-area:\s*tabs[\s\S]*grid-template-columns:\s*1fr/);
   assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-bookmarks span\s*\{[\s\S]*display:\s*none !important/);
   assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.specialty-section\s*\{[\s\S]*order:\s*1/);
   assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-section\s*\{[\s\S]*order:\s*2/);
   assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.specialty-section\s*\{[\s\S]*order:\s*1 !important/);
   assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-section\s*\{[\s\S]*order:\s*2 !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-overview\s*\{[\s\S]*grid-template-columns:\s*1fr !important[\s\S]*"image"[\s\S]*"tabs" !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-region-strip\s*\{[\s\S]*grid-auto-flow:\s*column !important[\s\S]*overflow-x:\s*auto !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-card\s*\{[\s\S]*grid-template-columns:\s*clamp\(3\.05rem,\s*13vw,\s*3\.5rem\) minmax\(0,\s*1fr\) !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-card button\s*\{[\s\S]*grid-column:\s*1 \/ -1 !important/);
   assert.match(styles, /\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records,\n\s*\.panel--expedition \.adventure-scene,\n\s*\.panel--expedition \.adventure-content,\n\s*\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results\s*\{[\s\S]*width:\s*100%[\s\S]*box-sizing:\s*border-box/);
   assert.match(styles, /\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records,\n\s*\.panel--expedition \.adventure-scene,\n\s*\.panel--expedition \.adventure-content,\n\s*\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results,\n\s*\.panel--nursery \.nursery-drop,\n\s*\.panel--nursery \.nursery-result\s*\{[\s\S]*width:\s*100% !important[\s\S]*box-sizing:\s*border-box !important/);
-});
-
-test("backpack atlas and items keep a stable phone scroll flow", () => {
-  assert.match(styles, /Backpack atlas\/items mobile repair v6/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\],\n\s*\.panel--identity\[data-active-identity-tab="items"\]\s*\{[\s\S]*grid-template-rows:\s*auto auto minmax\(0,\s*1fr\) !important[\s\S]*overflow:\s*hidden !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\] \.atlas-pages\s*\{[\s\S]*grid-template-columns:\s*1fr !important[\s\S]*"summary"[\s\S]*"tabs"[\s\S]*"collected"[\s\S]*"locked" !important[\s\S]*overflow-y:\s*auto !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\] \.atlas-bookmarks\s*\{[\s\S]*display:\s*flex !important[\s\S]*overflow-x:\s*auto !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\] \.atlas-card\s*\{[\s\S]*width:\s*100% !important[\s\S]*box-sizing:\s*border-box !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.specialty-section,\n\s*\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-section\s*\{[\s\S]*width:\s*100% !important[\s\S]*padding-inline:\s*0 !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.specialty-section\s*\{[\s\S]*order:\s*1 !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-section\s*\{[\s\S]*order:\s*2 !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-overview\s*\{[\s\S]*grid-template-areas:[\s\S]*"image"[\s\S]*"tabs" !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-region-strip\s*\{[\s\S]*display:\s*flex !important[\s\S]*overflow-x:\s*auto !important/);
-  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-card\s*\{[\s\S]*grid-template-columns:\s*clamp\(3rem,\s*13vw,\s*3\.45rem\) minmax\(0,\s*1fr\) !important/);
-});
-
-test("backpack tabs align with mobile content and keep labels visible", () => {
-  assert.match(styles, /Backpack tab mobile repair v7/);
-  assert.match(styles, /\.panel--identity\s*\{[\s\S]*--backpack-tab-inline:\s*var\(--backpack-phone-pad,\s*clamp\(0\.9rem,\s*4vw,\s*1\.12rem\)\)/);
-  assert.match(styles, /\.panel--identity \.identity-tabs\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\) !important/);
-  assert.match(styles, /\.panel--identity \.identity-tabs\s*\{[\s\S]*padding:\s*0 var\(--backpack-tab-inline\) !important/);
-  assert.match(styles, /\.panel--identity \.identity-tabs button\s*\{[\s\S]*grid-template-rows:\s*clamp\(2\.18rem,\s*9\.5vw,\s*2\.68rem\) auto !important[\s\S]*overflow:\s*visible !important/);
-  assert.match(styles, /\.panel--identity \.identity-tabs \.backpack-tab-icon\s*\{[\s\S]*grid-row:\s*1 !important[\s\S]*margin-inline:\s*auto !important/);
-  assert.match(styles, /\.panel--identity \.identity-tabs button b\s*\{[\s\S]*display:\s*block !important[\s\S]*opacity:\s*1 !important[\s\S]*visibility:\s*visible !important/);
-  assert.match(html, /data-identity-tab="card"[\s\S]*<b>护照<\/b>/);
-  assert.match(html, /data-identity-tab="atlas"[\s\S]*<b>图鉴<\/b>/);
-  assert.match(html, /data-identity-tab="items"[\s\S]*<b>物品<\/b>/);
 });

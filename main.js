@@ -1031,12 +1031,12 @@ function openPanel(id, options = {}) {
 }
 
 function closePanels() {
-  resetScanPanel();
   panels.forEach((panel) => panel.classList.remove("is-open"));
   gardenStage.classList.remove("has-open-panel");
   gardenStage.classList.remove("has-identity-panel");
   syncDockActive("garden");
   hideFeatureTip();
+  stopArCamera();
 }
 
 function syncDockActive(activePanelId) {
@@ -2633,13 +2633,13 @@ async function identifyPlantFile(file) {
 async function startArCamera() {
   if (arStream) return true;
   if (!navigator.mediaDevices?.getUserMedia) {
-    scanResultText.textContent = "无法取景。";
-    captureText.textContent = "可上传照片。";
+    scanResultText.textContent = "当前浏览器不支持摄像头。";
+    captureText.textContent = "可以改用上传照片识别。";
     return false;
   }
 
   try {
-    scanResultText.textContent = "打开取景。";
+    scanResultText.textContent = "正在打开摄像头。";
     arStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: "environment" },
@@ -2652,12 +2652,12 @@ async function startArCamera() {
     await arCamera.play();
     arCamera.classList.add("is-active");
     setCaptureButtonLabel("识别画面");
-    scanResultText.textContent = "取景开启。";
-    captureText.textContent = "对准植物拍一下。";
+    scanResultText.textContent = "取景已开启。";
+    captureText.textContent = "把植物放进扫描框里，再点一下。";
     return true;
   } catch {
-    scanResultText.textContent = "取景失败。";
-    captureText.textContent = "可上传照片。";
+    scanResultText.textContent = "摄像头没有打开。";
+    captureText.textContent = "请允许摄像头权限，或用上传照片识别。";
     return false;
   }
 }
@@ -2668,15 +2668,6 @@ function stopArCamera() {
   arStream = null;
   arCamera.srcObject = null;
   arCamera.classList.remove("is-active");
-}
-
-function resetScanPanel() {
-  stopArCamera();
-  arTarget?.classList.remove("is-visible", "is-encounter");
-  setCaptureButtonLabel("打开取景");
-  if (discoverTitle) discoverTitle.textContent = "植物扫描";
-  if (scanResultText) scanResultText.textContent = "等待取景。";
-  if (captureText) captureText.textContent = "对准植物，留下一条线索。";
 }
 
 async function captureArRecognition() {
@@ -2960,7 +2951,7 @@ function renderMapPois(pois, statusText) {
 
   if (!state.mapPois.length) {
     const empty = document.createElement("p");
-    empty.textContent = "附近暂无线索。";
+    empty.textContent = "附近暂时没有识别到线索。";
     mapResults.append(empty);
     return;
   }
@@ -2997,7 +2988,7 @@ function renderMapPois(pois, statusText) {
   });
 }
 
-function renderFallbackMapPois(statusText = "等待线索。") {
+function renderFallbackMapPois(statusText = "雷达待机，等待附近线索。") {
   const pack = state.currentMapPack || (state.explorationReady ? activeMapPack : null);
   if (!pack) {
     renderMapPois([], statusText);
@@ -3031,23 +3022,23 @@ function selectMapPoi(index) {
 
 async function scanNearbySprigs() {
   discoverFromMap.disabled = true;
-  mapStatus.textContent = "读取位置。";
+  mapStatus.textContent = "正在向地图取线索。";
 
   try {
     const AMap = await loadAmap();
-    mapStatus.textContent = "读取附近。";
+    mapStatus.textContent = "正在读取附近。";
     const { center, label } = await getAmapCenter(AMap);
-    mapStatus.textContent = "寻找线索。";
+    mapStatus.textContent = "正在筛选植物线索。";
     const rawPois = await searchAmapPois(AMap, center);
     const pois = normalizeAmapPois(rawPois, center);
     if (!pois.length) throw new Error("no-amap-pois");
-    renderMapPois(pois, `${label} · ${pois.length}条`);
+    renderMapPois(pois, `${label} · ${pois.length} 条线索`);
   } catch (error) {
     const gardenLabel = getGardenLabel();
     const fallbackText =
       error?.message === "missing-amap-key"
-        ? "地图未连接。"
-        : `${gardenLabel}附近。`;
+        ? `地图 key 还没接好，先看${gardenLabel}。`
+        : `附近线索暂时没回来，先看${gardenLabel}。`;
     renderFallbackMapPois(fallbackText);
   } finally {
     discoverFromMap.disabled = false;
@@ -4770,17 +4761,6 @@ function tickGameTime() {
     finishExpedition();
   }
 }
-
-document.addEventListener(
-  "click",
-  (event) => {
-    if (!event.target.closest("[data-close-panel]")) return;
-    event.preventDefault();
-    event.stopPropagation();
-    closePanels();
-  },
-  true,
-);
 
 document.addEventListener("click", (event) => {
   const panelButton = event.target.closest("[data-panel]");
