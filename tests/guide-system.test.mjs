@@ -1241,13 +1241,20 @@ test("scan and expedition guide ask the player to try real actions", () => {
 });
 
 test("map radar and scan panels share phone-safe spacing", () => {
-  assert.match(styles, /Map\/scan mobile alignment v4/);
-  assert.match(styles, /\.panel--map,\n\s*\.panel--discover\s*\{[\s\S]*--field-panel-pad:\s*clamp\(0\.96rem,\s*4\.4vw,\s*1\.18rem\)[\s\S]*padding:\s*var\(--field-panel-pad\) !important/);
-  assert.match(styles, /\.panel--map\s*\{[\s\S]*grid-template-rows:\s*auto minmax\(0,\s*1fr\) auto minmax\(4\.2rem,\s*auto\) !important/);
-  assert.match(styles, /\.panel--map \.panel-header,\n\s*\.panel--discover \.panel-header\s*\{[\s\S]*width:\s*100% !important[\s\S]*padding:\s*0 clamp\(2\.6rem,\s*11vw,\s*3\.1rem\) 0 0 !important[\s\S]*text-align:\s*left !important/);
-  assert.match(styles, /\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results,\n\s*\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records\s*\{[\s\S]*width:\s*100% !important[\s\S]*margin:\s*0 !important/);
-  assert.match(styles, /\.panel--map \.map-actions \.primary,\n\s*\.panel--map \.map-actions \.secondary,\n\s*\.panel--map \.map-actions \.scan-button\s*\{[\s\S]*color:\s*#65481e !important[\s\S]*font-size:\s*clamp\(0\.78rem,\s*3\.2vw,\s*0\.92rem\) !important/);
+  assert.match(styles, /Map\/scan mobile alignment v5/);
+  assert.match(styles, /\.panel--map,\n\s*\.panel--discover\s*\{[\s\S]*left:\s*clamp\(1\.62rem,\s*7vw,\s*2\.28rem\) !important[\s\S]*right:\s*clamp\(1\.62rem,\s*7vw,\s*2\.28rem\) !important/);
+  assert.match(styles, /\.panel--map\s*\{[\s\S]*grid-template-rows:\s*auto minmax\(0,\s*1fr\) auto minmax\(3\.8rem,\s*auto\) !important[\s\S]*padding:\s*clamp\(0\.82rem,\s*3\.8vw,\s*1\.04rem\) !important/);
+  assert.match(styles, /\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results\s*\{[\s\S]*width:\s*100% !important[\s\S]*margin:\s*0 !important/);
+  assert.match(styles, /\.panel--map \.map-actions \.primary,\n\s*\.panel--map \.map-actions \.secondary,\n\s*\.panel--map \.map-actions \.scan-button\s*\{[\s\S]*color:\s*#65481e !important[\s\S]*font-size:\s*clamp\(0\.76rem,\s*3vw,\s*0\.88rem\) !important/);
   assert.match(styles, /\.panel--map \.map-actions \.scan-button::before,\n\s*\.panel--map \.map-actions \.scan-button::after\s*\{[\s\S]*display:\s*none !important/);
+  assert.match(styles, /\.panel--discover\s*\{[\s\S]*grid-template-rows:\s*auto auto auto minmax\(0,\s*1fr\) !important[\s\S]*padding:\s*clamp\(0\.82rem,\s*3\.8vw,\s*1\.04rem\) !important/);
+  assert.match(styles, /\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records\s*\{[\s\S]*width:\s*100% !important[\s\S]*margin:\s*0 !important/);
+  assert.match(html, />等待线索。<\/p>/);
+  assert.match(html, />对准植物拍一下。<\/p>/);
+  assert.match(html, />还没有记录。<\/p>/);
+  assert.match(script, /empty\.textContent = "附近暂无线索。"/);
+  assert.match(script, /mapStatus\.textContent = "寻找线索。"/);
+  assert.doesNotMatch(script, /附近暂时没有识别到线索|正在筛选植物线索|请允许摄像头权限/);
 });
 
 test("expedition start panel keeps only core adventure controls", () => {
