@@ -14241,7 +14241,12 @@ button {
   .panel--discover .close-panel {
     right: clamp(0.58rem, 3vw, 0.78rem) !important;
     top: clamp(0.58rem, 3vw, 0.78rem) !important;
-    z-index: 5 !important;
+    z-index: 30 !important;
+    display: grid !important;
+    place-items: center !important;
+    width: clamp(2.44rem, 10vw, 2.84rem) !important;
+    height: clamp(2.44rem, 10vw, 2.84rem) !important;
+    pointer-events: auto !important;
   }
 
   .panel--map .panel-header,

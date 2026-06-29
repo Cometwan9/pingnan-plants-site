@@ -1031,12 +1031,12 @@ function openPanel(id, options = {}) {
 }
 
 function closePanels() {
+  resetScanPanel();
   panels.forEach((panel) => panel.classList.remove("is-open"));
   gardenStage.classList.remove("has-open-panel");
   gardenStage.classList.remove("has-identity-panel");
   syncDockActive("garden");
   hideFeatureTip();
-  stopArCamera();
 }
 
 function syncDockActive(activePanelId) {
@@ -2668,6 +2668,15 @@ function stopArCamera() {
   arStream = null;
   arCamera.srcObject = null;
   arCamera.classList.remove("is-active");
+}
+
+function resetScanPanel() {
+  stopArCamera();
+  arTarget?.classList.remove("is-visible", "is-encounter");
+  setCaptureButtonLabel("打开取景");
+  if (discoverTitle) discoverTitle.textContent = "植物扫描";
+  if (scanResultText) scanResultText.textContent = "等待取景。";
+  if (captureText) captureText.textContent = "对准植物，留下一条线索。";
 }
 
 async function captureArRecognition() {
@@ -4761,6 +4770,17 @@ function tickGameTime() {
     finishExpedition();
   }
 }
+
+document.addEventListener(
+  "click",
+  (event) => {
+    if (!event.target.closest("[data-close-panel]")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    closePanels();
+  },
+  true,
+);
 
 document.addEventListener("click", (event) => {
   const panelButton = event.target.closest("[data-panel]");

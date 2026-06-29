@@ -1238,6 +1238,10 @@ test("scan and expedition guide ask the player to try real actions", () => {
   assert.match(styles, /\.panel--discover \.scan-button::before\s*\{[\s\S]*position:\s*static !important[\s\S]*transform:\s*none !important/);
   assert.match(styles, /\.panel--discover \.upload-photo-button \.pixel-album-icon\s*\{[\s\S]*grid-row:\s*1 !important[\s\S]*contain:\s*layout paint !important/);
   assert.match(styles, /\.panel--discover \.upload-photo-button \.scan-action-label\s*\{[\s\S]*grid-row:\s*2 !important[\s\S]*white-space:\s*nowrap !important/);
+  assert.match(script, /function resetScanPanel\(\)[\s\S]*setCaptureButtonLabel\("打开取景"\)/);
+  assert.match(script, /function closePanels\(\)\s*\{[\s\S]*resetScanPanel\(\)/);
+  assert.match(script, /event\.target\.closest\("\[data-close-panel\]"\)[\s\S]*closePanels\(\)/);
+  assert.match(styles, /\.panel--map \.close-panel,\n\s*\.panel--discover \.close-panel\s*\{[\s\S]*z-index:\s*30 !important[\s\S]*pointer-events:\s*auto !important/);
 });
 
 test("map radar and scan panels share phone-safe spacing", () => {
