@@ -1501,3 +1501,16 @@ test("backpack atlas and items keep a stable phone scroll flow", () => {
   assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-region-strip\s*\{[\s\S]*display:\s*flex !important[\s\S]*overflow-x:\s*auto !important/);
   assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-card\s*\{[\s\S]*grid-template-columns:\s*clamp\(3rem,\s*13vw,\s*3\.45rem\) minmax\(0,\s*1fr\) !important/);
 });
+
+test("backpack tabs align with mobile content and keep labels visible", () => {
+  assert.match(styles, /Backpack tab mobile repair v7/);
+  assert.match(styles, /\.panel--identity\s*\{[\s\S]*--backpack-tab-inline:\s*var\(--backpack-phone-pad,\s*clamp\(0\.9rem,\s*4vw,\s*1\.12rem\)\)/);
+  assert.match(styles, /\.panel--identity \.identity-tabs\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\) !important/);
+  assert.match(styles, /\.panel--identity \.identity-tabs\s*\{[\s\S]*padding:\s*0 var\(--backpack-tab-inline\) !important/);
+  assert.match(styles, /\.panel--identity \.identity-tabs button\s*\{[\s\S]*grid-template-rows:\s*clamp\(2\.18rem,\s*9\.5vw,\s*2\.68rem\) auto !important[\s\S]*overflow:\s*visible !important/);
+  assert.match(styles, /\.panel--identity \.identity-tabs \.backpack-tab-icon\s*\{[\s\S]*grid-row:\s*1 !important[\s\S]*margin-inline:\s*auto !important/);
+  assert.match(styles, /\.panel--identity \.identity-tabs button b\s*\{[\s\S]*display:\s*block !important[\s\S]*opacity:\s*1 !important[\s\S]*visibility:\s*visible !important/);
+  assert.match(html, /data-identity-tab="card"[\s\S]*<b>护照<\/b>/);
+  assert.match(html, /data-identity-tab="atlas"[\s\S]*<b>图鉴<\/b>/);
+  assert.match(html, /data-identity-tab="items"[\s\S]*<b>物品<\/b>/);
+});
