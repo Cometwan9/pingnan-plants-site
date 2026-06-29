@@ -1484,3 +1484,17 @@ test("mobile layout contract keeps core pages aligned instead of stacked patches
   assert.match(styles, /\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records,\n\s*\.panel--expedition \.adventure-scene,\n\s*\.panel--expedition \.adventure-content,\n\s*\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results\s*\{[\s\S]*width:\s*100%[\s\S]*box-sizing:\s*border-box/);
   assert.match(styles, /\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records,\n\s*\.panel--expedition \.adventure-scene,\n\s*\.panel--expedition \.adventure-content,\n\s*\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results,\n\s*\.panel--nursery \.nursery-drop,\n\s*\.panel--nursery \.nursery-result\s*\{[\s\S]*width:\s*100% !important[\s\S]*box-sizing:\s*border-box !important/);
 });
+
+test("backpack atlas and items keep a stable phone scroll flow", () => {
+  assert.match(styles, /Backpack atlas\/items mobile repair v6/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\],\n\s*\.panel--identity\[data-active-identity-tab="items"\]\s*\{[\s\S]*grid-template-rows:\s*auto auto minmax\(0,\s*1fr\) !important[\s\S]*overflow:\s*hidden !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\] \.atlas-pages\s*\{[\s\S]*grid-template-columns:\s*1fr !important[\s\S]*"summary"[\s\S]*"tabs"[\s\S]*"collected"[\s\S]*"locked" !important[\s\S]*overflow-y:\s*auto !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\] \.atlas-bookmarks\s*\{[\s\S]*display:\s*flex !important[\s\S]*overflow-x:\s*auto !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="atlas"\] \.atlas-card\s*\{[\s\S]*width:\s*100% !important[\s\S]*box-sizing:\s*border-box !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.specialty-section,\n\s*\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-section\s*\{[\s\S]*width:\s*100% !important[\s\S]*padding-inline:\s*0 !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.specialty-section\s*\{[\s\S]*order:\s*1 !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-section\s*\{[\s\S]*order:\s*2 !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-overview\s*\{[\s\S]*grid-template-areas:[\s\S]*"image"[\s\S]*"tabs" !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.landform-region-strip\s*\{[\s\S]*display:\s*flex !important[\s\S]*overflow-x:\s*auto !important/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.seed-pouch-card\s*\{[\s\S]*grid-template-columns:\s*clamp\(3rem,\s*13vw,\s*3\.45rem\) minmax\(0,\s*1fr\) !important/);
+});

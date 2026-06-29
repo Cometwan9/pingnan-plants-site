@@ -14457,3 +14457,216 @@ button {
     min-height: clamp(4rem, 16vw, 4.72rem) !important;
   }
 }
+
+/* Backpack atlas/items mobile repair v6: one scroll flow, no compressed tabs or shelves. */
+@media (max-width: 720px) {
+  .panel--identity {
+    --backpack-phone-gap: clamp(0.64rem, 2.8vw, 0.86rem);
+    --backpack-phone-pad: clamp(0.9rem, 4vw, 1.12rem);
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"],
+  .panel--identity[data-active-identity-tab="items"] {
+    grid-template-rows: auto auto minmax(0, 1fr) !important;
+    overflow: hidden !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden),
+  .panel--identity[data-active-identity-tab="items"] .identity-page:not(.is-hidden) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden) {
+    display: grid !important;
+    overflow: hidden !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-book-layout,
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-pages {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-pages {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto auto !important;
+    grid-template-areas:
+      "summary"
+      "tabs"
+      "collected"
+      "locked" !important;
+    align-content: start !important;
+    gap: var(--backpack-phone-gap) !important;
+    padding: 0 0 clamp(0.9rem, 4vw, 1.2rem) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-summary {
+    grid-area: summary !important;
+    grid-template-columns: minmax(0, 1fr) clamp(3rem, 13vw, 3.45rem) !important;
+    padding: var(--backpack-phone-pad) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-bookmarks {
+    grid-area: tabs !important;
+    display: flex !important;
+    gap: clamp(0.42rem, 2vw, 0.56rem) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 0 0.12rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-bookmarks button {
+    flex: 0 0 clamp(4.35rem, 24vw, 5.1rem) !important;
+    min-width: 0 !important;
+    min-height: clamp(3.35rem, 14vw, 4rem) !important;
+    padding: 0.28rem 0.16rem !important;
+    border-radius: 0.42rem !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-bookmarks span {
+    display: none !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: var(--backpack-phone-pad) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-card--collected {
+    grid-area: collected !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-card--locked {
+    grid-area: locked !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .atlas-list .atlas-storybook {
+    grid-template-columns: 1fr !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .locked-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: clamp(0.46rem, 2.2vw, 0.62rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] {
+    align-content: stretch !important;
+    overflow-y: auto !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .specialty-section,
+  .panel--identity[data-active-identity-tab="items"] .seed-pouch-section {
+    display: grid !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-inline: 0 !important;
+    padding-inline: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .specialty-section {
+    order: 1 !important;
+    gap: var(--backpack-phone-gap) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .seed-pouch-section {
+    order: 2 !important;
+    gap: var(--backpack-phone-gap) !important;
+    margin-top: clamp(0.9rem, 4vw, 1.16rem) !important;
+    padding-bottom: clamp(1rem, 5vw, 1.4rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .specialty-section h3,
+  .panel--identity[data-active-identity-tab="items"] .seed-pouch-section h3 {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.44rem !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    font-size: clamp(1rem, 4vw, 1.16rem) !important;
+    line-height: 1.15 !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .landform-overview,
+  .panel--identity[data-active-identity-tab="items"] .specialty-shelf,
+  .panel--identity[data-active-identity-tab="items"] .seed-pouch-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .landform-overview {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "image"
+      "tabs" !important;
+    gap: clamp(0.52rem, 2.5vw, 0.7rem) !important;
+    padding: var(--backpack-phone-pad) !important;
+    overflow: hidden !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .landform-panorama {
+    grid-area: image !important;
+    width: 100% !important;
+    min-height: clamp(7.6rem, 34vw, 10.4rem) !important;
+    aspect-ratio: 16 / 9 !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .landform-region-strip {
+    grid-area: tabs !important;
+    display: flex !important;
+    gap: clamp(0.42rem, 2vw, 0.56rem) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .landform-region-chip {
+    flex: 0 0 clamp(4.1rem, 23vw, 5rem) !important;
+    min-width: 0 !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .specialty-region-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: clamp(0.54rem, 2.4vw, 0.72rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .seed-pouch-card {
+    grid-template-columns: clamp(3rem, 13vw, 3.45rem) minmax(0, 1fr) !important;
+    gap: clamp(0.58rem, 2.6vw, 0.78rem) !important;
+    align-items: center !important;
+    padding: var(--backpack-phone-pad) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="items"] .seed-pouch-card button {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    justify-self: stretch !important;
+  }
+}
