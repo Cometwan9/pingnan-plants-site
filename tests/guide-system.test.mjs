@@ -1242,9 +1242,12 @@ test("scan and expedition guide ask the player to try real actions", () => {
 
 test("map radar and scan panels share phone-safe spacing", () => {
   assert.match(styles, /Map\/scan mobile alignment v5/);
+  assert.match(styles, /Map radar mobile repair v6/);
   assert.match(styles, /\.panel--map,\n\s*\.panel--discover\s*\{[\s\S]*left:\s*clamp\(1\.62rem,\s*7vw,\s*2\.28rem\) !important[\s\S]*right:\s*clamp\(1\.62rem,\s*7vw,\s*2\.28rem\) !important/);
   assert.match(styles, /\.panel--map\s*\{[\s\S]*grid-template-rows:\s*auto minmax\(0,\s*1fr\) auto minmax\(3\.8rem,\s*auto\) !important[\s\S]*padding:\s*clamp\(0\.82rem,\s*3\.8vw,\s*1\.04rem\) !important/);
-  assert.match(styles, /\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results\s*\{[\s\S]*width:\s*100% !important[\s\S]*margin:\s*0 !important/);
+  assert.match(styles, /\.panel--map\s*\{[\s\S]*left:\s*clamp\(2rem,\s*8\.6vw,\s*2\.7rem\) !important[\s\S]*right:\s*clamp\(2rem,\s*8\.6vw,\s*2\.7rem\) !important/);
+  assert.match(styles, /\.panel--map \.panel-header\s*\{[\s\S]*width:\s*min\(100%,\s*14\.2rem\) !important[\s\S]*margin-inline:\s*auto !important/);
+  assert.match(styles, /\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results\s*\{[\s\S]*width:\s*min\(100%,\s*14\.2rem\) !important[\s\S]*margin-inline:\s*auto !important/);
   assert.match(styles, /\.panel--map \.map-actions \.primary,\n\s*\.panel--map \.map-actions \.secondary,\n\s*\.panel--map \.map-actions \.scan-button\s*\{[\s\S]*color:\s*#65481e !important[\s\S]*font-size:\s*clamp\(0\.76rem,\s*3vw,\s*0\.88rem\) !important/);
   assert.match(styles, /\.panel--map \.map-actions \.scan-button::before,\n\s*\.panel--map \.map-actions \.scan-button::after\s*\{[\s\S]*display:\s*none !important/);
   assert.match(styles, /\.panel--discover\s*\{[\s\S]*grid-template-rows:\s*auto auto auto minmax\(0,\s*1fr\) !important[\s\S]*padding:\s*clamp\(0\.82rem,\s*3\.8vw,\s*1\.04rem\) !important/);

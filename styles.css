@@ -14670,3 +14670,42 @@ button {
     justify-self: stretch !important;
   }
 }
+
+/* Map radar mobile repair v6: radar content gets real side breathing room. */
+@media (max-width: 720px) {
+  .panel--map {
+    left: clamp(2rem, 8.6vw, 2.7rem) !important;
+    right: clamp(2rem, 8.6vw, 2.7rem) !important;
+    padding: clamp(0.78rem, 3.5vw, 1rem) !important;
+    gap: clamp(0.58rem, 2.6vw, 0.78rem) !important;
+  }
+
+  .panel--map .panel-header {
+    width: min(100%, 14.2rem) !important;
+    margin-inline: auto !important;
+    padding: 0 !important;
+  }
+
+  .panel--map .radar,
+  .panel--map .map-actions,
+  .panel--map .map-results {
+    width: min(100%, 14.2rem) !important;
+    max-width: 14.2rem !important;
+    margin-inline: auto !important;
+  }
+
+  .panel--map .radar {
+    max-height: min(34vh, 14.2rem) !important;
+  }
+
+  .panel--map .map-actions {
+    gap: clamp(0.5rem, 2.3vw, 0.66rem) !important;
+  }
+
+  .panel--map .map-actions .primary,
+  .panel--map .map-actions .secondary,
+  .panel--map .map-actions .scan-button {
+    min-height: clamp(2.72rem, 11vw, 3.12rem) !important;
+    font-size: clamp(0.72rem, 2.8vw, 0.82rem) !important;
+  }
+}
