@@ -14710,10 +14710,10 @@ button {
   }
 }
 
-/* Backpack tab mobile repair v8: align tab controls with backpack content and keep labels visible. */
+/* Backpack tab mobile repair v7: align tabs with page content and keep labels visible. */
 @media (max-width: 720px) {
   .panel--identity {
-    --backpack-tab-icon-size: clamp(2.18rem, 9.2vw, 2.58rem);
+    --backpack-tab-inline: var(--backpack-phone-pad, clamp(0.9rem, 4vw, 1.12rem));
   }
 
   .panel--identity .identity-tabs {
@@ -14722,7 +14722,7 @@ button {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 var(--backpack-tab-inline) !important;
     gap: clamp(0.46rem, 2.2vw, 0.64rem) !important;
     box-sizing: border-box !important;
   }
@@ -14730,30 +14730,21 @@ button {
   .panel--identity .identity-tabs button {
     display: grid !important;
     grid-template-columns: 1fr !important;
-    grid-template-rows: var(--backpack-tab-icon-size) auto !important;
-    gap: 0.2rem !important;
+    grid-template-rows: clamp(2.18rem, 9.5vw, 2.68rem) auto !important;
+    gap: 0.18rem !important;
     min-width: 0 !important;
-    min-height: clamp(3.72rem, 15.6vw, 4.36rem) !important;
-    padding: 0.3rem 0.12rem 0.34rem !important;
+    min-height: clamp(3.58rem, 15vw, 4.24rem) !important;
+    padding: 0.28rem 0.1rem !important;
     place-items: center !important;
-    align-content: center !important;
     overflow: visible !important;
     box-sizing: border-box !important;
   }
 
   .panel--identity .identity-tabs .backpack-tab-icon {
     grid-row: 1 !important;
-    width: var(--backpack-tab-icon-size) !important;
-    height: var(--backpack-tab-icon-size) !important;
+    width: clamp(2rem, 8.7vw, 2.42rem) !important;
+    height: clamp(2rem, 8.7vw, 2.42rem) !important;
     margin-inline: auto !important;
-    place-self: center !important;
-  }
-
-  .panel--identity .identity-tabs .backpack-tab-icon img {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
   }
 
   .panel--identity .identity-tabs button b {
