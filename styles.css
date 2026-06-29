@@ -14218,3 +14218,124 @@ button {
     width: 100% !important;
   }
 }
+
+/* Map/scan mobile alignment v4: shared inset and readable clue actions. */
+@media (max-width: 720px) {
+  .panel--map,
+  .panel--discover {
+    --field-panel-pad: clamp(0.96rem, 4.4vw, 1.18rem);
+    --field-inner-gap: clamp(0.68rem, 3vw, 0.9rem);
+    padding: var(--field-panel-pad) !important;
+    gap: var(--field-inner-gap) !important;
+    align-content: start !important;
+  }
+
+  .panel--map {
+    top: clamp(4.2rem, 9vh, 5.8rem) !important;
+    bottom: calc(5.9rem + env(safe-area-inset-bottom)) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto minmax(4.2rem, auto) !important;
+    overflow: hidden !important;
+  }
+
+  .panel--map .close-panel,
+  .panel--discover .close-panel {
+    right: clamp(0.58rem, 3vw, 0.78rem) !important;
+    top: clamp(0.58rem, 3vw, 0.78rem) !important;
+    z-index: 5 !important;
+  }
+
+  .panel--map .panel-header,
+  .panel--discover .panel-header {
+    display: grid !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 clamp(2.6rem, 11vw, 3.1rem) 0 0 !important;
+    gap: 0.28rem !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel--map .panel-header h2,
+  .panel--discover .panel-header h2 {
+    margin: 0 !important;
+    color: #6a5437 !important;
+    font-size: clamp(1.16rem, 5vw, 1.48rem) !important;
+    line-height: 1.12 !important;
+  }
+
+  .panel--map .panel-header p,
+  .panel--discover .panel-header p,
+  .panel--map .map-status {
+    margin: 0 !important;
+    color: #7c6a48 !important;
+    font-size: clamp(0.8rem, 3.2vw, 0.92rem) !important;
+    line-height: 1.35 !important;
+  }
+
+  .panel--map .radar,
+  .panel--map .map-actions,
+  .panel--map .map-results,
+  .panel--discover .ar-card,
+  .panel--discover .scan-actions,
+  .panel--discover .scan-records {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel--map .radar {
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    height: auto !important;
+    max-height: min(39vh, 16rem) !important;
+    border-radius: 0.58rem !important;
+  }
+
+  .panel--map .map-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: clamp(0.58rem, 2.8vw, 0.78rem) !important;
+  }
+
+  .panel--map .map-actions .primary,
+  .panel--map .map-actions .secondary,
+  .panel--map .map-actions .scan-button {
+    display: grid !important;
+    min-width: 0 !important;
+    min-height: clamp(3.08rem, 13vw, 3.7rem) !important;
+    padding: 0.46rem 0.38rem !important;
+    place-items: center !important;
+    color: #65481e !important;
+    font-size: clamp(0.78rem, 3.2vw, 0.92rem) !important;
+    line-height: 1.12 !important;
+    text-align: center !important;
+    white-space: normal !important;
+  }
+
+  .panel--map .map-actions .scan-button::before,
+  .panel--map .map-actions .scan-button::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  .panel--map .map-results {
+    display: grid !important;
+    gap: clamp(0.42rem, 2vw, 0.58rem) !important;
+    min-height: clamp(4.2rem, 16vh, 6.5rem) !important;
+    max-height: clamp(4.8rem, 18vh, 7.2rem) !important;
+    overflow: auto !important;
+  }
+
+  .panel--map .map-results p {
+    min-height: clamp(4.2rem, 16vh, 6.5rem) !important;
+    padding: clamp(0.66rem, 3vw, 0.86rem) !important;
+    color: #7c6a48 !important;
+    font-size: clamp(0.8rem, 3.2vw, 0.9rem) !important;
+  }
+
+  .panel--discover .scan-actions {
+    margin-top: 0 !important;
+  }
+}

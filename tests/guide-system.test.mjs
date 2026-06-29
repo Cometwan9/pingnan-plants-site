@@ -1240,6 +1240,16 @@ test("scan and expedition guide ask the player to try real actions", () => {
   assert.match(styles, /\.panel--discover \.upload-photo-button \.scan-action-label\s*\{[\s\S]*grid-row:\s*2 !important[\s\S]*white-space:\s*nowrap !important/);
 });
 
+test("map radar and scan panels share phone-safe spacing", () => {
+  assert.match(styles, /Map\/scan mobile alignment v4/);
+  assert.match(styles, /\.panel--map,\n\s*\.panel--discover\s*\{[\s\S]*--field-panel-pad:\s*clamp\(0\.96rem,\s*4\.4vw,\s*1\.18rem\)[\s\S]*padding:\s*var\(--field-panel-pad\) !important/);
+  assert.match(styles, /\.panel--map\s*\{[\s\S]*grid-template-rows:\s*auto minmax\(0,\s*1fr\) auto minmax\(4\.2rem,\s*auto\) !important/);
+  assert.match(styles, /\.panel--map \.panel-header,\n\s*\.panel--discover \.panel-header\s*\{[\s\S]*width:\s*100% !important[\s\S]*padding:\s*0 clamp\(2\.6rem,\s*11vw,\s*3\.1rem\) 0 0 !important[\s\S]*text-align:\s*left !important/);
+  assert.match(styles, /\.panel--map \.radar,\n\s*\.panel--map \.map-actions,\n\s*\.panel--map \.map-results,\n\s*\.panel--discover \.ar-card,\n\s*\.panel--discover \.scan-actions,\n\s*\.panel--discover \.scan-records\s*\{[\s\S]*width:\s*100% !important[\s\S]*margin:\s*0 !important/);
+  assert.match(styles, /\.panel--map \.map-actions \.primary,\n\s*\.panel--map \.map-actions \.secondary,\n\s*\.panel--map \.map-actions \.scan-button\s*\{[\s\S]*color:\s*#65481e !important[\s\S]*font-size:\s*clamp\(0\.78rem,\s*3\.2vw,\s*0\.92rem\) !important/);
+  assert.match(styles, /\.panel--map \.map-actions \.scan-button::before,\n\s*\.panel--map \.map-actions \.scan-button::after\s*\{[\s\S]*display:\s*none !important/);
+});
+
 test("expedition start panel keeps only core adventure controls", () => {
   const expeditionPanelStyle = styles.match(/\.panel--expedition \{([\s\S]*?)\n\}/)?.[1] || "";
   const expeditionContentStyle = styles.match(/\.adventure-content \{([\s\S]*?)\n\}/)?.[1] || "";
