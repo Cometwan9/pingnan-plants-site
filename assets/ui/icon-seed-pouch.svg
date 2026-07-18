@@ -1,16 +1,19 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="种子袋">
   <path d="M18 22H46V28H18V22Z" fill="#8FAF6A"/>
+  <path d="M22 12H42V18H22V12Z" fill="#BBD98A"/>
+  <path d="M18 18H46V22H18V18Z" fill="#E8C36F"/>
   <path d="M14 28H50V52H46V56H18V52H14V28Z" fill="#D9AD62"/>
-  <path d="M18 32H46V48H42V52H22V48H18V32Z" fill="#FFF1B8"/>
-  <path d="M14 28H18V52H14V28Z" fill="#B88E55"/>
-  <path d="M46 28H50V52H46V28Z" fill="#B88E55"/>
-  <path d="M18 52H46V56H18V52Z" fill="#B88E55"/>
-  <path d="M20 30H44V34H20V30Z" fill="#F2CB7D"/>
+  <path d="M18 28H46V48H42V52H22V48H18V28Z" fill="#FFF3C8"/>
+  <path d="M14 24H18V52H14V24Z" fill="#C69A58"/>
+  <path d="M46 24H50V52H46V24Z" fill="#C69A58"/>
+  <path d="M18 52H46V56H18V52Z" fill="#C69A58"/>
+  <path d="M20 26H44V32H20V26Z" fill="#DDB866"/>
+  <path d="M24 34H40V48H24V34Z" fill="#F2CB7D"/>
   <path d="M26 38H38V48H26V38Z" fill="#F2CB7D"/>
   <path d="M28 40H36V48H28V40Z" fill="#FFE6A3"/>
   <path d="M30 36H34V40H30V36Z" fill="#86A56E"/>
-  <path d="M34 34H40V38H34V34Z" fill="#9FCD75"/>
-  <path d="M24 34H30V38H24V34Z" fill="#9FCD75"/>
-  <path d="M22 18H42V22H22V18Z" fill="#C8EFA0"/>
-  <path d="M24 14H40V18H24V14Z" fill="#9FCD75"/>
+  <path d="M34 32H42V36H34V32Z" fill="#A8CF77"/>
+  <path d="M22 32H30V36H22V32Z" fill="#A8CF77"/>
+  <path d="M26 44H38V48H26V44Z" fill="#FFF0B8"/>
+  <path d="M22 20H42V24H22V20Z" fill="#FFF0B8"/>
 </svg>

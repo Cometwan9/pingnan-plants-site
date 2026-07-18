@@ -33,6 +33,7 @@ const starterRevealName = document.querySelector("#starterRevealName");
 const starterRevealText = document.querySelector("#starterRevealText");
 const starterAcceptButton = document.querySelector("#starterAcceptButton");
 const hatchReward = document.querySelector("#hatchReward");
+const hatchRewardTitle = document.querySelector("#hatchRewardTitle");
 const hatchRewardImage = document.querySelector("#hatchRewardImage");
 const hatchRewardText = document.querySelector("#hatchRewardText");
 const hatchRewardButton = document.querySelector("#hatchRewardButton");
@@ -92,6 +93,7 @@ const expeditionPlanText = document.querySelector("#expeditionPlanText");
 const expeditionText = document.querySelector("#expeditionText");
 const expeditionLoot = document.querySelector("#expeditionLoot");
 const expeditionSquad = document.querySelector("#expeditionSquad");
+const squadPicker = document.querySelector("#squadPicker");
 const expeditionTitle = document.querySelector("#expeditionTitle");
 const expeditionTimer = document.querySelector("#expeditionTimer");
 const mapPackPicker = document.querySelector("#mapPackPicker");
@@ -285,6 +287,8 @@ const state = {
   playerId: getPlayerId(),
   unlockedSprigs: new Set(["plantain"]),
   gardenSprigs: new Set(["plantain"]),
+  expeditionSquadIds: ["plantain"],
+  squadPickerSlot: 0,
   dispatched: false,
   expeditionDuration: "30m",
   expeditionRemainingSeconds: 0,
@@ -312,7 +316,7 @@ const state = {
   pendingSpecialties: [],
   dailyStreak: Number(localStorage.getItem("sprigDailyStreak") || 0),
   lastDailyCheckin: localStorage.getItem("sprigLastDailyCheckin") || "",
-  atlasCategory: "all",
+  atlasCategory: "pingnan",
   atlasStoryIndex: 0,
   atlasPage: 0,
   atlasSelectedLocked: null,
@@ -756,84 +760,84 @@ const atlasMilestones = [
 
 const atlasCategories = [
   {
-    id: "all",
-    label: "全部",
-    icon: "all",
-    tone: "all",
-    scaleLabel: "30000+",
-    description: "所有已经记录和等待发现的种种。",
-    empty: "还没有新的记录。先去花园或地图里遇见一只种种。",
-    modelCount: NATIONAL_ATLAS_COUNT,
+    id: "pingnan",
+    label: "屏南",
+    icon: "garden",
+    tone: "garden",
+    scaleLabel: "151",
+    description: "已制作的地方图鉴。",
+    empty: "屏南页还没有记录。先去花园或地图里遇见一只种种。",
+    modelCount: 151,
     match: () => true,
   },
   {
-    id: "region",
-    label: "地域",
+    id: "hangzhou",
+    label: "杭州",
     icon: "region",
     tone: "region",
-    scaleLabel: "9000+",
-    description: "按地方气候、山海水土和城市环境归类。",
-    empty: "还没认识带有地方线索的种种。去地图里读一下附近的花园。",
-    modelCount: 9600,
-    match: (entry) => (entry.regionScope || []).some((region) => region !== "全国广布"),
-  },
-  {
-    id: "garden",
-    label: "花园",
-    icon: "garden",
-    tone: "garden",
-    scaleLabel: "DLC",
-    description: "全国各地已经记录和正在生长的地方花园。",
-    empty: "附近花园还在长叶。去地图里读取一个地方。",
-    modelCount: 8,
+    scaleLabel: "100",
+    description: "正在生长中的城市图鉴。",
+    empty: "杭州页正在长叶。扫描和探险会慢慢点亮它。",
+    modelCount: 100,
     match: () => false,
-    virtual: "gardens",
+    locked: true,
   },
   {
-    id: "land",
-    label: "陆生",
+    id: "huadong",
+    label: "华东",
     icon: "land",
     tone: "land",
-    scaleLabel: "18000+",
-    description: "在土地、林下、路边和草坡生活的种种。",
-    empty: "陆生页还空着。路边、草地和林下会更容易遇见它们。",
-    modelCount: 18600,
-    match: (entry) => entry.habitat?.includes("陆生"),
+    scaleLabel: "135",
+    description: "山地、水乡和城市缝隙里的种种。",
+    empty: "华东页还在等待更多记录。",
+    modelCount: 135,
+    match: (entry) => (entry.regionScope || []).includes("华东"),
   },
   {
-    id: "aquatic",
-    label: "水生",
+    id: "huanan",
+    label: "华南",
     icon: "aquatic",
     tone: "aquatic",
-    scaleLabel: "2000+",
-    description: "靠近池塘、湿地、溪流和水边的种种。",
-    empty: "水生页还没有记录。去池塘、溪边或湿地附近看看。",
-    modelCount: 2300,
-    match: (entry) => entry.habitat?.includes("水生") || entry.habitat?.includes("湿地"),
+    scaleLabel: "107",
+    description: "湿热树影和雨水里生长的种种。",
+    empty: "华南页还在等待扫描记录。",
+    modelCount: 107,
+    match: (entry) => (entry.regionScope || []).includes("华南"),
   },
   {
-    id: "pot",
-    label: "盆生",
+    id: "xinan",
+    label: "西南",
     icon: "pot",
     tone: "pot",
-    scaleLabel: "1000+",
-    description: "花盆、庭院、阳台和小温室里的种种。",
-    empty: "盆生页还没亮起来。花盆、庭院和阳台也会藏着线索。",
-    modelCount: 1600,
-    match: (entry) => entry.habitat?.includes("盆生") || entry.habitat?.includes("庭院"),
+    scaleLabel: "96",
+    description: "雾气、坡地和山谷里的种种。",
+    empty: "西南页还没有亮起来。",
+    modelCount: 96,
+    match: (entry) => (entry.regionScope || []).includes("西南"),
   },
   {
-    id: "epiphyte",
-    label: "附生",
+    id: "huabei",
+    label: "华北",
     icon: "epiphyte",
     tone: "epiphyte",
-    scaleLabel: "900+",
-    description: "依附在树干、石面或潮湿角落生活的种种。",
-    empty: "附生页还在等第一条记录。树干、石缝和潮湿墙角值得看看。",
-    modelCount: 980,
-    match: (entry) => entry.habitat?.includes("附生") || entry.habitat?.includes("林下"),
+    scaleLabel: "72",
+    description: "平原、季风和路边草坡的种种。",
+    empty: "华北页还没有解锁。",
+    modelCount: 72,
+    match: (entry) => (entry.regionScope || []).includes("华北"),
+    locked: true,
   },
 ];
+
+const atlasModelCompatibility = {
+  scaleLabel: "30000+",
+  icon: "aquatic",
+  id: "garden",
+  virtual: "gardens",
+  description: "按地方气候、山海水土和城市环境归类。",
+};
+
+const atlasKnownProgressCopy = "种种图鉴 · 已认识";
 
 const specialtyPool = [
   { name: "风干种子包", terrain: "北方平原", icon: "seed" },
@@ -1023,6 +1027,7 @@ function openPanel(id, options = {}) {
     const requestedTab = id === "panel-atlas" ? "atlas" : options.identityTab;
     setIdentityTab(requestedTab || "card");
   }
+  if (targetId === "panel-expedition") renderMapPackPicker();
   syncDockActive(id);
   knowledgePop.classList.add("is-hidden");
   hideSprigInfo();
@@ -1056,13 +1061,17 @@ function setIdentityTab(tab = "card") {
   document.querySelectorAll("[data-identity-page]").forEach((page) => {
     page.classList.toggle("is-hidden", page.dataset.identityPage !== tab);
   });
+  if (tab === "atlas") renderAtlas();
+  if (tab === "items") renderSpecialtyShelf();
+  identityPanel?.scrollTo?.({ top: 0, behavior: "auto" });
 }
 
 function foldAtlasIntoBackpack() {
   const atlasPanel = document.querySelector("#panel-atlas");
   const identityPanel = document.querySelector("#panel-identity");
+  const identityPagesRoot = identityPanel?.querySelector("#identityPages");
   const identityTabs = identityPanel?.querySelector(".identity-tabs");
-  if (!atlasPanel || !identityPanel || !identityTabs || atlasPanel.dataset.foldedIntoBackpack === "1") return;
+  if (!atlasPanel || !identityPanel || !identityPagesRoot || !identityTabs || atlasPanel.dataset.foldedIntoBackpack === "1") return;
   atlasPanel.dataset.foldedIntoBackpack = "1";
   atlasPanel.className = "identity-section identity-page identity-atlas-page is-hidden";
   atlasPanel.dataset.identityPage = "atlas";
@@ -1073,7 +1082,7 @@ function foldAtlasIntoBackpack() {
     atlasMapButton.textContent = "⌖";
     atlasMapButton.setAttribute("aria-label", "去地图探索");
   }
-  identityTabs.insertAdjacentElement("afterend", atlasPanel);
+  identityPagesRoot.insertAdjacentElement("beforeend", atlasPanel);
 }
 
 function hideSprigInfo() {
@@ -1152,7 +1161,9 @@ function setGuideObservationReady(ready) {
   guideNext.disabled = !ready;
   guideNext.setAttribute("aria-disabled", String(!ready));
   if (ready) {
-    guideNext.textContent = state.guideStep >= guideSteps.length - 1 ? "完成" : "下一步";
+    guideNext.textContent = state.guideStep >= guideSteps.length - 1 ? "完成" : "继续";
+  } else {
+    guideNext.textContent = "看一眼";
   }
 }
 
@@ -1719,9 +1730,9 @@ function getAtlasShortType(entry = {}) {
   return "地域";
 }
 
-function createAtlasStoryBook(entries, category) {
-  const storyIndex = clamp(state.atlasStoryIndex, 0, Math.max(0, entries.length - 1));
-  state.atlasStoryIndex = storyIndex;
+function createAtlasStoryBook(entries, category, forcedIndex = null) {
+  const storyIndex = clamp(forcedIndex ?? state.atlasStoryIndex, 0, Math.max(0, entries.length - 1));
+  if (forcedIndex === null) state.atlasStoryIndex = storyIndex;
   const entry = entries[storyIndex];
   const article = document.createElement("article");
   article.className = "atlas-storybook";
@@ -1729,36 +1740,30 @@ function createAtlasStoryBook(entries, category) {
   article.dataset.atlasTone = entry.tone || category.tone || "all";
 
   const image = entry.image || "./assets/ui/seed.png";
-  const plantName = entry.plant || "植物线索";
-  const region = entry.regionScope?.join("、") || state.onboarding.city || "种种大世界";
-  const habitat = entry.habitat || "待记录的生境";
   const personality = entry.personality || "喜欢把路边的小事记得很清楚";
   const status = entry.status || "已记录";
   const voiceLine = entry.voiceLines?.[0] || entry.hint || "我把今天遇见的风，夹在这一页里。";
-  const knowledge = entry.knowledge?.[0] || entry.hint || "这条记录还在慢慢长出新的注释。";
+  const habit = entry.habitat || entry.knowledge?.[0] || "喜欢待在安静、有光的角落。";
+  const shortPersonality = String(personality).split(/[，。、；;]/)[0] || personality;
+  const shortHabit = String(habit).split(/[，。、；;]/)[0] || habit;
+  const shortVoiceLine = String(voiceLine).replace(/[“”"]/g, "").split(/[。！？!?]/)[0] || voiceLine;
   const pageLabel = entries.length > 1 ? `${storyIndex + 1} / ${entries.length}` : "1 / 1";
 
   article.innerHTML = `
     <section class="atlas-story-page atlas-story-page--portrait" aria-label="${entry.name} 图册左页">
-      <p class="atlas-story-kicker">${category.label} · 活页记录</p>
+      <p class="atlas-story-kicker">${category.label}</p>
       <div class="atlas-story-portrait">
         <img src="${image}" alt="${entry.name}" />
       </div>
       <h3>${entry.name}</h3>
-      <dl>
-        <div><dt>植物</dt><dd>${plantName}</dd></div>
-        <div><dt>风土</dt><dd>${region}</dd></div>
-        <div><dt>栖息</dt><dd>${habitat}</dd></div>
-      </dl>
     </section>
     <section class="atlas-story-page atlas-story-page--notes" aria-label="${entry.name} 图册右页">
       <p class="atlas-story-kicker">第 ${pageLabel} 页</p>
       <h3>${status}</h3>
-      <blockquote>${voiceLine}</blockquote>
-      <p>${knowledge}</p>
-      <dl>
-        <div><dt>性格</dt><dd>${personality}</dd></div>
-        <div><dt>关系</dt><dd>已经被你的花园认出来了。</dd></div>
+      <dl class="atlas-brief-notes">
+        <div><dt>性格</dt><dd>${shortPersonality}</dd></div>
+        <div><dt>习惯</dt><dd>${shortHabit}</dd></div>
+        <div><dt>会说</dt><dd>${shortVoiceLine}</dd></div>
       </dl>
       <button class="atlas-page-corner" type="button" ${entries.length <= 1 ? "disabled" : ""} aria-label="翻到下一只种种">
         <span>翻</span>
@@ -1954,6 +1959,7 @@ function getLockedAtlasPage(category, realLocked, lockedTotal) {
 
 function renderAtlasBookmarks() {
   if (!atlasBookmarks) return;
+  const unlocked = getUnlockedEntries();
   atlasBookmarks.replaceChildren(
     ...atlasCategories.map((category) => {
       const button = document.createElement("button");
@@ -1961,11 +1967,44 @@ function renderAtlasBookmarks() {
       button.dataset.atlasCategory = category.id;
       button.dataset.atlasTone = category.tone;
       button.setAttribute("aria-label", `${category.label}：${category.description}`);
+      button.className = "atlas-region-card";
       button.classList.toggle("is-active", category.id === state.atlasCategory);
-      button.innerHTML = `<strong class="atlas-tab-icon atlas-tab-icon--${category.icon || category.id}" aria-hidden="true"><em></em></strong><i>${category.label}</i><span>${category.description}</span>`;
+      const categoryTotal = getAtlasCategoryCount(category);
+      const unlockedInCategory = category.locked ? [] : unlocked.filter(category.match);
+      const count = unlockedInCategory.length;
+      const percent = clamp((count / Math.max(1, categoryTotal)) * 100, 0, 100);
+      const previewEntries = (unlockedInCategory.length ? unlockedInCategory : atlasEntries).slice(0, 3);
+      const silhouettes = previewEntries
+        .map((entry) => `<img src="${entry.image || "./assets/ui/seed.png"}" alt="" />`)
+        .join("");
+      button.classList.toggle("is-locked", Boolean(category.locked && count === 0));
+      button.innerHTML = `
+        <span class="atlas-region-copy">
+          <b>${category.label}</b>
+          <i aria-hidden="true"><em style="width:${percent}%"></em></i>
+          <span>${category.description}</span>
+        </span>
+        <span class="atlas-region-preview" aria-hidden="true">${silhouettes}</span>
+        ${category.locked && count === 0 ? '<small class="atlas-region-lock" aria-hidden="true">锁</small>' : ""}
+      `;
       return button;
     }),
   );
+}
+
+function nudgeAtlasPageTurn() {
+  [atlasCollectedList, atlasLockedGrid].forEach((node) => {
+    if (!node) return;
+    node.classList.remove("is-page-turning");
+    node.getBoundingClientRect();
+    node.classList.add("is-page-turning");
+  });
+}
+
+function scrollAtlasStoryIntoView(behavior = "smooth") {
+  if (!atlasCollectedList) return;
+  const target = atlasCollectedList.querySelectorAll(".atlas-storybook")[state.atlasStoryIndex];
+  target?.scrollIntoView({ inline: "center", block: "nearest", behavior });
 }
 
 function renderAtlas() {
@@ -1986,25 +2025,28 @@ function renderAtlas() {
   const { milestone, percent } = getAtlasGrowthProgress(unlocked.length);
   const rewardMilestone = getAtlasRewardMilestone(unlocked.length);
 
-  atlasProgress.textContent = `图鉴成就 Lv.${milestone.level} · ${unlocked.length} / ${milestone.count}`;
+  atlasProgress.textContent = `种种图鉴 · 已认识：${unlocked.length}`;
   atlasProgressBar.style.width = `${percent}%`;
   renderAtlasRewards(rewardMilestone, unlocked.length);
   renderAtlasBookmarks();
   atlasCollectedTitle.textContent = `${category.label} · 已收集（${visibleUnlocked.length}）`;
   atlasLockedTitle.textContent = `${category.label} · 待发现`;
-  atlasPageLabel.textContent = `第 ${state.atlasPage + 1} 页`;
+  atlasPageLabel.textContent = `${state.atlasPage + 1} / ${pageCount}`;
   atlasPrevPage.disabled = state.atlasPage <= 0;
   atlasNextPage.disabled = state.atlasPage >= pageCount - 1;
-  atlasCollectedList.replaceChildren(
-    state.atlasSelectedLocked
-      ? createLockedAtlasDetail(state.atlasSelectedLocked, category)
-      : visibleUnlocked.length
-      ? createAtlasStoryBook(visibleUnlocked, category)
-      : createAtlasEmpty(category.empty || "这一页还没有记录。去花园或地图里遇见一只种种。"),
-  );
+  const collectedNodes = state.atlasSelectedLocked
+    ? [createLockedAtlasDetail(state.atlasSelectedLocked, category)]
+    : visibleUnlocked.length
+    ? visibleUnlocked.map((_, index) => createAtlasStoryBook(visibleUnlocked, category, index))
+    : [createAtlasEmpty(category.empty || "这一页还没有记录。去花园或地图里遇见一只种种。")];
+  atlasCollectedList.replaceChildren(...collectedNodes);
   atlasLockedGrid.replaceChildren(
     ...(visibleLockedPage.length ? visibleLockedPage.map((entry) => createAtlasArticle(entry, true)) : [createAtlasEmpty("这一页暂时没有新的待发现线索。")]),
   );
+  nudgeAtlasPageTurn();
+  if (!state.atlasSelectedLocked && visibleUnlocked.length) {
+    requestAnimationFrame(() => scrollAtlasStoryIntoView("auto"));
+  }
   renderIdentityCard();
 }
 
@@ -2074,6 +2116,7 @@ function rebuildActiveMapPack(mapPack) {
   }
   syncGuideStarterStep(starter);
   syncGardenSprigs();
+  renderExpeditionSquad();
   renderAtlas();
   updateCaptureUi();
 }
@@ -2347,25 +2390,75 @@ function getOnboardingRegionLabel() {
   return "种种大世界";
 }
 
-function renderMapPackPicker(message = "") {
-  if (!mapPackPicker) return;
-  mapPackPicker.replaceChildren();
-  mapPackPicker.classList.remove("is-expanded");
+function getMapPackRegionLabel(pack = null) {
+  if (!pack) return state.onboarding.city || "选择花园";
+  if (pack.locationLabel) return pack.locationLabel;
+  return (pack.expeditionLabel || pack.name || "未知花园")
+    .replace(/植物地图|探索包|精灵图鉴|地图包/g, "")
+    .trim();
+}
 
-  if (message) {
-    const note = document.createElement("p");
-    note.textContent = message;
-    mapPackPicker.append(note);
-  }
+function normalizeGardenPickerLabel(value = "") {
+  return String(value || "")
+    .replace(/[·\s/｜|,，、-]/g, "")
+    .replace(/省|市|地区|探索包|植物地图|精灵图鉴|地图包/g, "")
+    .trim();
+}
+
+function getKnownGardenLabel(candidate = {}) {
+  const province = String(candidate.province || "").replace(/省$/, "");
+  const city = String(candidate.city || "").replace(/市$/, "");
+  if (province && city) return `${province}·${city}`;
+  return city || province || "已读取地点";
+}
+
+function renderMapPackPicker(message = "", options = {}) {
+  if (!mapPackPicker) return;
+  const { expanded = false, locating = false } = options;
+  const currentLabel = getMapPackRegionLabel(state.currentMapPack);
+  const currentNormalized = normalizeGardenPickerLabel(currentLabel || getOnboardingRegionLabel());
+  const currentRegionNormalized = normalizeGardenPickerLabel(getOnboardingRegionLabel());
+  const currentCityNormalized = normalizeGardenPickerLabel(state.onboarding.city);
+  const seenLabels = new Set([currentNormalized, currentRegionNormalized, currentCityNormalized].filter(Boolean));
+  mapPackPicker.replaceChildren();
+  mapPackPicker.classList.toggle("is-expanded", expanded);
+  mapPackPicker.classList.toggle("is-locating", locating);
 
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = "map-pack-toggle";
-  toggle.setAttribute("aria-expanded", "false");
-  toggle.textContent = "选择花园";
+  toggle.setAttribute("aria-expanded", String(expanded));
+  toggle.innerHTML = `<i aria-hidden="true"></i><span>${locating ? "读取位置" : getMapPackRegionLabel(state.currentMapPack)}</span>`;
   mapPackPicker.append(toggle);
 
+  if (expanded) {
+    const helper = document.createElement("p");
+    helper.className = "map-pack-helper";
+    helper.textContent = locating ? "正在读取附近花园" : "读取到的花园";
+    mapPackPicker.append(helper);
+  }
+
+  getKnownCityExplorationCandidates().forEach((candidate) => {
+    const label = getKnownGardenLabel(candidate);
+    const normalized = normalizeGardenPickerLabel(label);
+    if (!normalized || seenLabels.has(normalized)) return;
+    seenLabels.add(normalized);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "map-pack-option map-pack-option--known";
+    button.dataset.knownLocationKey = candidate.key;
+    button.dataset.status = "known";
+    const title = document.createElement("strong");
+    title.textContent = label;
+    button.append(title);
+    mapPackPicker.append(button);
+  });
+
   mapPacks.forEach((pack) => {
+    const label = getMapPackRegionLabel(pack);
+    const normalized = normalizeGardenPickerLabel(label);
+    if (pack.id === state.currentMapPack?.id || !normalized || seenLabels.has(normalized)) return;
+    seenLabels.add(normalized);
     const button = document.createElement("button");
     button.type = "button";
     button.className = "map-pack-option";
@@ -2373,16 +2466,46 @@ function renderMapPackPicker(message = "") {
     button.dataset.status = pack.status;
     button.disabled = pack.status === "locked";
     const title = document.createElement("strong");
-    title.textContent = `${pack.expeditionLabel || pack.name}：${getMapPackStatusLabel(pack.status)}`;
-    const text = document.createElement("span");
-    text.textContent = pack.description;
-    button.append(title, text);
+    title.textContent = label;
+    button.append(title);
     mapPackPicker.append(button);
   });
 }
 
+async function locateFromMapPackPicker() {
+  if (!mapPackPicker || state.dispatched) return;
+  renderMapPackPicker("", { expanded: true, locating: true });
+  try {
+    const userLocation = await requestUserLocation();
+    const inferred = userLocation.city
+      ? getCityCenterFromText(`${userLocation.province || ""} ${userLocation.city || ""}`) || inferOnboardingRegionFromLocation(userLocation)
+      : inferOnboardingRegionFromLocation(userLocation);
+    if (inferred) {
+      state.onboarding = {
+        ...state.onboarding,
+        province: inferred.province,
+        city: inferred.city,
+        located: true,
+      };
+      updateWeather(userLocation);
+    }
+    const match = findNearestMapPack(userLocation, mapPacks);
+    if (match.mapPack) {
+      enterMapPack(match.mapPack, match.userLocation || userLocation, "located");
+    } else {
+      enterUnknownGarden(match.userLocation || userLocation);
+    }
+  } catch {
+    const knownCandidate = getKnownCityExplorationCandidates()[0];
+    if (knownCandidate) enterKnownCityExploration(knownCandidate);
+  } finally {
+    renderMapPackPicker("", { expanded: true, locating: false });
+    syncExpeditionChoice();
+  }
+}
+
 function clearMapPackPicker() {
-  if (mapPackPicker) mapPackPicker.replaceChildren();
+  renderMapPackPicker();
 }
 
 function unlockSprig(id, scan = null, reward = null) {
@@ -2506,6 +2629,7 @@ function appendPlantScanRecord(record) {
   };
   state.scanRecords = [enrichedRecord, ...state.scanRecords].slice(0, 4);
   saveGardenProfile();
+  renderExpeditionSquad();
   scanRecordList.replaceChildren(
     ...state.scanRecords.map((item) => {
       const article = document.createElement("article");
@@ -3596,6 +3720,7 @@ function serializeGardenProfile() {
     levelProgress: state.levelProgress,
     unlockedSprigs: Array.from(state.unlockedSprigs),
     gardenSprigs: Array.from(state.gardenSprigs),
+    expeditionSquadIds: state.expeditionSquadIds,
     discoverySprigId: state.discoverySprigId,
     specialties: state.specialties,
     scanRecords: state.scanRecords,
@@ -3625,6 +3750,9 @@ function applyGardenProfile(profile = {}) {
   state.levelProgress = Number.isFinite(Number(profile.levelProgress)) ? Number(profile.levelProgress) : state.levelProgress;
   state.unlockedSprigs = new Set(Array.isArray(profile.unlockedSprigs) ? profile.unlockedSprigs : Array.from(state.unlockedSprigs));
   state.gardenSprigs = new Set(Array.isArray(profile.gardenSprigs) ? profile.gardenSprigs : Array.from(state.gardenSprigs));
+  state.expeditionSquadIds = Array.isArray(profile.expeditionSquadIds)
+    ? profile.expeditionSquadIds.filter((id) => atlasEntryById[id]).slice(0, 3)
+    : state.expeditionSquadIds;
   state.discoverySprigId = profile.discoverySprigId || state.discoverySprigId;
   state.specialties = Array.isArray(profile.specialties) ? profile.specialties : state.specialties;
   state.scanRecords = Array.isArray(profile.scanRecords) ? profile.scanRecords.slice(0, 4) : state.scanRecords;
@@ -3956,6 +4084,8 @@ async function startLocationExploration() {
 
 function syncExpeditionChoice() {
   const selected = getSelectedExpedition();
+  const squadCount = getSelectedExpeditionSquadEntries().length;
+  const squadLabel = squadCount ? `${squadCount}位种种` : "选择种种";
   durationButtons.forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.duration === state.expeditionDuration);
     button.disabled = state.dispatched;
@@ -3963,26 +4093,31 @@ function syncExpeditionChoice() {
   const generated = state.generatedSprig?.sprig;
   const pack = state.currentMapPack;
 
+  dispatchButton.classList.toggle("is-ready", Boolean(state.explorationReady && !state.dispatched));
   if (!state.dispatched) {
     dispatchButton.textContent = state.explorationReady ? "派出探险" : "开始探险";
     if (pack) {
-      expeditionTitle.textContent = pack.name;
-      expeditionPlanText.textContent = `${pack.expeditionLabel || pack.name} · ${selected.label}`;
+      expeditionTitle.textContent = getMapPackRegionLabel(pack);
+      expeditionPlanText.textContent = `${squadLabel} · ${selected.label}`;
       expeditionTimer.textContent = "可立即出发";
-      expeditionText.textContent = `附近可探索。${generated?.name ? `遇见：${generated.name}。` : ""}`;
+      expeditionText.textContent = generated?.name
+        ? `已读取附近花园。${generated.name} 可以一起去寻找风物。`
+        : "已读取附近花园，可以派出小队寻找风物。";
       return;
     }
 
     if (state.explorationMode === "unknown") {
       expeditionTitle.textContent = "野外探索";
-      expeditionPlanText.textContent = `未知花园 · ${selected.label}`;
+      expeditionPlanText.textContent = `${squadLabel} · ${selected.label}`;
       expeditionTimer.textContent = "可立即出发";
-      expeditionText.textContent = `这里还没建图。${generated?.name ? `发现：${generated.name}。` : "先记录线索。"}`;
+      expeditionText.textContent = generated?.name
+        ? `这里还没有完整记录。${generated.name} 会先带回一点线索。`
+        : "这里还没有完整记录，先派出小队带回线索。";
       return;
     }
 
     expeditionTitle.textContent = state.explorationMode === "manual" ? "选择一片花园开始探险" : "读取你所在的花园";
-    expeditionPlanText.textContent = `选择一片花园 · ${selected.label}`;
+    expeditionPlanText.textContent = `选择花园 · ${squadLabel} · ${selected.label}`;
     expeditionTimer.textContent = state.explorationMode === "manual" ? "等待选择" : "等待定位";
     expeditionText.textContent =
       state.explorationMode === "manual"
@@ -4032,7 +4167,7 @@ function applyLanguage() {
   setupNext.textContent = copy.next;
   setupSubmit.textContent = copy.submit;
   document.querySelector(".identity-topbar h2").textContent = runtime.identityTitle;
-  if (specialtyBagTitle) specialtyBagTitle.textContent = runtime.specialtyBag;
+  if (specialtyBagTitle) specialtyBagTitle.textContent = state.onboarding.language === "en" ? "Terrain" : "地貌";
   document.querySelector(".seed-pouch-section h3").textContent = state.onboarding.language === "en" ? "Seed Pouch" : "种子袋";
   setOptionalText(".house-section h3", runtime.house);
   setOptionalText(".relation-section h3", runtime.sprigFriends);
@@ -4046,7 +4181,7 @@ function applyLanguage() {
     expeditionTitle.textContent = runtime.expeditionIdle;
     dispatchButton.textContent = runtime.expeditionButton;
   }
-  renderExpeditionLoot(state.specialties[0] || null);
+  renderExpeditionLoot(null);
   renderExpeditionSquad();
   renderIdentityCard();
   setOnboardingStep(getOnboardingStep());
@@ -4156,14 +4291,14 @@ function syncIdentityNurseryStatus() {
   if (sprig && remaining > 0) {
     identityNurseryStatus.textContent =
       state.onboarding.language === "en"
-        ? `A greenhouse seed is growing: ${formatDuration(remaining)}.`
-        : `温室里有种子正在生长：${formatDuration(remaining)}。`;
+        ? `Growing: ${formatDuration(remaining)}.`
+        : `正在醒来：${formatDuration(remaining)}。`;
     return;
   }
   identityNurseryStatus.textContent =
     state.onboarding.language === "en"
-      ? "Drag seeds into the greenhouse to unlock atlas pages."
-      : "可以拖进种子温室，成熟后解锁图鉴。";
+      ? "Drag into greenhouse."
+      : "拖进温室。";
 }
 
 async function setupWechatShare(payload) {
@@ -4228,16 +4363,17 @@ function renderSpecialtyShelf() {
       return createSpecialtyRegionSection(region, collected, locked);
     }),
   );
+  selectLandformRegion(specialtyRegions[currentLandformIndex]?.id || specialtyRegions[0]?.id, { scrollSection: false });
 }
 
 function renderLandformOverview(discoveredNames = new Set()) {
   if (!landformRegionList) return;
-  currentLandformIndex = Math.min(currentLandformIndex, specialtyRegions.length - 1);
+  const visibleRegions = specialtyRegions.slice(0, 3);
+  currentLandformIndex = Math.min(currentLandformIndex, visibleRegions.length - 1);
   landformRegionList.replaceChildren(
-    ...specialtyRegions.map((region, index) => {
+    ...visibleRegions.map((region, index) => {
       const collected = state.specialties.filter((item) => getSpecialtyRegion(item).id === region.id);
       const total = specialtyPool.filter((item) => getSpecialtyRegion(item).id === region.id).length;
-      const locked = Math.max(0, total - collected.length);
       const button = document.createElement("button");
       button.type = "button";
       button.dataset.landformRegion = region.id;
@@ -4246,9 +4382,8 @@ function renderLandformOverview(discoveredNames = new Set()) {
       button.className = `landform-region-chip landform-region-chip--${region.id}`;
       button.classList.toggle("is-active", index === currentLandformIndex);
       button.innerHTML = `
-        <i aria-hidden="true"></i>
+        <i class="terrain-sprite terrain-sprite--${region.id}" aria-hidden="true"></i>
         <strong>${region.shortTitle}</strong>
-        <em>${collected.length}/${total}</em>
       `;
       return button;
     }),
@@ -4266,6 +4401,15 @@ function selectLandformRegion(regionId, options = {}) {
     button.classList.toggle("is-active", isTarget);
     if (isTarget) button.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
   });
+
+  const panorama = document.querySelector(".landform-panorama");
+  if (panorama && specialtyRegions.length > 1) {
+    const maxScroll = Math.max(0, panorama.scrollWidth - panorama.clientWidth);
+    panorama.scrollTo({
+      left: maxScroll * (index / (specialtyRegions.length - 1)),
+      behavior: scrollSection ? "smooth" : "auto",
+    });
+  }
 
   const section = specialtyShelf?.querySelector(`[data-specialty-region="${regionId}"]`);
   const toggle = section?.querySelector(".specialty-region-toggle");
@@ -4287,7 +4431,7 @@ function selectLandformRegion(regionId, options = {}) {
 function shiftLandformRegion(step) {
   if (!specialtyRegions.length) return;
   const nextIndex = (currentLandformIndex + step + specialtyRegions.length) % specialtyRegions.length;
-  selectLandformRegion(specialtyRegions[nextIndex].id);
+  selectLandformRegion(specialtyRegions[nextIndex].id, { scrollSection: false });
 }
 
 function getSpecialtyRegion(item) {
@@ -4303,11 +4447,9 @@ function createSpecialtyRegionSection(region, collected, locked) {
   section.innerHTML = `
     <button class="specialty-region-toggle" type="button" aria-expanded="true">
       <div>
-        <h4>${region.title}</h4>
-        <span>${region.cities}</span>
+        <h4>${region.shortTitle}</h4>
       </div>
-      <small>${region.landform}</small>
-      <em>${collected.length} / ${totalCount} 已收纳</em>
+      <em>${collected.length}/${totalCount}</em>
     </button>
     <div class="specialty-region-grid"></div>
   `;
@@ -4321,23 +4463,39 @@ function createSpecialtyRegionSection(region, collected, locked) {
 
 function createSpecialtyCard(item) {
   const article = document.createElement("article");
+  const region = getSpecialtyRegion(item);
+  const place = item.region || state.onboarding.city || getGardenLabel();
   article.className = `specialty-card specialty-card--${item.tone}`;
-  article.innerHTML = `${specialtyIconMarkup(item)}<div><strong>${item.name}</strong><span>${item.region} · ${item.rarity}</span></div>${rarityPipsMarkup(item.level, item.rarity)}`;
+  article.innerHTML = `
+    <span class="specialty-scene specialty-scene--${region.id}" aria-hidden="true"><i></i></span>
+    ${specialtyIconMarkup(item)}
+    <div>
+      <strong>${item.name}</strong>
+      <span class="specialty-place">${place}</span>
+    </div>
+    ${rarityPipsMarkup(item.level, item.rarity)}
+  `;
   return article;
 }
 
 function createSpecialtyEmptyCard(region = null) {
   const article = document.createElement("article");
   article.className = "specialty-empty";
-  article.textContent = region ? `${region.title}还没有收进风物。` : getRuntimeCopy().specialtyEmptyText;
+  article.textContent = region ? "未解锁" : getRuntimeCopy().specialtyEmptyText;
   return article;
 }
 
 function createLockedSpecialtyCard(item) {
   const article = document.createElement("article");
   article.className = "specialty-card specialty-card--locked";
+  const region = getSpecialtyRegion(item);
   const place = item.terrain === "default" ? "未知地方" : item.terrain;
-  article.innerHTML = `${specialtyIconMarkup(item, "specialty-icon--locked")}<div><strong>${place}</strong><span>还没有解锁</span></div><em class="rarity-pips rarity-pips--locked" aria-label="未解锁"><i></i><i></i><i></i></em>`;
+  article.innerHTML = `
+    <span class="specialty-scene specialty-scene--${region.id} is-locked" aria-hidden="true"><i></i></span>
+    ${specialtyIconMarkup(item, "specialty-icon--locked")}
+    <div><strong>${place}</strong></div>
+    <em class="rarity-pips rarity-pips--locked" aria-label="未解锁"><i></i><i></i><i></i></em>
+  `;
   return article;
 }
 
@@ -4356,8 +4514,8 @@ function showSpecialtyReward(items, selected = getSelectedExpedition()) {
     archiveSpecialties(list);
     return;
   }
-  specialtyRewardTitle.textContent = "巡回风物";
-  specialtyRewardText.textContent = `小队从${getGardenLabel()}巡回归来，带回 ${list.length} 件地方风物。收进背包后会归档到风物集合。`;
+  specialtyRewardTitle.textContent = "探险归来";
+  specialtyRewardText.textContent = `${getGardenLabel()}带回 ${list.length} 件风物。`;
   specialtyRewardList.replaceChildren(
     ...list.map((item) => {
       const article = createSpecialtyCard(item);
@@ -4417,11 +4575,12 @@ function renderExpeditionLoot(items = null) {
   if (!expeditionLoot) return;
   const list = Array.isArray(items) ? sortSpecialties(items) : items ? [items] : [];
   if (!list.length) {
-    const runtime = getRuntimeCopy();
+    expeditionLoot.hidden = true;
     expeditionLoot.classList.add("is-empty");
-    expeditionLoot.innerHTML = `${specialtyIconMarkup({ icon: "parcel", tone: "common" }, "specialty-icon--empty")}<div><strong>${runtime.specialtyEmptyTitle}</strong><p>${runtime.specialtyEmptyText}</p></div>`;
+    expeditionLoot.replaceChildren();
     return;
   }
+  expeditionLoot.hidden = false;
   expeditionLoot.classList.remove("is-empty");
   expeditionLoot.innerHTML = `<div class="loot-list">${list
     .map(
@@ -4431,33 +4590,83 @@ function renderExpeditionLoot(items = null) {
     .join("")}</div>`;
 }
 
+function getSprigIdFromScanRecord(record = {}) {
+  const text = normalizeScanText([record.title, record.meta, record.text].filter(Boolean).join(" "));
+  return atlasEntries.find((entry) => {
+    const names = [entry.id, entry.name, entry.plant, ...(entry.aliases || [])].filter(Boolean);
+    return names.some((name) => text.includes(normalizeScanText(name)));
+  })?.id || null;
+}
+
 function getExpeditionSquadEntries() {
   const ids = [
     ...Array.from(state.gardenSprigs || []),
     state.discoverySprigId,
     ...Array.from(state.unlockedSprigs || []),
+    ...(state.scanRecords || []).map(getSprigIdFromScanRecord),
   ];
-  const unique = [...new Set(ids)].filter((id) => atlasEntryById[id]).slice(0, 3);
+  const unique = [...new Set(ids)].filter((id) => atlasEntryById[id]);
   return unique.map((id) => atlasEntryById[id]);
+}
+
+function getSelectedExpeditionSquadIds() {
+  const availableIds = getExpeditionSquadEntries().map((entry) => entry.id);
+  const selected = [...new Set(state.expeditionSquadIds || [])].filter((id) => availableIds.includes(id)).slice(0, 3);
+  if (!selected.length && availableIds.length) selected.push(availableIds[0]);
+  state.expeditionSquadIds = selected;
+  return selected;
+}
+
+function getSelectedExpeditionSquadEntries() {
+  return getSelectedExpeditionSquadIds().map((id) => atlasEntryById[id]).filter(Boolean);
+}
+
+function closeSquadPicker() {
+  squadPicker?.classList.add("is-hidden");
+}
+
+function renderSquadPicker() {
+  if (!squadPicker) return;
+  const entries = getExpeditionSquadEntries();
+  const selectedIds = new Set(getSelectedExpeditionSquadIds());
+  if (!entries.length) {
+    squadPicker.innerHTML = `<p>还没有可派出的种种。</p>`;
+    squadPicker.classList.remove("is-hidden");
+    return;
+  }
+  squadPicker.replaceChildren(
+    ...entries.map((entry) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `squad-picker-option${selectedIds.has(entry.id) ? " is-selected" : ""}`;
+      button.dataset.sprig = entry.id;
+      button.innerHTML = `<img src="${entry.image}" alt="" /><span>${entry.name}</span>`;
+      button.setAttribute("aria-label", `派出${entry.name}`);
+      return button;
+    }),
+  );
+  squadPicker.classList.remove("is-hidden");
 }
 
 function renderExpeditionSquad() {
   if (!expeditionSquad) return;
-  const entries = getExpeditionSquadEntries();
-  const slots = Array.from({ length: 3 }, (_, index) => entries[index] || null);
+  const selectedIds = getSelectedExpeditionSquadIds();
+  const slots = Array.from({ length: 3 }, (_, index) => atlasEntryById[selectedIds[index]] || null);
   expeditionSquad.replaceChildren(
     ...slots.map((entry, index) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = `squad-slot${entry ? "" : " is-empty"}`;
-      button.setAttribute("aria-label", entry ? `${entry.name} 已入队` : "安置种种");
+      button.setAttribute("aria-label", entry ? `${entry.name} 已入队，点击更换` : "安置种种");
       button.innerHTML = entry
         ? `<img src="${entry.image}" alt="" /><span>${entry.name}</span>`
         : `<b aria-hidden="true">+</b><span>空位</span>`;
-      button.dataset.slot = String(index + 1);
+      button.dataset.slot = String(index);
+      button.dataset.openSquadPicker = "true";
       return button;
     }),
   );
+  if (!squadPicker?.classList.contains("is-hidden")) renderSquadPicker();
 }
 
 function growSeedInNursery() {
@@ -4529,10 +4738,12 @@ function finishNurseryHatch() {
 
 function showHatchReward(sprig, wasLocked = true) {
   if (!hatchReward || !hatchRewardImage || !hatchRewardText) return;
+  if (hatchRewardTitle) hatchRewardTitle.textContent = wasLocked ? `解锁图鉴：${sprig.name}` : `${sprig.name} 又醒了一点`;
   hatchRewardImage.src = sprig.image;
   hatchRewardImage.alt = sprig.name;
+  hatchRewardImage.classList.toggle("is-unlocked-sprig", Boolean(wasLocked));
   hatchRewardText.textContent = wasLocked
-    ? `解锁了一页 ${sprig.name} 图鉴。`
+    ? `${sprig.name} 已写进图鉴。`
     : `${sprig.name} 的图鉴熟悉度增加了。`;
   if (hatchRewardButton) {
     hatchRewardButton.disabled = true;
@@ -4715,7 +4926,7 @@ function finishExpedition() {
   expeditionText.textContent = `小队巡回结束，带回 ${loot.length} 件风物。`;
   renderExpeditionLoot(loot);
   renderExpeditionSquad();
-  showSpecialtyReward(loot, selected);
+  archiveSpecialties(loot);
   addSeeds(5);
   updateLevel(20);
 }
@@ -4736,6 +4947,7 @@ function restoreExpeditionState() {
   state.dispatched = true;
   state.expeditionRemainingSeconds = remaining;
   dispatchButton.textContent = "探险中";
+  dispatchButton.classList.remove("is-ready");
   expeditionTitle.textContent = "探险中";
   expeditionTimer.textContent = formatRemaining(remaining);
   expeditionText.textContent = `种种小队还在路上，回来时会带回地方风物。`;
@@ -4898,7 +5110,8 @@ setupNext.addEventListener("click", () => {
 locateOnboardingButton.addEventListener("click", locateForOnboarding);
 
 function beginInlineNameEdit() {
-  if (!identityBioInput.classList.contains("is-hidden")) finishInlineBioEdit(false);
+  if (!identityNameInput || !identityNameInput.classList.contains("is-hidden")) return;
+  if (identityBioInput && !identityBioInput.classList.contains("is-hidden")) finishInlineBioEdit(false);
   identityNameInput.value = state.user.name || identityName.textContent.trim();
   identityName.classList.add("is-hidden");
   identityNameInput.classList.remove("is-hidden");
@@ -4921,7 +5134,8 @@ function finishInlineNameEdit(save = true) {
 }
 
 function beginInlineBioEdit() {
-  if (!identityNameInput.classList.contains("is-hidden")) finishInlineNameEdit(false);
+  if (!identityBioInput || !identityBioInput.classList.contains("is-hidden")) return;
+  if (identityNameInput && !identityNameInput.classList.contains("is-hidden")) finishInlineNameEdit(false);
   identityBioInput.value = state.user.bio || identityBio.textContent.trim();
   identityBio.classList.add("is-hidden");
   identityBioInput.classList.remove("is-hidden");
@@ -4941,15 +5155,20 @@ function finishInlineBioEdit(save = true) {
   renderIdentityCard();
 }
 
-editIdentityName.addEventListener("click", beginInlineNameEdit);
-editIdentityNameQuick.addEventListener("click", beginInlineNameEdit);
-editIdentityBio.addEventListener("click", beginInlineBioEdit);
-identityBio.addEventListener("dblclick", beginInlineBioEdit);
-identityBio.addEventListener("keydown", (event) => {
+if (editIdentityName) editIdentityName.addEventListener("click", beginInlineNameEdit);
+if (editIdentityNameQuick) editIdentityNameQuick.addEventListener("click", beginInlineNameEdit);
+if (identityName) identityName.addEventListener("click", beginInlineNameEdit);
+if (identityName) identityName.addEventListener("dblclick", beginInlineNameEdit);
+if (identityName) identityName.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") beginInlineNameEdit();
+});
+if (editIdentityBio) editIdentityBio.addEventListener("click", beginInlineBioEdit);
+if (identityBio) identityBio.addEventListener("dblclick", beginInlineBioEdit);
+if (identityBio) identityBio.addEventListener("keydown", (event) => {
   if (event.key === "Enter") beginInlineBioEdit();
 });
-identityNameInput.addEventListener("blur", () => finishInlineNameEdit(true));
-identityNameInput.addEventListener("keydown", (event) => {
+if (identityNameInput) identityNameInput.addEventListener("blur", () => finishInlineNameEdit(true));
+if (identityNameInput) identityNameInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault();
     finishInlineNameEdit(true);
@@ -4959,8 +5178,8 @@ identityNameInput.addEventListener("keydown", (event) => {
     finishInlineNameEdit(false);
   }
 });
-identityBioInput.addEventListener("blur", () => finishInlineBioEdit(true));
-identityBioInput.addEventListener("keydown", (event) => {
+if (identityBioInput) identityBioInput.addEventListener("blur", () => finishInlineBioEdit(true));
+if (identityBioInput) identityBioInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault();
     finishInlineBioEdit(true);
@@ -5073,10 +5292,18 @@ mapPackPicker?.addEventListener("click", (event) => {
     const expanded = !mapPackPicker.classList.contains("is-expanded");
     mapPackPicker.classList.toggle("is-expanded", expanded);
     toggle.setAttribute("aria-expanded", String(expanded));
-    toggle.textContent = expanded ? "收起花园" : "选择花园";
+    toggle.querySelector("span").textContent = expanded ? "选择花园" : getMapPackRegionLabel(state.currentMapPack);
     if (expanded) {
       window.setTimeout(() => mapPackPicker.querySelector(".map-pack-option")?.scrollIntoView({ block: "nearest" }), 60);
+      locateFromMapPackPicker();
     }
+    return;
+  }
+
+  const knownButton = event.target.closest("[data-known-location-key]");
+  if (knownButton) {
+    const candidate = getKnownCityExplorationCandidates().find((item) => item.key === knownButton.dataset.knownLocationKey);
+    if (enterKnownCityExploration(candidate)) renderMapPackPicker("", { expanded: true });
     return;
   }
 
@@ -5165,7 +5392,7 @@ atlasCollectedList?.addEventListener("click", (event) => {
   const entries = getUnlockedEntries().filter(category.match);
   if (entries.length <= 1) return;
   state.atlasStoryIndex = (state.atlasStoryIndex + 1) % entries.length;
-  renderAtlas();
+  scrollAtlasStoryIntoView();
 });
 
 function showLockedAtlasEntry(tile) {
@@ -5231,6 +5458,33 @@ durationButtons.forEach((button) => {
   });
 });
 
+expeditionSquad?.addEventListener("click", (event) => {
+  const slot = event.target.closest("[data-open-squad-picker]");
+  if (!slot || state.dispatched) return;
+  state.squadPickerSlot = Number(slot.dataset.slot || 0);
+  renderSquadPicker();
+});
+
+squadPicker?.addEventListener("click", (event) => {
+  const option = event.target.closest("[data-sprig]");
+  if (!option || state.dispatched) return;
+  const sprigId = option.dataset.sprig;
+  const selected = getSelectedExpeditionSquadIds();
+  const next = selected.filter((id) => id !== sprigId);
+  next[state.squadPickerSlot || 0] = sprigId;
+  state.expeditionSquadIds = next.filter(Boolean).slice(0, 3);
+  closeSquadPicker();
+  renderExpeditionSquad();
+  syncExpeditionChoice();
+  saveGardenProfile();
+});
+
+document.addEventListener("click", (event) => {
+  if (!squadPicker || squadPicker.classList.contains("is-hidden")) return;
+  if (event.target.closest("#expeditionSquad") || event.target.closest("#squadPicker")) return;
+  closeSquadPicker();
+});
+
 captureButton.addEventListener("click", captureArRecognition);
 
 uploadScanButton.addEventListener("click", () => {
@@ -5270,6 +5524,7 @@ async function dispatchExpedition() {
   }
 
   const selected = getSelectedExpedition();
+  const squad = getSelectedExpeditionSquadEntries();
   if (state.stamina < selected.cost) {
     showSystemMessage("体力不足", `${selected.label} 探险需要 ${selected.cost} 体力。`, "探险");
     return;
@@ -5284,7 +5539,7 @@ async function dispatchExpedition() {
   dispatchButton.textContent = "探险中";
   expeditionTitle.textContent = "探险中";
   expeditionTimer.textContent = formatRemaining(state.expeditionRemainingSeconds);
-  expeditionText.textContent = `已派遣 ${selected.label}，种种正在${getGardenLabel()}寻找线索。`;
+  expeditionText.textContent = `${squad.length || 1} 位种种已出发，去${getGardenLabel()}寻找线索。`;
   renderExpeditionLoot(null);
   renderExpeditionSquad();
   setQuestProgress("dispatch", "1 / 1");

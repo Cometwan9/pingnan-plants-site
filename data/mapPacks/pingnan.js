@@ -14,6 +14,7 @@
     cattail: "./assets/sprigs/new-cattail.png",
     hydrangea: "./assets/sprigs/new-hydrangea.png",
     bluebell: "./assets/sprigs/new-bluebell.png",
+    violet: "./assets/sprigs/new-orchid.png",
     seed: "./assets/ui/seed.png",
   };
 
