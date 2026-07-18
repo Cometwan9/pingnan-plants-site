@@ -22768,3 +22768,141 @@ button {
     min-height: clamp(7rem, 30vw, 8.4rem) !important;
   }
 }
+
+/* EOF atlas mobile composition: keep collected and locked records complete on phone. */
+@media (max-width: 720px) {
+  .panel--identity[data-active-identity-tab="atlas"] {
+    grid-template-rows: auto auto minmax(0, 1fr) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-pages {
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden) {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding-bottom: clamp(1.2rem, 6vw, 1.8rem) !important;
+    overflow: visible !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
+    display: grid !important;
+    grid-template-rows: auto auto auto auto !important;
+    gap: clamp(0.68rem, 3vw, 0.88rem) !important;
+    overflow: visible !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--collected,
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--locked {
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: clamp(0.88rem, 4vw, 1.08rem) !important;
+    overflow: hidden !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--collected {
+    display: grid !important;
+    gap: clamp(0.52rem, 2.5vw, 0.72rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--locked {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "title controls"
+      "grid grid" !important;
+    align-items: center !important;
+    gap: clamp(0.54rem, 2.6vw, 0.74rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--locked h2 {
+    grid-area: title !important;
+    margin: 0 !important;
+    align-self: center !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-page-controls {
+    grid-area: controls !important;
+    position: static !important;
+    inset: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, clamp(2.2rem, 9.5vw, 2.6rem)) !important;
+    width: auto !important;
+    gap: clamp(0.3rem, 1.5vw, 0.42rem) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-page-controls button {
+    width: clamp(2.2rem, 9.5vw, 2.6rem) !important;
+    min-width: clamp(2.2rem, 9.5vw, 2.6rem) !important;
+    height: clamp(2.2rem, 9.5vw, 2.6rem) !important;
+    min-height: clamp(2.2rem, 9.5vw, 2.6rem) !important;
+    border-radius: 0.56rem !important;
+    background: #e8f2c4 !important;
+    outline: 0.1rem solid rgba(139, 166, 95, 0.48) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-page-controls span {
+    display: none !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list {
+    min-height: clamp(10.8rem, 46vw, 12.6rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list .atlas-storybook,
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-storybook {
+    min-height: clamp(10.8rem, 46vw, 12.6rem) !important;
+    max-height: none !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid {
+    grid-area: grid !important;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: calc((100% - clamp(0.72rem, 3.2vw, 0.92rem)) / 2) !important;
+    grid-template-columns: none !important;
+    gap: clamp(0.72rem, 3.2vw, 0.92rem) !important;
+    width: 100% !important;
+    min-height: clamp(9.2rem, 39vw, 10.8rem) !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scrollbar-width: none !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid article {
+    display: grid !important;
+    place-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: clamp(9.2rem, 39vw, 10.8rem) !important;
+    aspect-ratio: 1 / 1 !important;
+    padding: clamp(0.58rem, 2.8vw, 0.78rem) !important;
+    overflow: hidden !important;
+    scroll-snap-align: start !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid article > b {
+    width: 86% !important;
+    height: 86% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid article img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+}
