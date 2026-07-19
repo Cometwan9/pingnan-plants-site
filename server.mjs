@@ -1,11 +1,13 @@
 import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { createServer } from "node:http";
+import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname);
 const envPath = join(root, ".env");
 const runtimeDir = join(root, "data", "runtime");
 const profileDbPath = join(runtimeDir, "player-profiles.json");
+let memoryProfileDb = {};
 const weatherCache = new Map();
 const WEATHER_CACHE_MS = 8 * 60 * 1000;
 
@@ -50,15 +52,21 @@ function sendJs(response, status, source) {
 function readProfileDb() {
   if (!existsSync(profileDbPath)) return {};
   try {
-    return JSON.parse(readFileSync(profileDbPath, "utf8"));
+    memoryProfileDb = JSON.parse(readFileSync(profileDbPath, "utf8"));
+    return memoryProfileDb;
   } catch {
-    return {};
+    return memoryProfileDb;
   }
 }
 
 function writeProfileDb(db) {
-  mkdirSync(runtimeDir, { recursive: true });
-  writeFileSync(profileDbPath, JSON.stringify(db, null, 2));
+  memoryProfileDb = db;
+  try {
+    mkdirSync(runtimeDir, { recursive: true });
+    writeFileSync(profileDbPath, JSON.stringify(db, null, 2));
+  } catch {
+    // Vercel serverless filesystems are ephemeral/read-only; keep runtime data in memory until a real DB is configured.
+  }
 }
 
 function normalizePlayerId(value = "") {
@@ -563,7 +571,7 @@ function serveStatic(request, response) {
   createReadStream(filePath).pipe(response);
 }
 
-const server = createServer((request, response) => {
+export function handleRequest(request, response) {
   if (request.method === "POST" && request.url === "/api/identify-plant") {
     identifyPlant(request, response);
     return;
@@ -611,8 +619,11 @@ const server = createServer((request, response) => {
 
   response.writeHead(405);
   response.end("Method not allowed");
-});
+}
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`Sprig Garden running at http://127.0.0.1:${port}/index.html`);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const server = createServer(handleRequest);
+  server.listen(port, "127.0.0.1", () => {
+    console.log(`Sprig Garden running at http://127.0.0.1:${port}/index.html`);
+  });
+}
