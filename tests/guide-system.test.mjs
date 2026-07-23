@@ -33,12 +33,15 @@ const landformOverviewImage = statSync(new URL("../assets/landforms/region-card-
 test("guide layer markup is present", () => {
   assert.match(html, /id="guideButton"/);
   assert.match(html, /id="guideLayer"/);
+  assert.match(html, /id="guideGardenIntro"/);
   assert.match(html, /id="guideMascotFrame"/);
   assert.match(html, /id="guideMascot"/);
   assert.doesNotMatch(html, /class="guide-expression"/);
   assert.match(html, /id="guideSpeaker"/);
   assert.match(html, /id="guideTitle"/);
   assert.match(html, /id="guideNext"/);
+  assert.match(html, /class="garden-light-field"/);
+  assert.match(html, /class="breeze-layer"/);
 });
 
 test("player guide covers the main game loops", () => {
@@ -61,6 +64,7 @@ test("player guide covers the main game loops", () => {
   assert.match(script, /GUIDE_EXIT_MS = 180/);
   assert.match(script, /GUIDE_ENTER_MS = 420/);
   assert.match(script, /GUIDE_ADVANCE_MS = 1500/);
+  assert.match(script, /GUIDE_INTRO_MS = 1240/);
   assert.match(script, /pauseAfter:\s*2200/);
   assert.match(script, /observeSelector:\s*"#panel-identity"/);
   assert.match(script, /observeClass:\s*"guide-scroll-glow"/);
@@ -71,7 +75,10 @@ test("player guide covers the main game loops", () => {
   assert.match(script, /observeSelector:\s*"#nurseryDropZone"/);
   assert.match(script, /guideObserving/);
   assert.match(script, /guideObservationReady/);
+  assert.match(script, /guideIntroPlaying/);
+  assert.match(script, /guideIntroToken/);
   assert.match(script, /function setGuideObservationReady/);
+  assert.match(script, /function playGuideGardenIntro/);
   assert.match(script, /moveGuideToTarget\(step\.observeSelector\)/);
   assert.match(script, /goToGuideStep/);
   assert.match(script, /expression:\s*"/);
@@ -79,6 +86,7 @@ test("player guide covers the main game loops", () => {
   assert.match(script, /speaker:\s*"/);
   assert.match(script, /sprigId:\s*"/);
   assert.match(script, /guideSpeaker\.textContent/);
+  assert.match(script, /playGardenSound\("enter"\)/);
   assert.doesNotMatch(script, /这里可以直接查看身份/);
   assert.doesNotMatch(script, /先选时间，悬停就能看体力花费/);
   assert.doesNotMatch(script, /这里会记录|你可以在这里|接下来/);
@@ -808,6 +816,29 @@ test("guide uses narrative motion instead of static click-through copy", () => {
   assert.match(script, /对准叶子/);
   assert.match(script, /种子睡这里/);
   assert.doesNotMatch(script, /这里可以|你可以|这个功能|我们先|接下来/);
+});
+
+test("garden atmosphere has generated sound, brighter light and breeze motion", () => {
+  assert.match(html, /garden-glimmer garden-glimmer--a/);
+  assert.match(html, /breeze-leaf breeze-leaf--a/);
+  assert.match(html, /guide-entry-gate/);
+  assert.match(styles, /\.garden-light-field::before/);
+  assert.match(styles, /\.garden-light-field::after/);
+  assert.match(styles, /\.breeze-layer/);
+  assert.match(styles, /@keyframes gardenLightBreathe/);
+  assert.match(styles, /@keyframes gardenCenterGleam/);
+  assert.match(styles, /@keyframes breezeLeafDrift/);
+  assert.match(styles, /@keyframes guideGardenIntroFade/);
+  assert.match(styles, /@keyframes guideEntryGateOpen/);
+  assert.match(styles, /\.guide-layer\.is-entering-garden \.guide-card/);
+  assert.match(styles, /animation:\s*float 4\.6s ease-in-out infinite/);
+  assert.match(script, /function unlockGardenAudio/);
+  assert.match(script, /window\.AudioContext \|\| window\.webkitAudioContext/);
+  assert.match(script, /function createGardenNoiseBuffer/);
+  assert.match(script, /function playGardenSound/);
+  assert.match(script, /document\.addEventListener\("pointerdown", unlockGardenAudio/);
+  assert.match(script, /patterns = \{[\s\S]*enter:/);
+  assert.match(script, /showTouchForSprig\(button,\s*sprigs\[sprigId\],\s*\{ sound:\s*true \}\)/);
 });
 
 test("sprigs invite clicks through motion instead of text tips", () => {
