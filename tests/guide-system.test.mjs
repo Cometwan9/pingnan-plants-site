@@ -1193,7 +1193,8 @@ test("expedition start panel keeps only core adventure controls", () => {
   assert.match(script, /button\.dataset\.knownLocationKey = candidate\.key/);
   assert.match(script, /if \(targetId === "panel-expedition"\) renderMapPackPicker\(\)/);
   assert.match(script, /function getMapPackRegionLabel\(pack = null\)/);
-  assert.match(script, /<i aria-hidden="true"><\/i><span>\$\{locating \? "读取位置" : getMapPackRegionLabel\(state\.currentMapPack\)\}<\/span>/);
+  assert.match(script, /<i aria-hidden="true"><\/i><span>\$\{expanded \|\| locating \? "读取花园" : getMapPackRegionLabel\(state\.currentMapPack\)\}<\/span>/);
+  assert.match(script, /function enterGardenAfterReading\(callback\)/);
   assert.match(script, /const label = getMapPackRegionLabel\(pack\)/);
   assert.match(script, /title\.textContent = label/);
   assert.doesNotMatch(script, /title\.textContent = `\$\{pack\.expeditionLabel \|\| pack\.name\}：\$\{getMapPackStatusLabel\(pack\.status\)\}`/);
@@ -1201,6 +1202,8 @@ test("expedition start panel keeps only core adventure controls", () => {
   assert.doesNotMatch(script, /收起花园/);
   assert.match(script, /mapPackPicker\.classList\.toggle\("is-expanded"/);
   assert.match(script, /locateFromMapPackPicker\(\)/);
+  assert.match(script, /enterGardenAfterReading\(\(\) => enterKnownCityExploration\(candidate\)\)/);
+  assert.match(script, /enterGardenAfterReading\(\(\) => enterMapPack\(mapPack, null, "manual"\)\)/);
   assert.match(script, /event\.target\.closest\("\[data-known-location-key\]"\)/);
   assert.match(script, /scrollIntoView\(\{ block: "nearest" \}\)/);
   assert.match(html, /class="adventure-status"[\s\S]*id="mapPackPicker"[\s\S]*id="expeditionSquad"/);

@@ -2450,7 +2450,7 @@ function renderMapPackPicker(message = "", options = {}) {
   toggle.type = "button";
   toggle.className = "map-pack-toggle";
   toggle.setAttribute("aria-expanded", String(expanded));
-  toggle.innerHTML = `<i aria-hidden="true"></i><span>${locating ? "读取位置" : getMapPackRegionLabel(state.currentMapPack)}</span>`;
+  toggle.innerHTML = `<i aria-hidden="true"></i><span>${expanded || locating ? "读取花园" : getMapPackRegionLabel(state.currentMapPack)}</span>`;
   mapPackPicker.append(toggle);
 
   if (expanded) {
@@ -2536,6 +2536,18 @@ async function locateFromMapPackPicker() {
     renderMapPackPicker("", { expanded: true, locating: false });
     syncExpeditionChoice();
   }
+}
+
+function enterGardenAfterReading(callback) {
+  renderMapPackPicker("", { expanded: true, locating: true });
+  expeditionTitle.textContent = "读取花园";
+  expeditionTimer.textContent = "正在定位";
+  expeditionText.textContent = "正在确认这片花园。";
+  window.setTimeout(() => {
+    callback();
+    renderMapPackPicker("", { expanded: true, locating: false });
+    syncExpeditionChoice();
+  }, 520);
 }
 
 function clearMapPackPicker() {
@@ -5328,7 +5340,7 @@ mapPackPicker?.addEventListener("click", (event) => {
     const expanded = !mapPackPicker.classList.contains("is-expanded");
     mapPackPicker.classList.toggle("is-expanded", expanded);
     toggle.setAttribute("aria-expanded", String(expanded));
-    toggle.querySelector("span").textContent = expanded ? "选择花园" : getMapPackRegionLabel(state.currentMapPack);
+    toggle.querySelector("span").textContent = expanded ? "读取花园" : getMapPackRegionLabel(state.currentMapPack);
     if (expanded) {
       window.setTimeout(() => mapPackPicker.querySelector(".map-pack-locate")?.scrollIntoView({ block: "nearest" }), 60);
       locateFromMapPackPicker();
@@ -5345,7 +5357,7 @@ mapPackPicker?.addEventListener("click", (event) => {
   const knownButton = event.target.closest("[data-known-location-key]");
   if (knownButton) {
     const candidate = getKnownCityExplorationCandidates().find((item) => item.key === knownButton.dataset.knownLocationKey);
-    if (enterKnownCityExploration(candidate)) renderMapPackPicker("", { expanded: true });
+    enterGardenAfterReading(() => enterKnownCityExploration(candidate));
     return;
   }
 
@@ -5353,7 +5365,7 @@ mapPackPicker?.addEventListener("click", (event) => {
   if (!button) return;
   const mapPack = mapPacks.find((pack) => pack.id === button.dataset.mapPackId);
   if (!mapPack) return;
-  enterMapPack(mapPack, null, "manual");
+  enterGardenAfterReading(() => enterMapPack(mapPack, null, "manual"));
 });
 
 mapDots.addEventListener("click", (event) => {
