@@ -1908,7 +1908,7 @@ function renderAtlasRewards(milestone, unlockedCount) {
     atlasRewardButton.setAttribute("aria-label", isClaimable ? `领取 Lv.${milestone.level} 图鉴奖励` : `查看 Lv.${milestone.level} 图鉴奖励`);
   }
   if (atlasRewardButtonText) {
-    atlasRewardButtonText.textContent = isClaimable ? "可领" : isClaimed ? "已领" : "奖励";
+    atlasRewardButtonText.textContent = isClaimable ? "大礼包" : isClaimed ? "已领" : "礼包";
   }
   if (atlasRewardTitle) {
     atlasRewardTitle.textContent = `Lv.${milestone.level} 礼包`;

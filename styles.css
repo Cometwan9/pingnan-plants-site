@@ -23135,3 +23135,125 @@ button {
 .panel--expedition.is-open .map-pack-locate:disabled {
   opacity: 0.72 !important;
 }
+
+/* EOF atlas mobile unlock repair: release hard height locks and make the reward a big gift. */
+.panel--identity[data-active-identity-tab="atlas"] .identity-pages,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden),
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-book-layout,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
+  display: grid !important;
+  grid-template-rows: auto auto auto auto !important;
+  gap: clamp(0.76rem, 3.4vw, 1rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-summary {
+  grid-template-columns: minmax(0, 1fr) clamp(4.8rem, 20vw, 5.6rem) !important;
+  align-items: center !important;
+  gap: clamp(0.72rem, 3vw, 0.95rem) !important;
+  padding: clamp(0.82rem, 3.5vw, 1rem) clamp(0.92rem, 4vw, 1.16rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-button {
+  width: clamp(4.55rem, 19vw, 5.45rem) !important;
+  min-width: clamp(4.55rem, 19vw, 5.45rem) !important;
+  min-height: clamp(4.25rem, 18vw, 5rem) !important;
+  padding: clamp(0.34rem, 1.5vw, 0.48rem) !important;
+  border: 0.12rem solid rgba(142, 174, 103, 0.74) !important;
+  border-radius: 0.62rem !important;
+  background: #fff4bd !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag {
+  width: clamp(3.05rem, 13vw, 3.72rem) !important;
+  height: clamp(2.9rem, 12.2vw, 3.48rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag::before {
+  width: 2.45rem !important;
+  height: 1.82rem !important;
+  bottom: 0.18rem !important;
+  border-radius: 0.2rem 0.2rem 0.34rem 0.34rem !important;
+  background: #f0c977 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag::after {
+  width: 1.46rem !important;
+  height: 0.72rem !important;
+  top: 0.18rem !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag i {
+  top: 1.4rem !important;
+  width: 0.92rem !important;
+  height: 0.64rem !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-button b {
+  color: #6d5b34 !important;
+  font-size: clamp(0.76rem, 3.1vw, 0.92rem) !important;
+  line-height: 1 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: stretch !important;
+  gap: clamp(0.7rem, 3vw, 0.9rem) !important;
+  width: 100% !important;
+  min-height: clamp(14.8rem, 64vw, 19rem) !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-snap-type: x mandatory !important;
+  scrollbar-width: none !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list .atlas-storybook,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-storybook {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  min-height: clamp(14.8rem, 64vw, 19rem) !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  scroll-snap-align: start !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page {
+  min-height: clamp(13.2rem, 57vw, 17rem) !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait {
+  min-height: clamp(8.4rem, 36vw, 11rem) !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait img {
+  width: min(94%, 10.5rem) !important;
+  height: min(94%, 10.5rem) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid {
+  min-height: clamp(10.8rem, 44vw, 13rem) !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
