@@ -125,6 +125,7 @@ const expeditionStaminaBar = document.querySelector("#expeditionStaminaBar");
 const gameClock = document.querySelector("#gameClock");
 const guideButton = document.querySelector("#guideButton");
 const guideLayer = document.querySelector("#guideLayer");
+const guideGardenIntro = document.querySelector("#guideGardenIntro");
 const guideHighlight = document.querySelector("#guideHighlight");
 const guideCursor = document.querySelector("#guideCursor");
 const guideCard = document.querySelector("#guideCard");
@@ -364,8 +365,12 @@ const state = {
   guideObservationReady: false,
   guideTypingTimer: null,
   guideTransitionTimer: null,
+  guideIntroTimer: null,
+  guideIntroToken: 0,
   guideTransitioning: false,
+  guideIntroPlaying: false,
   guideStartedManually: false,
+  audioUnlocked: false,
   checkinAfterGuide: false,
   nurserySprigId: localStorage.getItem("sprigNurserySprigId") || "",
   nurseryStartedAt: Number(localStorage.getItem("sprigNurseryStartAt") || 0),
@@ -379,6 +384,125 @@ const NURSERY_HATCH_MS = 10 * 60 * 1000;
 const NURSERY_END_KEY = "sprigNurseryEndAt";
 const NURSERY_ID_KEY = "sprigNurserySprigId";
 const NURSERY_START_KEY = "sprigNurseryStartAt";
+const GUIDE_INTRO_MS = 1240;
+
+let gardenAudioContext = null;
+let gardenAmbient = null;
+let gardenNoiseBuffer = null;
+
+function getGardenAudioContext() {
+  const AudioCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtor) return null;
+  if (!gardenAudioContext) {
+    gardenAudioContext = new AudioCtor();
+  }
+  return gardenAudioContext;
+}
+
+function createGardenNoiseBuffer(context) {
+  if (gardenNoiseBuffer) return gardenNoiseBuffer;
+  const length = context.sampleRate * 2;
+  const buffer = context.createBuffer(1, length, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  let drift = 0;
+  for (let index = 0; index < length; index += 1) {
+    drift = drift * 0.96 + (Math.random() * 2 - 1) * 0.04;
+    data[index] = drift;
+  }
+  gardenNoiseBuffer = buffer;
+  return buffer;
+}
+
+function startGardenAmbience() {
+  const context = getGardenAudioContext();
+  if (!context || gardenAmbient) return;
+
+  const source = context.createBufferSource();
+  const filter = context.createBiquadFilter();
+  const gain = context.createGain();
+  const lfo = context.createOscillator();
+  const lfoGain = context.createGain();
+
+  source.buffer = createGardenNoiseBuffer(context);
+  source.loop = true;
+  filter.type = "bandpass";
+  filter.frequency.value = 820;
+  filter.Q.value = 0.48;
+  gain.gain.value = 0.012;
+  lfo.frequency.value = 0.055;
+  lfoGain.gain.value = 0.006;
+
+  source.connect(filter);
+  filter.connect(gain);
+  lfo.connect(lfoGain);
+  lfoGain.connect(gain.gain);
+  gain.connect(context.destination);
+  source.start();
+  lfo.start();
+  gardenAmbient = { source, filter, gain, lfo, lfoGain };
+}
+
+function unlockGardenAudio() {
+  const context = getGardenAudioContext();
+  if (!context) return false;
+  state.audioUnlocked = true;
+  if (context.state === "suspended") {
+    context.resume().catch(() => {});
+  }
+  startGardenAmbience();
+  return true;
+}
+
+function playGardenTone({ frequency, duration, delay = 0, type = "sine", volume = 0.045 }) {
+  const context = getGardenAudioContext();
+  if (!context) return;
+  if (context.state === "suspended") {
+    context.resume().catch(() => {});
+  }
+
+  const now = context.currentTime + delay;
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, now);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), now + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.04);
+}
+
+function playGardenSound(kind = "tap") {
+  if (!unlockGardenAudio()) return;
+  const patterns = {
+    tap: [
+      { frequency: 560, duration: 0.07, type: "triangle", volume: 0.026 },
+      { frequency: 760, duration: 0.08, delay: 0.045, type: "sine", volume: 0.018 },
+    ],
+    guide: [
+      { frequency: 520, duration: 0.1, type: "triangle", volume: 0.028 },
+      { frequency: 830, duration: 0.15, delay: 0.07, type: "sine", volume: 0.023 },
+    ],
+    enter: [
+      { frequency: 392, duration: 0.28, type: "sine", volume: 0.034 },
+      { frequency: 523.25, duration: 0.34, delay: 0.08, type: "triangle", volume: 0.03 },
+      { frequency: 659.25, duration: 0.38, delay: 0.18, type: "sine", volume: 0.024 },
+    ],
+    sprig: [
+      { frequency: 618, duration: 0.09, type: "triangle", volume: 0.028 },
+      { frequency: 478, duration: 0.12, delay: 0.06, type: "sine", volume: 0.018 },
+    ],
+    success: [
+      { frequency: 659.25, duration: 0.12, type: "triangle", volume: 0.032 },
+      { frequency: 783.99, duration: 0.12, delay: 0.1, type: "triangle", volume: 0.03 },
+      { frequency: 987.77, duration: 0.22, delay: 0.22, type: "sine", volume: 0.025 },
+    ],
+    soft: [{ frequency: 330, duration: 0.16, type: "sine", volume: 0.018 }],
+  };
+  (patterns[kind] || patterns.tap).forEach(playGardenTone);
+}
 
 const scanRarityTiers = [
   { id: "common", label: "常见", tone: "common", threshold: 58, seeds: 3, xp: 24 },
@@ -1339,6 +1463,45 @@ function stopGuideTransition() {
   state.guideTransitionTimer = null;
 }
 
+function stopGuideIntro() {
+  if (state.guideIntroTimer) {
+    clearTimeout(state.guideIntroTimer);
+    state.guideIntroTimer = null;
+  }
+  state.guideIntroPlaying = false;
+  guideGardenIntro?.classList.add("is-hidden");
+  guideLayer.classList.remove("is-entering-garden");
+}
+
+function playGuideGardenIntro(manual = false) {
+  return new Promise((resolve) => {
+    if (!guideGardenIntro) {
+      playGardenSound("enter");
+      resolve();
+      return;
+    }
+
+    stopGuideTyping();
+    stopGuideTransition();
+    state.guideIntroPlaying = true;
+    guideLayer.classList.remove("is-hidden", "is-awaiting-target", "is-observing", "is-confirming", "is-transitioning");
+    guideLayer.classList.add("is-entering-garden");
+    guideLayer.setAttribute("aria-hidden", "false");
+    guideHighlight.classList.add("is-hidden");
+    guideGardenIntro.classList.remove("is-hidden");
+    playGardenSound("enter");
+
+    const duration = manual ? GUIDE_INTRO_MS - 120 : GUIDE_INTRO_MS;
+    state.guideIntroTimer = window.setTimeout(() => {
+      guideGardenIntro.classList.add("is-hidden");
+      guideLayer.classList.remove("is-entering-garden");
+      state.guideIntroPlaying = false;
+      state.guideIntroTimer = null;
+      resolve();
+    }, duration);
+  });
+}
+
 function setGuideObservationReady(ready) {
   state.guideObservationReady = ready;
   guideNext.disabled = !ready;
@@ -1472,6 +1635,7 @@ function showGuideStep(index) {
   guidePrev.disabled = state.guideStep === 0;
   guidePrev.setAttribute("aria-disabled", String(state.guideStep === 0));
   guideNext.textContent = step.action || "我来点";
+  playGardenSound("guide");
   requestAnimationFrame(() => moveGuideToTarget(step.selector));
 }
 
@@ -1535,6 +1699,7 @@ function playGuideTargetFeedback(target) {
   const guideTarget = selector ? target.closest(selector) : null;
   if (!guideTarget) return;
 
+  playGardenSound(guideTarget.classList.contains("sprig") ? "sprig" : "tap");
   guideTarget.classList.add("guide-target-nudge");
   window.setTimeout(() => guideTarget.classList.remove("guide-target-nudge"), 650);
 
@@ -1579,13 +1744,23 @@ function goToGuideStep(index) {
 
 function startGuide(manual = true) {
   if (!manual && hasSeenGuide()) return false;
+  state.guideIntroToken += 1;
+  const introToken = state.guideIntroToken;
   state.guideStartedManually = manual;
-  showGuideStep(0);
+  state.guidePrimed = false;
+  state.guideObserving = false;
+  state.guideObservationReady = false;
+  playGuideGardenIntro(manual).then(() => {
+    if (state.guideIntroToken !== introToken || guideLayer.classList.contains("is-hidden")) return;
+    showGuideStep(0);
+  });
   return true;
 }
 
 function closeGuide(remember = true) {
   const shouldShowCheckin = remember && state.checkinAfterGuide && !state.guideStartedManually;
+  state.guideIntroToken += 1;
+  stopGuideIntro();
   stopGuideTransition();
   stopGuideTyping();
   state.guideTransitioning = false;
@@ -1593,7 +1768,7 @@ function closeGuide(remember = true) {
   state.guideObserving = false;
   state.guideObservationReady = false;
   guideLayer.classList.add("is-hidden");
-  guideLayer.classList.remove("is-transitioning", "is-stepping", "is-awaiting-target", "is-observing", "is-confirming");
+  guideLayer.classList.remove("is-transitioning", "is-stepping", "is-awaiting-target", "is-observing", "is-confirming", "is-entering-garden");
   guideLayer.setAttribute("aria-hidden", "true");
   guideHighlight.classList.add("is-hidden");
   guideCard.classList.remove("is-leaving", "is-stepping");
@@ -2758,6 +2933,7 @@ function createTemporaryPlantScan(sourceLabel, reason = "pending-identification"
   arTarget.alt = sprig.name;
   arTarget.classList.add("is-visible", "is-encounter");
   scanResultText.textContent = "未知 · 线索";
+  playGardenSound("sprig");
   appendPlantScanRecord({
     title: `${sourceLabel} · ${sprig.name}`,
     meta: `未知 · ${locationLabel}${coordinateLabel}`,
@@ -2830,6 +3006,7 @@ async function identifyPlantImage(image, sourceLabel = "取景画面") {
       meta: `${rarity.label} · ${suggestion.commonNames?.[0] || suggestion.name}`,
       text: `种子 +${rarity.seeds} · 经验 +${rarity.xp}`,
     });
+    playGardenSound("success");
   } catch (error) {
     const generated = createTemporaryPlantScan(sourceLabel, "scan-offline");
     captureText.textContent = `${generated.sprig.name} 先躲进线索页。`;
@@ -3263,6 +3440,7 @@ async function scanNearbySprigs() {
 
 function showKnowledgeForSprig(button, sprig) {
   closePanels();
+  playGardenSound("sprig");
   const behavior = chooseSprigBehavior(sprig, "tap");
   applySprigBehavior(button, behavior);
   button.classList.add("is-expressing");
@@ -3305,9 +3483,10 @@ function anchorKnowledgePopToSprig(button) {
   knowledgePop.dataset.anchor = button ? "sprig" : "";
 }
 
-function showTouchForSprig(button, sprig) {
+function showTouchForSprig(button, sprig, { sound = false } = {}) {
   if (!button || !sprig || button.classList.contains("is-hidden")) return;
   closePanels();
+  if (sound) playGardenSound("sprig");
   knowledgePop.classList.add("is-hidden");
   knowledgePop.dataset.speakerSprig = "";
   knowledgePop.dataset.anchor = "";
@@ -3774,9 +3953,11 @@ function syncDailyCheckin() {
 
 function claimDailyCheckin() {
   if (state.lastDailyCheckin === todayKey()) {
+    playGardenSound("soft");
     dailyCheckinModal?.classList.add("is-hidden");
     return;
   }
+  playGardenSound("success");
   state.dailyStreak += 1;
   state.lastDailyCheckin = todayKey();
   localStorage.setItem("sprigDailyStreak", String(state.dailyStreak));
@@ -4616,11 +4797,13 @@ function showSpecialtyReward(items, selected = getSelectedExpedition()) {
       return article;
     }),
   );
+  playGardenSound("success");
   specialtyReward.classList.remove("is-hidden");
   specialtyRewardButton?.focus({ preventScroll: true });
 }
 
 function collectSpecialtyReward() {
+  playGardenSound("tap");
   archiveSpecialties(state.pendingSpecialties);
   state.pendingSpecialties = [];
   specialtyReward?.classList.add("is-hidden");
@@ -4824,6 +5007,7 @@ function finishNurseryHatch() {
 
   const { wasLocked } = unlockAtlasEntryOnly(sprig.id);
   clearNurseryState();
+  playGardenSound("success");
   showHatchReward(sprig, wasLocked);
   nurseryResult.innerHTML = `<img src="${sprig.image}" alt="" /><div><strong>${sprig.name}图鉴已解锁</strong></div>`;
   nurseryDropZone.classList.remove("is-growing");
@@ -4927,6 +5111,7 @@ function playStarterReveal(starter) {
     starterReveal.classList.remove("is-hidden");
 
     const revealSprig = () => {
+      playGardenSound("success");
       starterLightButton.disabled = true;
       starterRevealStage.dataset.phase = "listening";
       starterRevealName.textContent = "落土";
@@ -4956,6 +5141,7 @@ function playStarterReveal(starter) {
     };
 
     const finishReveal = () => {
+      playGardenSound("tap");
       starterReveal.classList.add("is-hidden");
       starterLightButton.disabled = false;
       setStarterSprigFromBirthday(state.onboarding.birthday, { unlock: true });
@@ -5008,6 +5194,7 @@ function updateCaptureUi() {
 function finishExpedition() {
   const selected = getSelectedExpedition();
   const loot = generateExpeditionLoot(selected);
+  playGardenSound("success");
   state.dispatched = false;
   state.expeditionRemainingSeconds = 0;
   state.expeditionEndAt = 0;
@@ -5068,29 +5255,44 @@ function tickGameTime() {
   }
 }
 
+document.addEventListener("pointerdown", unlockGardenAudio, { once: true, passive: true });
+document.addEventListener("keydown", unlockGardenAudio, { once: true });
+
 document.addEventListener("click", (event) => {
   const panelButton = event.target.closest("[data-panel]");
   if (!panelButton) return;
+  playGardenSound("tap");
   openPanel(panelButton.dataset.panel);
 });
 
 document.querySelectorAll("[data-close-panel]").forEach((button) => {
-  button.addEventListener("click", closePanels);
+  button.addEventListener("click", () => {
+    playGardenSound("soft");
+    closePanels();
+  });
 });
 
 document.querySelector("#homeButton").addEventListener("click", () => {
+  playGardenSound("tap");
   closePanels();
   showSystemMessage(state.gardenName, "靠近种种时，它会用小动作回应你。", state.user.name);
 });
 
 guideButton.addEventListener("click", () => startGuide(true));
 
-guideSkip.addEventListener("click", () => closeGuide(true));
+guideSkip.addEventListener("click", () => {
+  playGardenSound("soft");
+  closeGuide(true);
+});
 
-guidePrev.addEventListener("click", () => goToGuideStep(state.guideStep - 1));
+guidePrev.addEventListener("click", () => {
+  playGardenSound("guide");
+  goToGuideStep(state.guideStep - 1);
+});
 
 guideNext.addEventListener("click", () => {
-  if (state.guideTransitioning) return;
+  if (state.guideTransitioning || state.guideIntroPlaying) return;
+  playGardenSound("tap");
   if (state.guideObserving) {
     if (!state.guideObservationReady) return;
     state.guideObserving = false;
@@ -5145,8 +5347,13 @@ window.addEventListener("resize", () => {
 document.addEventListener("keydown", (event) => {
   if (guideLayer.classList.contains("is-hidden")) return;
   if (state.guideTransitioning && event.key !== "Escape") return;
+  if (state.guideIntroPlaying && event.key !== "Escape") {
+    event.preventDefault();
+    return;
+  }
 
   if (event.key === "Escape") {
+    playGardenSound("soft");
     closeGuide(true);
   }
 
@@ -5160,11 +5367,13 @@ document.addEventListener("keydown", (event) => {
 });
 
 photoButton.addEventListener("click", () => {
+  playGardenSound("tap");
   closePanels();
   knowledgePop.classList.add("is-hidden");
   gardenStage.classList.add("is-photo-mode");
   setTimeout(() => {
     gardenStage.classList.remove("is-photo-mode");
+    playGardenSound("success");
     showSystemMessage("照片已存入", "今日花园照收进照片记录。", "花园相机");
   }, 1200);
 });
@@ -5193,15 +5402,22 @@ languageSelect.addEventListener("change", () => {
   applyLanguage();
 });
 
-setupPrev.addEventListener("click", () => setOnboardingStep(getOnboardingStep() - 1));
+setupPrev.addEventListener("click", () => {
+  playGardenSound("soft");
+  setOnboardingStep(getOnboardingStep() - 1);
+});
 
 setupNext.addEventListener("click", () => {
   if (!canAdvanceOnboardingStep()) return;
+  playGardenSound("tap");
   syncOnboardingRegion();
   setOnboardingStep(getOnboardingStep() + 1);
 });
 
-locateOnboardingButton.addEventListener("click", locateForOnboarding);
+locateOnboardingButton.addEventListener("click", () => {
+  playGardenSound("tap");
+  locateForOnboarding();
+});
 
 function beginInlineNameEdit() {
   if (!identityNameInput || !identityNameInput.classList.contains("is-hidden")) return;
@@ -5309,9 +5525,11 @@ if (saveIdentityBio) {
 nameForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!birthdayInput.value) {
+    playGardenSound("soft");
     setOnboardingStep(2);
     return;
   }
+  playGardenSound("enter");
   const value = gardenNameInput.value.trim() || "种种大世界";
   state.gardenName = value;
   state.onboarding = {
@@ -5336,6 +5554,7 @@ nameForm.addEventListener("submit", (event) => {
 
 loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  playGardenSound("enter");
   finishLogin();
 });
 
@@ -5352,7 +5571,7 @@ document.querySelectorAll(".sprig").forEach((button) => {
     window.clearTimeout(state.touchTimers[sprigId]);
     state.touchTimers[sprigId] = window.setTimeout(() => {
       button.dataset.justPetted = "1";
-      showTouchForSprig(button, sprigs[sprigId]);
+      showTouchForSprig(button, sprigs[sprigId], { sound: true });
     }, 420);
   });
 
@@ -5376,9 +5595,15 @@ document.querySelectorAll(".sprig").forEach((button) => {
   });
 });
 
-discoverFromMap.addEventListener("click", scanNearbySprigs);
+discoverFromMap.addEventListener("click", () => {
+  playGardenSound("guide");
+  scanNearbySprigs();
+});
 
-mapPlantScanButton.addEventListener("click", openPlantScanPanelFromMap);
+mapPlantScanButton.addEventListener("click", () => {
+  playGardenSound("tap");
+  openPlantScanPanelFromMap();
+});
 
 mapPackPicker?.addEventListener("click", (event) => {
   const toggle = event.target.closest(".map-pack-toggle");
@@ -5571,6 +5796,7 @@ atlasNextPage?.addEventListener("click", () => {
 
 dailyCheckinModalButton?.addEventListener("click", claimDailyCheckin);
 dailyCheckinClose?.addEventListener("click", () => {
+  playGardenSound("soft");
   localStorage.setItem(CHECKIN_PROMPT_KEY, todayKey());
   dailyCheckinModal?.classList.add("is-hidden");
 });
@@ -5578,6 +5804,7 @@ dailyCheckinClose?.addEventListener("click", () => {
 durationButtons.forEach((button) => {
   button.addEventListener("click", () => {
     if (state.dispatched) return;
+    playGardenSound("tap");
     state.expeditionDuration = button.dataset.duration;
     syncExpeditionChoice();
   });
@@ -5610,9 +5837,13 @@ document.addEventListener("click", (event) => {
   closeSquadPicker();
 });
 
-captureButton.addEventListener("click", captureArRecognition);
+captureButton.addEventListener("click", () => {
+  playGardenSound("tap");
+  captureArRecognition();
+});
 
 uploadScanButton.addEventListener("click", () => {
+  playGardenSound("tap");
   scanInput.click();
 });
 
@@ -5651,10 +5882,12 @@ async function dispatchExpedition() {
   const selected = getSelectedExpedition();
   const squad = getSelectedExpeditionSquadEntries();
   if (state.stamina < selected.cost) {
+    playGardenSound("soft");
     showSystemMessage("体力不足", `${selected.label} 探险需要 ${selected.cost} 体力。`, "探险");
     return;
   }
 
+  playGardenSound("guide");
   state.dispatched = true;
   state.expeditionRemainingSeconds = selected.seconds;
   state.expeditionEndAt = Date.now() + selected.seconds * 1000;
