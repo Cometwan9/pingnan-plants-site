@@ -23257,3 +23257,176 @@ button {
   overflow-x: auto !important;
   overflow-y: visible !important;
 }
+
+/* EOF expedition squad composition repair: title, slots and picker are separate rows. */
+.panel--expedition.is-open .expedition-squad {
+  --squad-card-pad: clamp(1rem, 4.6vw, 1.32rem) !important;
+  --squad-slot-size: clamp(4.08rem, 17vw, 4.82rem) !important;
+  --squad-picker-size: clamp(3.52rem, 15vw, 4.18rem) !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto !important;
+  align-items: start !important;
+  gap: clamp(0.68rem, 3vw, 0.92rem) !important;
+  min-height: 0 !important;
+  padding: clamp(0.82rem, 3.8vw, 1.08rem) 0 clamp(0.92rem, 4vw, 1.16rem) !important;
+  overflow: visible !important;
+}
+
+.panel--expedition.is-open .expedition-squad header {
+  position: static !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 0.12rem !important;
+  width: 100% !important;
+  padding: 0 var(--squad-card-pad) !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.panel--expedition.is-open .expedition-squad h3,
+.panel--expedition.is-open .expedition-squad p {
+  position: static !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  color: #5b7048 !important;
+  text-align: left !important;
+  transform: none !important;
+  opacity: 1 !important;
+  white-space: normal !important;
+}
+
+.panel--expedition.is-open .expedition-squad h3 {
+  font-size: clamp(1.02rem, 4.5vw, 1.22rem) !important;
+  line-height: 1.1 !important;
+}
+
+.panel--expedition.is-open .expedition-squad p {
+  display: block !important;
+  font-size: clamp(0.66rem, 2.8vw, 0.78rem) !important;
+  line-height: 1.15 !important;
+}
+
+.panel--expedition.is-open .squad-slots {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: var(--squad-slot-size) !important;
+  justify-content: start !important;
+  align-items: start !important;
+  gap: clamp(1.02rem, 5.2vw, 1.42rem) !important;
+  width: 100% !important;
+  min-height: calc(var(--squad-slot-size) + 1.22rem) !important;
+  padding: 0 var(--squad-card-pad) !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-padding-inline: var(--squad-card-pad) !important;
+  scrollbar-width: none !important;
+}
+
+.panel--expedition.is-open .squad-slots::-webkit-scrollbar,
+.panel--expedition.is-open .squad-picker::-webkit-scrollbar {
+  display: none !important;
+}
+
+.panel--expedition.is-open .squad-slot {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: var(--squad-slot-size) !important;
+  min-width: var(--squad-slot-size) !important;
+  max-width: var(--squad-slot-size) !important;
+  height: var(--squad-slot-size) !important;
+  min-height: var(--squad-slot-size) !important;
+  max-height: var(--squad-slot-size) !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  overflow: visible !important;
+}
+
+.panel--expedition.is-open .squad-slot img {
+  width: 78% !important;
+  height: 78% !important;
+  object-fit: contain !important;
+}
+
+.panel--expedition.is-open .squad-slot span {
+  position: absolute !important;
+  left: 50% !important;
+  top: calc(100% + 0.18rem) !important;
+  width: max-content !important;
+  max-width: calc(var(--squad-slot-size) + 0.9rem) !important;
+  overflow: hidden !important;
+  color: #65734f !important;
+  font-size: clamp(0.56rem, 2.45vw, 0.68rem) !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  transform: translateX(-50%) !important;
+}
+
+.panel--expedition.is-open .squad-picker {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: var(--squad-picker-size) !important;
+  justify-content: start !important;
+  align-items: start !important;
+  gap: clamp(0.7rem, 3.6vw, 0.98rem) !important;
+  width: 100% !important;
+  min-height: calc(var(--squad-picker-size) + 1.35rem) !important;
+  padding: 0 var(--squad-card-pad) !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-padding-inline: var(--squad-card-pad) !important;
+  scrollbar-width: none !important;
+}
+
+.panel--expedition.is-open .squad-picker.is-hidden {
+  display: none !important;
+}
+
+.panel--expedition.is-open .squad-picker-option {
+  display: grid !important;
+  grid-template-rows: var(--squad-picker-size) auto !important;
+  justify-items: center !important;
+  align-items: start !important;
+  gap: clamp(0.18rem, 1vw, 0.28rem) !important;
+  width: var(--squad-picker-size) !important;
+  min-width: var(--squad-picker-size) !important;
+  max-width: var(--squad-picker-size) !important;
+  min-height: calc(var(--squad-picker-size) + 1.18rem) !important;
+  padding: 0 !important;
+  border-radius: 0.68rem !important;
+  overflow: visible !important;
+}
+
+.panel--expedition.is-open .squad-picker-option img {
+  width: var(--squad-picker-size) !important;
+  height: var(--squad-picker-size) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.panel--expedition.is-open .squad-picker-option span {
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  color: #65734f !important;
+  font-size: clamp(0.58rem, 2.5vw, 0.7rem) !important;
+  line-height: 1.05 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  transform: none !important;
+}
+
+.panel--expedition.is-open .duration-picker {
+  padding-inline: var(--squad-card-pad) !important;
+  margin-top: clamp(0.2rem, 1vw, 0.34rem) !important;
+}
