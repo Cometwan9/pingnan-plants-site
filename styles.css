@@ -133,6 +133,158 @@ button {
   border-radius: 12% 12% 0 0;
 }
 
+.garden-light-field,
+.breeze-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.garden-light-field {
+  z-index: 11;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+
+.garden-light-field::before {
+  content: "";
+  position: absolute;
+  left: 7%;
+  right: 5%;
+  top: 0;
+  height: 62%;
+  background:
+    linear-gradient(112deg, transparent 0 18%, rgba(255, 255, 226, 0.2) 22%, transparent 36%),
+    linear-gradient(134deg, transparent 0 38%, rgba(255, 245, 169, 0.18) 43%, transparent 57%),
+    radial-gradient(ellipse at 48% 46%, rgba(255, 251, 184, 0.32), transparent 48%);
+  filter: blur(0.3px);
+  opacity: 0.86;
+  transform-origin: 50% 10%;
+  animation: gardenLightBreathe 7.8s ease-in-out infinite;
+}
+
+.garden-light-field::after {
+  content: "";
+  position: absolute;
+  left: 37%;
+  top: 49%;
+  width: 20%;
+  aspect-ratio: 1;
+  border: 0.16rem solid rgba(255, 241, 131, 0.42);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 0.42rem rgba(255, 249, 179, 0.12),
+    0 0 2.6rem rgba(255, 232, 108, 0.42);
+  opacity: 0.76;
+  transform: translate(-50%, -50%);
+  animation: gardenCenterGleam 3.8s ease-in-out infinite;
+}
+
+.garden-glimmer {
+  position: absolute;
+  width: clamp(0.38rem, 1vw, 0.74rem);
+  height: clamp(0.38rem, 1vw, 0.74rem);
+  background: #fff6a6;
+  clip-path: polygon(50% 0, 65% 36%, 100% 50%, 65% 64%, 50% 100%, 35% 64%, 0 50%, 35% 36%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+  animation: gardenGlimmer 4.8s steps(4, end) infinite;
+}
+
+.garden-glimmer--a {
+  left: 24%;
+  top: 34%;
+}
+
+.garden-glimmer--b {
+  left: 79%;
+  top: 29%;
+  animation-delay: 0.9s;
+}
+
+.garden-glimmer--c {
+  left: 43%;
+  top: 63%;
+  animation-delay: 1.8s;
+}
+
+.garden-glimmer--d {
+  left: 18%;
+  top: 76%;
+  animation-delay: 2.7s;
+}
+
+.breeze-layer {
+  z-index: 18;
+  overflow: hidden;
+}
+
+.breeze-leaf,
+.breeze-thread {
+  position: absolute;
+  left: -12%;
+  top: var(--breeze-y);
+  opacity: 0;
+}
+
+.breeze-leaf {
+  width: clamp(0.68rem, 1.8vw, 1.18rem);
+  height: clamp(0.38rem, 1vw, 0.72rem);
+  border-radius: 68% 18% 70% 28%;
+  background:
+    linear-gradient(135deg, rgba(255, 253, 190, 0.96), rgba(171, 213, 116, 0.82));
+  box-shadow: 0 0 0.55rem rgba(255, 243, 154, 0.28);
+  transform: rotate(var(--breeze-r));
+  animation: breezeLeafDrift var(--breeze-time) ease-in-out infinite;
+}
+
+.breeze-leaf--a {
+  --breeze-y: 28%;
+  --breeze-r: -18deg;
+  --breeze-time: 11s;
+}
+
+.breeze-leaf--b {
+  --breeze-y: 43%;
+  --breeze-r: 16deg;
+  --breeze-time: 13s;
+  animation-delay: 2.2s;
+}
+
+.breeze-leaf--c {
+  --breeze-y: 63%;
+  --breeze-r: -8deg;
+  --breeze-time: 14s;
+  animation-delay: 4.6s;
+}
+
+.breeze-leaf--d {
+  --breeze-y: 76%;
+  --breeze-r: 22deg;
+  --breeze-time: 12s;
+  animation-delay: 6.1s;
+}
+
+.breeze-thread {
+  width: clamp(5.5rem, 18vw, 13rem);
+  height: 0.52rem;
+  border-top: 0.12rem solid rgba(255, 255, 227, 0.5);
+  border-radius: 50%;
+  filter: blur(0.1px);
+  animation: breezeThreadDrift var(--breeze-time) ease-in-out infinite;
+}
+
+.breeze-thread--a {
+  --breeze-y: 36%;
+  --breeze-time: 10.5s;
+}
+
+.breeze-thread--b {
+  --breeze-y: 57%;
+  --breeze-time: 12.5s;
+  animation-delay: 4.2s;
+}
+
 .weather-scene {
   position: absolute;
   inset: 0;
@@ -288,6 +440,84 @@ button {
   93%,
   95% {
     opacity: 0.32;
+  }
+}
+
+@keyframes gardenLightBreathe {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: rotate(-1deg) scaleX(0.98);
+  }
+
+  50% {
+    opacity: 0.96;
+    transform: rotate(1deg) scaleX(1.03);
+  }
+}
+
+@keyframes gardenCenterGleam {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+@keyframes gardenGlimmer {
+  0%,
+  30%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.45) rotate(0deg);
+  }
+
+  12% {
+    opacity: 0.96;
+    transform: translate(-50%, -50%) scale(1) rotate(45deg);
+  }
+}
+
+@keyframes breezeLeafDrift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(var(--breeze-r));
+  }
+
+  12% {
+    opacity: 0.82;
+  }
+
+  56% {
+    opacity: 0.74;
+    transform: translate3d(58vw, -1.6rem, 0) rotate(calc(var(--breeze-r) + 56deg));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(122vw, 0.6rem, 0) rotate(calc(var(--breeze-r) + 120deg));
+  }
+}
+
+@keyframes breezeThreadDrift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) skewX(-16deg);
+  }
+
+  18%,
+  58% {
+    opacity: 0.44;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(120vw, -0.8rem, 0) skewX(-16deg);
   }
 }
 
@@ -1017,7 +1247,7 @@ button {
 
 .sprig img {
   transform: scale(var(--sprig-scale));
-  animation: float 2.4s ease-in-out infinite;
+  animation: float 4.6s ease-in-out infinite;
 }
 
 .sprig:hover,
@@ -1285,8 +1515,13 @@ button {
 }
 
 @keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.2deg) scale(var(--sprig-scale));
+  }
+
   50% {
-    transform: translateY(-9%) scale(var(--sprig-scale));
+    transform: translateY(-7%) rotate(2deg) scale(var(--sprig-scale));
   }
 }
 
@@ -1473,6 +1708,135 @@ button {
 
 .guide-layer.is-hidden {
   display: none;
+}
+
+.guide-layer.is-entering-garden .guide-highlight,
+.guide-layer.is-entering-garden .guide-cursor,
+.guide-layer.is-entering-garden .guide-card {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.guide-garden-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #fff9d5;
+  text-shadow:
+    0 0.12rem 0 rgba(81, 106, 80, 0.42),
+    0 0 1.1rem rgba(255, 244, 160, 0.64);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 203, 0.18), rgba(118, 170, 91, 0.1) 42%, rgba(36, 66, 34, 0.16)),
+    radial-gradient(ellipse at center, rgba(255, 245, 165, 0.3), transparent 58%);
+  animation: guideGardenIntroFade 1.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  pointer-events: none;
+}
+
+.guide-garden-intro.is-hidden {
+  display: none;
+}
+
+.guide-garden-intro b {
+  position: relative;
+  z-index: 3;
+  margin-top: 17%;
+  padding: 0.22rem 0.52rem;
+  color: #fffbe4;
+  font-size: clamp(1.3rem, 4.8vw, 2.25rem);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: 0;
+  transform: translateY(0.4rem);
+  animation: guideEntryText 1.05s ease-out both;
+}
+
+.guide-entry-gate {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: min(46%, 24rem);
+  aspect-ratio: 1.24 / 1;
+  border: 0.28rem solid rgba(255, 245, 185, 0.88);
+  border-bottom: 0;
+  border-radius: 48% 48% 8% 8%;
+  box-shadow:
+    0 0 0 0.28rem rgba(135, 174, 91, 0.32),
+    0 0 2.4rem rgba(255, 244, 155, 0.52);
+  transform: translate(-50%, -50%) scale(0.82);
+  animation: guideEntryGateOpen 1.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.guide-entry-gate::before,
+.guide-entry-gate::after {
+  content: "";
+  position: absolute;
+  top: 16%;
+  bottom: 0;
+  width: 50%;
+  border: 0.12rem solid rgba(255, 249, 206, 0.62);
+  background:
+    linear-gradient(90deg, rgba(139, 179, 99, 0.5), rgba(229, 242, 173, 0.38));
+  transform-origin: 0 100%;
+  animation: guideEntryDoorOpen 1.06s ease-out both;
+}
+
+.guide-entry-gate::before {
+  left: 0;
+  border-radius: 0.3rem 0 0.18rem 0.8rem;
+}
+
+.guide-entry-gate::after {
+  right: 0;
+  border-radius: 0 0.3rem 0.8rem 0.18rem;
+  transform-origin: 100% 100%;
+  animation-name: guideEntryDoorOpenRight;
+}
+
+.guide-entry-light {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  width: 38%;
+  height: 46%;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 189, 0.58), rgba(255, 232, 105, 0.18) 54%, transparent 88%);
+  clip-path: polygon(48% 0, 62% 0, 100% 100%, 0 100%);
+  filter: blur(0.08rem);
+  opacity: 0;
+  transform: translate(-50%, -16%) scaleY(0.7);
+  animation: guideEntryLightFall 1.2s ease-out both;
+}
+
+.guide-entry-leaf {
+  position: absolute;
+  top: 45%;
+  width: clamp(0.7rem, 1.8vw, 1.1rem);
+  height: clamp(0.42rem, 1vw, 0.68rem);
+  border-radius: 68% 20% 72% 22%;
+  background: rgba(229, 246, 145, 0.92);
+  box-shadow: 0 0 0.58rem rgba(255, 246, 166, 0.35);
+  opacity: 0;
+  animation: guideEntryLeafSweep 1.24s ease-in-out both;
+}
+
+.guide-entry-leaf--a {
+  left: 17%;
+  animation-delay: 0.08s;
+}
+
+.guide-entry-leaf--b {
+  left: 39%;
+  top: 32%;
+  animation-delay: 0.2s;
+}
+
+.guide-entry-leaf--c {
+  left: 76%;
+  top: 55%;
+  animation-delay: 0.14s;
 }
 
 .guide-highlight {
@@ -1684,6 +2048,116 @@ button {
   50% {
     transform: translate(-50%, 0.38rem);
     opacity: 1;
+  }
+}
+
+@keyframes guideGardenIntroFade {
+  0% {
+    opacity: 0;
+  }
+
+  16%,
+  72% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes guideEntryText {
+  0% {
+    opacity: 0;
+    transform: translateY(0.85rem) scale(0.96);
+  }
+
+  38%,
+  76% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-0.2rem) scale(1.02);
+  }
+}
+
+@keyframes guideEntryGateOpen {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+
+  26%,
+  76% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+@keyframes guideEntryDoorOpen {
+  0%,
+  30% {
+    transform: perspective(20rem) rotateY(0deg);
+  }
+
+  76%,
+  100% {
+    transform: perspective(20rem) rotateY(-42deg);
+  }
+}
+
+@keyframes guideEntryDoorOpenRight {
+  0%,
+  30% {
+    transform: perspective(20rem) rotateY(0deg);
+  }
+
+  76%,
+  100% {
+    transform: perspective(20rem) rotateY(42deg);
+  }
+}
+
+@keyframes guideEntryLightFall {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -22%) scaleY(0.55);
+  }
+
+  28%,
+  78% {
+    opacity: 0.92;
+    transform: translate(-50%, -14%) scaleY(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -8%) scaleY(1.08);
+  }
+}
+
+@keyframes guideEntryLeafSweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(-1rem, 0.4rem, 0) rotate(-18deg);
+  }
+
+  22%,
+  72% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(5.4rem, -2.8rem, 0) rotate(88deg);
   }
 }
 
@@ -9873,7 +10347,20 @@ button {
   .guide-highlight.is-stepping,
   .guide-card.is-stepping,
   .guide-mascot-frame.is-acting,
-  .guide-bubble p.is-typing::after {
+  .guide-bubble p.is-typing::after,
+  .guide-garden-intro,
+  .guide-garden-intro b,
+  .guide-entry-gate,
+  .guide-entry-gate::before,
+  .guide-entry-gate::after,
+  .guide-entry-light,
+  .guide-entry-leaf,
+  .garden-light-field::before,
+  .garden-light-field::after,
+  .garden-glimmer,
+  .breeze-leaf,
+  .breeze-thread,
+  .sprig img {
     animation: none;
   }
 
