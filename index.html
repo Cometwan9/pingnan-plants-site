@@ -11,9 +11,14 @@
     <main class="game eight-bit-ui" aria-label="种种大世界游戏界面">
       <section class="garden-stage" id="gardenStage">
         <section class="name-screen" id="nameScreen" aria-label="创建花园档案">
+          <span class="garden-gate-arch" aria-hidden="true"></span>
+          <span class="garden-gate-rail garden-gate-rail--left" aria-hidden="true"></span>
+          <span class="garden-gate-rail garden-gate-rail--right" aria-hidden="true"></span>
+          <span class="garden-vine garden-vine--left" aria-hidden="true"></span>
+          <span class="garden-vine garden-vine--right" aria-hidden="true"></span>
           <form class="name-card" id="nameForm">
             <section class="setup-step is-active" data-setup-step="0" aria-label="花园命名">
-              <h1>给花园起名</h1>
+              <h1>命名花园</h1>
               <label>
                 <span>花园名</span>
                 <input id="gardenNameInput" name="gardenName" type="text" maxlength="12" value="种种大世界" autocomplete="off" />
@@ -25,6 +30,9 @@
                   <option value="zh-TW">繁體中文</option>
                   <option value="en">English</option>
                   <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
+                  <option value="fr">Français</option>
+                  <option value="es">Español</option>
                 </select>
               </label>
             </section>
@@ -261,8 +269,8 @@
             <span class="map-dots" id="mapDots"></span>
           </div>
           <div class="map-actions" aria-label="地图雷达操作">
-            <button class="primary" type="button" id="discoverFromMap">扫描附近地点</button>
-            <button class="secondary scan-button" type="button" id="mapPlantScanButton" data-panel="panel-discover">扫描植物</button>
+            <button class="primary" type="button" id="discoverFromMap">读取附近线索</button>
+            <button class="secondary scan-button" type="button" id="mapPlantScanButton" data-panel="panel-discover">打开取景</button>
           </div>
           <div class="map-results" id="mapResults" aria-live="polite"></div>
         </section>
