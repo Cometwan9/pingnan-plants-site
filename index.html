@@ -273,9 +273,21 @@
         <section class="panel panel--map" id="panel-map" aria-label="地图探索">
           <button class="close-panel" type="button" data-close-panel>×</button>
           <header class="panel-header">
-            <h2 id="mapTitle">附近花园雷达</h2>
-            <p class="map-status" id="mapStatus">雷达待机，等待附近线索。</p>
+            <h2 id="mapTitle">花园雷达</h2>
+            <p class="map-status" id="mapStatus">扫描你所在的花园，会显示附近可互访的小花园。</p>
           </header>
+          <div class="real-world-garden" id="realWorldGarden" data-weather="calm" aria-label="现实花园视窗">
+            <span class="real-world-sky" aria-hidden="true"></span>
+            <span class="real-world-buildings" aria-hidden="true"></span>
+            <span class="real-world-trees" aria-hidden="true"></span>
+            <span class="real-world-water" aria-hidden="true"></span>
+            <span class="real-world-path" aria-hidden="true"></span>
+            <span class="real-world-marker" aria-hidden="true"></span>
+            <div>
+              <strong id="realWorldGardenPlace">杭州现实花园</strong>
+              <small id="realWorldGardenMeta">现实世界正在风格化。</small>
+            </div>
+          </div>
           <div class="radar" id="mapRadar" aria-live="polite">
             <span class="radar-ring ring-one"></span>
             <span class="radar-ring ring-two"></span>
@@ -283,8 +295,8 @@
             <span class="map-dots" id="mapDots"></span>
           </div>
           <div class="map-actions" aria-label="地图雷达操作">
-            <button class="primary" type="button" id="discoverFromMap">读取附近线索</button>
-            <button class="secondary scan-button" type="button" id="mapPlantScanButton" data-panel="panel-discover">打开取景</button>
+            <button class="primary" type="button" id="discoverFromMap">扫描附近花园</button>
+            <button class="secondary scan-button" type="button" id="mapPlantScanButton" data-panel="panel-discover">扫描植物</button>
           </div>
           <div class="map-results" id="mapResults" aria-live="polite"></div>
         </section>
@@ -370,9 +382,9 @@
                   <p class="atlas-dex-detail-kicker" id="atlasDexDetailKicker">幸运系 / 稀有</p>
                   <h3 id="atlasDexDetailName">四叶草种种</h3>
                   <dl class="atlas-dex-detail-meta">
-                    <div><dt>发现地点</dt><dd id="atlasDexDetailPlace">杭州 · 草地边</dd></div>
-                    <div><dt>喜欢天气</dt><dd id="atlasDexDetailWeather">雨后晴天</dd></div>
-                    <div><dt>状态</dt><dd id="atlasDexDetailStatus">已记录</dd></div>
+                    <div><dt>性格</dt><dd id="atlasDexDetailPlace">轻快</dd></div>
+                    <div><dt>习性</dt><dd id="atlasDexDetailWeather">草地边</dd></div>
+                    <div><dt>好感</dt><dd id="atlasDexDetailStatus">刚认识</dd></div>
                   </dl>
                   <p class="atlas-dex-detail-blurb" id="atlasDexDetailBlurb">它总觉得自己不是特别幸运，只是比别人多长出了一片叶子。</p>
                   <div class="atlas-dex-detail-actions">
@@ -611,6 +623,9 @@
                 <li><b>地区</b><em id="identityLocation">种种大世界</em></li>
                 <li><b>房屋</b><em id="identityHouse">芽屋</em></li>
                 <li><b>阶段</b><em id="identityPassportStage">Lv.1 · 新芽阶段</em></li>
+                <li class="identity-info--secret is-locked"><b>秘密</b><em id="identitySecret">等待解锁</em></li>
+                <li class="identity-info--custom"><b>自定义</b><em id="identityCustomNote">可编辑名字与短句</em></li>
+                <li class="identity-info--gardener"><b>园丁登记</b><em id="identityGardenerLog">首次登记</em></li>
               </ul>
             </div>
             <div class="growth-card" hidden>

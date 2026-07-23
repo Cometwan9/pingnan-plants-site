@@ -25375,3 +25375,749 @@ button {
     width: 100%;
   }
 }
+
+/* Garden radar: real-world view, nearby gardens and exchange states. */
+.panel--map.is-open {
+  --map-real-width: min(100%, 21rem) !important;
+  --map-radar-size: min(var(--map-real-width), clamp(13rem, 32vh, 16.3rem)) !important;
+  --map-radar-gap: clamp(0.62rem, 2.8vw, 0.82rem) !important;
+  grid-template-rows: auto auto auto auto auto !important;
+  justify-items: start !important;
+  align-content: start !important;
+}
+
+.panel--map.is-open .panel-header,
+.panel--map.is-open .real-world-garden,
+.panel--map.is-open .map-actions,
+.panel--map.is-open .map-results {
+  width: var(--map-real-width) !important;
+  max-width: var(--map-real-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.panel--map.is-open .panel-header {
+  margin-bottom: var(--map-radar-gap) !important;
+}
+
+.panel--map.is-open .panel-header h2,
+.panel--map.is-open .panel-header p {
+  text-align: left !important;
+}
+
+.panel--map.is-open .panel-header h2 {
+  font-size: clamp(1.72rem, 7.2vw, 2.38rem) !important;
+}
+
+.real-world-garden {
+  position: relative;
+  min-height: clamp(4.4rem, 13vh, 5.8rem);
+  margin-bottom: var(--map-radar-gap);
+  overflow: hidden;
+  border: 0.14rem solid rgba(151, 202, 117, 0.48);
+  border-radius: 0.92rem;
+  background:
+    linear-gradient(180deg, rgba(157, 212, 235, 0.86) 0 42%, rgba(202, 231, 164, 0.9) 42% 100%);
+  box-shadow:
+    0 0.22rem 0 rgba(114, 150, 83, 0.16),
+    0 0 1.4rem rgba(255, 246, 168, 0.26) inset;
+}
+
+.real-world-garden::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-size: 1.45rem 1.45rem;
+  opacity: 0.46;
+  pointer-events: none;
+}
+
+.real-world-garden > span {
+  position: absolute;
+  pointer-events: none;
+}
+
+.real-world-sky {
+  left: 5%;
+  top: 12%;
+  width: 3.4rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    1.4rem 0.22rem 0 -0.18rem rgba(255, 255, 255, 0.68),
+    8.8rem -0.2rem 0 -0.28rem rgba(255, 255, 255, 0.56);
+}
+
+.real-world-buildings {
+  left: 8%;
+  right: 9%;
+  bottom: 39%;
+  height: 1.34rem;
+  background:
+    linear-gradient(90deg, #e8dfbc 0 12%, transparent 12% 16%, #f5ecce 16% 29%, transparent 29% 35%, #d7e5bd 35% 48%, transparent 48% 54%, #f3d8b4 54% 67%, transparent 67% 72%, #e8dfbc 72% 84%, transparent 84%);
+  opacity: 0.9;
+}
+
+.real-world-trees {
+  left: 5%;
+  right: 4%;
+  bottom: 24%;
+  height: 1.28rem;
+  background:
+    radial-gradient(circle at 8% 58%, #79ad60 0 0.78rem, transparent 0.82rem),
+    radial-gradient(circle at 18% 38%, #a7ca73 0 0.7rem, transparent 0.74rem),
+    radial-gradient(circle at 78% 48%, #7fb764 0 0.78rem, transparent 0.82rem),
+    radial-gradient(circle at 90% 40%, #c8d878 0 0.7rem, transparent 0.74rem);
+}
+
+.real-world-water {
+  left: -3%;
+  bottom: 0;
+  width: 33%;
+  height: 28%;
+  border-radius: 0 999px 0 0;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.38) 0 0.08rem, transparent 0.08rem 0.34rem),
+    #8fd0d4;
+}
+
+.real-world-path {
+  right: 16%;
+  bottom: -16%;
+  width: 34%;
+  height: 62%;
+  border-radius: 55% 55% 0 0;
+  background: rgba(238, 217, 151, 0.82);
+  transform: rotate(-12deg);
+}
+
+.real-world-marker {
+  left: 53%;
+  bottom: 31%;
+  width: 1.16rem;
+  aspect-ratio: 1;
+  border: 0.16rem solid rgba(255, 244, 149, 0.9);
+  border-radius: 50%;
+  background: rgba(255, 207, 74, 0.76);
+  box-shadow:
+    0 0 0 0.32rem rgba(255, 248, 180, 0.28),
+    0 0 1.1rem rgba(255, 218, 86, 0.62);
+  animation: gardenCenterGleam 3.2s ease-in-out infinite;
+}
+
+.real-world-garden > div {
+  position: absolute;
+  left: clamp(0.72rem, 3vw, 0.95rem);
+  right: clamp(0.72rem, 3vw, 0.95rem);
+  bottom: clamp(0.54rem, 2vw, 0.72rem);
+  z-index: 2;
+  display: grid;
+  gap: 0.08rem;
+  color: #486344;
+  text-align: left;
+}
+
+.real-world-garden strong {
+  font-size: clamp(0.96rem, 3.8vw, 1.18rem);
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.real-world-garden small {
+  overflow: hidden;
+  color: rgba(72, 99, 68, 0.82);
+  font-size: clamp(0.68rem, 2.7vw, 0.78rem);
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.real-world-garden[data-weather="rain"] {
+  background:
+    linear-gradient(180deg, rgba(142, 176, 188, 0.9) 0 42%, rgba(176, 202, 151, 0.92) 42% 100%);
+}
+
+.real-world-garden[data-weather="cloud"],
+.real-world-garden[data-weather="mist"] {
+  background:
+    linear-gradient(180deg, rgba(181, 206, 203, 0.92) 0 42%, rgba(192, 219, 158, 0.92) 42% 100%);
+}
+
+.panel--map.is-open .radar {
+  width: var(--map-radar-size) !important;
+  max-width: var(--map-radar-size) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: var(--map-radar-gap) !important;
+}
+
+.panel--map.is-open .map-actions {
+  gap: clamp(0.5rem, 2.4vw, 0.68rem) !important;
+  margin-bottom: var(--map-radar-gap) !important;
+}
+
+.panel--map.is-open .map-actions .primary,
+.panel--map.is-open .map-actions .secondary {
+  min-height: clamp(2.78rem, 10.5vw, 3.08rem) !important;
+}
+
+.panel--map.is-open .map-results {
+  display: grid !important;
+  gap: clamp(0.45rem, 2.2vw, 0.62rem) !important;
+  min-height: clamp(4.35rem, 14vh, 5.8rem) !important;
+  max-height: clamp(6.3rem, 20vh, 9rem) !important;
+  margin-top: 0 !important;
+  padding-right: 0.04rem !important;
+}
+
+.panel--map.is-open .map-results > p {
+  min-height: clamp(4.35rem, 14vh, 5.8rem) !important;
+  place-items: start !important;
+  align-content: center !important;
+  text-align: left !important;
+}
+
+.map-result--garden {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.4rem 0.58rem;
+  align-items: center;
+  padding: clamp(0.58rem, 2.8vw, 0.76rem);
+  border-color: rgba(151, 202, 117, 0.42);
+  background:
+    radial-gradient(ellipse at 0 0, rgba(255, 255, 255, 0.75), transparent 50%),
+    rgba(255, 252, 241, 0.86);
+}
+
+.map-result--garden.is-exchanged {
+  border-color: rgba(94, 171, 151, 0.54);
+  background:
+    radial-gradient(ellipse at 8% 0, rgba(213, 250, 232, 0.86), transparent 54%),
+    rgba(249, 255, 238, 0.92);
+}
+
+.map-result-scan {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+.map-result-scan strong,
+.map-result-scan span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-result-scan strong {
+  color: #496542;
+  font-size: clamp(0.9rem, 3.4vw, 1rem);
+  font-weight: 950;
+}
+
+.map-result-scan span {
+  color: #778665;
+  font-size: clamp(0.68rem, 2.6vw, 0.78rem);
+  font-weight: 850;
+}
+
+.garden-relation-badge {
+  justify-self: end;
+  padding: 0.18rem 0.42rem;
+  border: 0.1rem solid rgba(126, 170, 88, 0.3);
+  border-radius: 999px;
+  color: #6d8950;
+  background: rgba(230, 249, 182, 0.76);
+  font-size: clamp(0.62rem, 2.4vw, 0.72rem);
+  font-style: normal;
+  font-weight: 950;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.garden-exchange-button {
+  grid-column: 2;
+  justify-self: end;
+  min-height: 1.86rem;
+  padding: 0 0.54rem;
+  border: 0.1rem solid rgba(196, 154, 0, 0.45);
+  border-radius: 0.58rem;
+  color: #6d5420;
+  background: #ffd763;
+  box-shadow: 0 0.16rem 0 rgba(142, 100, 18, 0.18);
+  font-size: clamp(0.64rem, 2.5vw, 0.76rem);
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.garden-exchange-button:disabled {
+  border-color: rgba(94, 171, 151, 0.38);
+  color: #5f826f;
+  background: #dff5df;
+  box-shadow: none;
+}
+
+.map-dot--garden {
+  border-color: rgba(255, 215, 99, 0.8);
+  background: #fff1a0;
+}
+
+.map-dot--exchanged {
+  border-color: rgba(94, 171, 151, 0.74);
+  background: #dff5df;
+}
+
+@media (max-width: 430px) {
+  .panel--map.is-open {
+    --map-real-width: min(100%, 20.4rem) !important;
+    --map-radar-size: min(var(--map-real-width), 14.9rem) !important;
+  }
+
+  .garden-exchange-button {
+    max-width: 6.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Final mobile atlas pass: one clean grid, one clean detail sheet. */
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page,
+.panel--atlas.is-open {
+  --atlas-page-inset: clamp(1.2rem, 5.4vw, 1.65rem);
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-book-layout--dex,
+.panel--atlas.is-open .atlas-book-layout--dex {
+  width: 100% !important;
+  padding-left: var(--atlas-page-inset) !important;
+  padding-right: var(--atlas-page-inset) !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages--dex,
+.panel--atlas.is-open .atlas-pages--dex {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: clamp(0.82rem, 3.8vw, 1.08rem) !important;
+  width: 100% !important;
+  max-width: 25.5rem !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-summary,
+.panel--atlas.is-open .atlas-summary {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-dex,
+.panel--atlas.is-open .atlas-dex {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-dex-header,
+.panel--atlas.is-open .atlas-dex-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.72rem !important;
+  width: 100% !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-dex-grid,
+.panel--atlas.is-open .atlas-dex-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(0.58rem, 3vw, 0.78rem) !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-dex-cell,
+.panel--atlas.is-open .atlas-dex-cell {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: clamp(0.36rem, 2vw, 0.52rem) !important;
+  border-radius: 0.82rem !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-dex-cell img,
+.panel--atlas.is-open .atlas-dex-cell img {
+  width: 78% !important;
+  height: 78% !important;
+  max-width: 5.6rem !important;
+  max-height: 5.6rem !important;
+  object-fit: contain !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-dex-cell b,
+.panel--atlas.is-open .atlas-dex-cell b {
+  width: 100% !important;
+  font-size: clamp(0.66rem, 2.8vw, 0.8rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail,
+.panel--atlas .atlas-dex-detail {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 260 !important;
+  align-items: center !important;
+  justify-items: center !important;
+  padding: clamp(4.2rem, 12svh, 5.6rem) var(--atlas-page-inset, 1.35rem) clamp(5.2rem, 14svh, 6.8rem) !important;
+  overflow: hidden !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-backdrop,
+.panel--atlas .atlas-dex-detail-backdrop {
+  background: rgba(76, 87, 56, 0.28) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-card,
+.panel--atlas .atlas-dex-detail-card {
+  display: grid !important;
+  grid-template-columns: minmax(8.4rem, 43%) minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto !important;
+  grid-template-areas:
+    "art kicker"
+    "art name"
+    "art meta"
+    "art words"
+    "art actions" !important;
+  column-gap: clamp(0.78rem, 3.5vw, 1.05rem) !important;
+  row-gap: clamp(0.34rem, 1.8vw, 0.5rem) !important;
+  width: min(100%, 24rem) !important;
+  max-height: min(72svh, 31rem) !important;
+  margin: 0 !important;
+  padding: clamp(1rem, 4.4vw, 1.25rem) !important;
+  border: 0.12rem solid rgba(136, 162, 95, 0.62) !important;
+  border-radius: 1.05rem !important;
+  background: #fff2c8 !important;
+  color: #5f4d35 !important;
+  overflow: hidden !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-portrait,
+.panel--atlas .atlas-dex-detail-portrait {
+  grid-area: art !important;
+  align-self: end !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  min-height: clamp(12.8rem, 48svh, 19rem) !important;
+  padding: clamp(0.52rem, 2vw, 0.72rem) !important;
+  border: 0.12rem dashed rgba(156, 190, 111, 0.78) !important;
+  border-radius: 0.86rem !important;
+  background: #f5ffd4 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-portrait img,
+.panel--atlas .atlas-dex-detail-portrait img {
+  width: min(118%, 12rem) !important;
+  height: min(118%, 12rem) !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-kicker,
+.panel--atlas .atlas-dex-detail-kicker {
+  grid-area: kicker !important;
+  padding-right: 2.4rem !important;
+  color: #8a7147 !important;
+  font-size: clamp(0.68rem, 2.7vw, 0.78rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-card h3,
+.panel--atlas .atlas-dex-detail-card h3 {
+  grid-area: name !important;
+  color: #2f744d !important;
+  font-size: clamp(1.45rem, 7vw, 2.05rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta,
+.panel--atlas .atlas-dex-detail-meta {
+  grid-area: meta !important;
+  gap: clamp(0.28rem, 1.6vw, 0.38rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta div,
+.panel--atlas .atlas-dex-detail-meta div {
+  grid-template-columns: clamp(2.35rem, 10vw, 2.8rem) minmax(0, 1fr) !important;
+  gap: 0.36rem !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta dt,
+.panel--atlas .atlas-dex-detail-meta dt {
+  color: #947849 !important;
+  font-size: clamp(0.68rem, 2.6vw, 0.78rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta dd,
+.panel--atlas .atlas-dex-detail-meta dd {
+  color: #5d6245 !important;
+  font-size: clamp(0.76rem, 3vw, 0.88rem) !important;
+  line-height: 1.32 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-blurb,
+.panel--atlas .atlas-dex-detail-blurb {
+  grid-area: words !important;
+  max-height: 5.2rem !important;
+  overflow: hidden !important;
+  color: #5f6549 !important;
+  font-size: clamp(0.82rem, 3.25vw, 0.94rem) !important;
+  line-height: 1.46 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-actions,
+.panel--atlas .atlas-dex-detail-actions {
+  grid-area: actions !important;
+  justify-self: end !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-actions button,
+.panel--atlas .atlas-dex-detail-actions button {
+  min-height: 2.42rem !important;
+  border-radius: 0.68rem !important;
+  font-size: clamp(0.78rem, 3vw, 0.9rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-actions button:not(.primary),
+.panel--atlas .atlas-dex-detail-actions button:not(.primary) {
+  width: 2.62rem !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: transparent !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-actions button:not(.primary)::before,
+.panel--atlas .atlas-dex-detail-actions button:not(.primary)::before {
+  content: "›";
+  color: #7d6848;
+  font-size: 1.78rem;
+  line-height: 1;
+}
+
+@media (max-width: 430px) {
+  .panel--identity .identity-atlas-page .atlas-dex-detail-card,
+  .panel--atlas .atlas-dex-detail-card {
+    grid-template-columns: minmax(7.3rem, 42%) minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  .panel--identity .identity-atlas-page .atlas-dex-detail-portrait,
+  .panel--atlas .atlas-dex-detail-portrait {
+    min-height: clamp(12rem, 42svh, 16.2rem) !important;
+  }
+}
+
+/* Passport registration polish: instant controls, right seal, unlock fields. */
+.panel--identity .identity-tabs button,
+.panel--identity .identity-tools button,
+.panel--identity .identity-back,
+.panel--identity .identity-icon-edit,
+.guide-actions button {
+  touch-action: manipulation;
+  transition-duration: 0.08s !important;
+}
+
+.panel--identity .identity-tabs button:active,
+.panel--identity .identity-tools button:active,
+.panel--identity .identity-back:active,
+.panel--identity .identity-icon-edit:active,
+.guide-actions button:active {
+  transform: translateY(0.08rem) scale(0.98);
+}
+
+.guide-card.is-stepping,
+.guide-card.is-leaving {
+  animation-duration: 0.18s !important;
+}
+
+.panel--identity .identity-page:not(.is-hidden) {
+  animation-duration: 0.16s !important;
+}
+
+.panel--identity .identity-profile {
+  align-content: start !important;
+  gap: clamp(0.42rem, 1.2vw, 0.64rem) !important;
+  padding-block: clamp(0.18rem, 0.8vw, 0.38rem) !important;
+}
+
+.panel--identity .identity-profile ul {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.28rem, 1vw, 0.42rem) clamp(0.42rem, 1.5vw, 0.64rem) !important;
+  margin-top: clamp(0.38rem, 1.3vw, 0.58rem) !important;
+  padding-top: clamp(0.5rem, 1.6vw, 0.72rem) !important;
+  border-top: 0.1rem solid rgba(138, 115, 80, 0.2);
+}
+
+.panel--identity .identity-profile li {
+  position: relative;
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  gap: 0.34rem !important;
+  min-height: clamp(1.62rem, 3.2vw, 1.92rem) !important;
+  padding: 0.18rem 0.32rem !important;
+  border: 0.08rem solid rgba(149, 181, 108, 0.22);
+  border-radius: 0.46rem;
+  background:
+    linear-gradient(135deg, rgba(255, 250, 229, 0.82), rgba(232, 243, 201, 0.46));
+}
+
+.panel--identity .identity-profile li b {
+  color: #7e744f !important;
+  font-size: clamp(0.68rem, 1.65vw, 0.8rem) !important;
+  line-height: 1.12;
+  white-space: nowrap;
+}
+
+.panel--identity .identity-profile li em {
+  color: #556842 !important;
+  font-size: clamp(0.72rem, 1.75vw, 0.86rem) !important;
+  line-height: 1.18;
+}
+
+.panel--identity .identity-profile li.is-locked em {
+  color: rgba(112, 120, 88, 0.58) !important;
+}
+
+.panel--identity .identity-profile li.is-unlocked {
+  border-color: rgba(116, 159, 86, 0.46);
+  background:
+    radial-gradient(circle at 92% 18%, rgba(255, 214, 89, 0.48) 0 0.2rem, transparent 0.24rem),
+    linear-gradient(135deg, rgba(244, 255, 208, 0.88), rgba(255, 246, 199, 0.7));
+}
+
+.panel--identity .identity-profile li.is-unlocked::after {
+  content: "";
+  position: absolute;
+  right: 0.34rem;
+  top: 0.28rem;
+  width: 0.36rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffd75a;
+  box-shadow: 0 0 0 0.13rem rgba(126, 161, 86, 0.2);
+}
+
+.panel--identity .passport-stamp {
+  right: calc(clamp(5.8rem, 16vw, 8.6rem) * -1) !important;
+  bottom: clamp(0.45rem, 2.2vw, 1.18rem) !important;
+  width: clamp(17.2rem, 38vw, 21.6rem) !important;
+  height: clamp(10.8rem, 23vw, 13.6rem) !important;
+  max-width: none !important;
+  opacity: 0.86 !important;
+  transform: rotate(-8deg) !important;
+  filter: drop-shadow(0 0.28rem 0.18rem rgba(98, 118, 70, 0.12));
+}
+
+.panel--identity .passport-stamp img {
+  right: clamp(2.12rem, 5vw, 3.24rem) !important;
+  width: clamp(7.42rem, 17vw, 9.76rem) !important;
+  height: clamp(7.42rem, 17vw, 9.76rem) !important;
+  opacity: 0.42 !important;
+}
+
+.panel--identity .passport-stamp::before {
+  right: clamp(1rem, 3.1vw, 1.88rem) !important;
+  width: clamp(11.2rem, 27vw, 14.6rem) !important;
+  background: rgba(244, 237, 196, 0.54) !important;
+}
+
+.panel--identity .passport-stamp::after {
+  content: "" !important;
+  position: absolute;
+  right: clamp(2rem, 5.2vw, 3.15rem) !important;
+  top: 50% !important;
+  width: clamp(8.8rem, 21vw, 11.4rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(114, 153, 92, 0.5) 0 0.24rem, transparent 0.28rem),
+    radial-gradient(circle at 70% 28%, rgba(114, 153, 92, 0.42) 0 0.2rem, transparent 0.24rem),
+    radial-gradient(circle at 82% 50%, rgba(114, 153, 92, 0.46) 0 0.22rem, transparent 0.26rem),
+    radial-gradient(circle at 70% 72%, rgba(114, 153, 92, 0.42) 0 0.2rem, transparent 0.24rem),
+    radial-gradient(circle at 50% 85%, rgba(114, 153, 92, 0.5) 0 0.24rem, transparent 0.28rem),
+    conic-gradient(from 0deg, rgba(114, 153, 92, 0.32) 0 12deg, transparent 12deg 32deg);
+  opacity: 0.72;
+  transform: translateY(-50%);
+  mix-blend-mode: multiply;
+  animation: passportSealRotate 18s linear infinite;
+}
+
+.panel--identity .passport-stamp i {
+  top: clamp(3.18rem, 7vw, 4.2rem) !important;
+  width: clamp(10.6rem, 23vw, 13.2rem) !important;
+  height: clamp(5.4rem, 11vw, 6.8rem) !important;
+  opacity: 0.82 !important;
+  animation: passportPostmarkFloat 5.4s ease-in-out infinite;
+}
+
+@keyframes passportSealRotate {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+@keyframes passportPostmarkFloat {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(0.26rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .panel--identity .identity-profile ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.22rem 0.32rem !important;
+  }
+
+  .panel--identity .identity-profile li {
+    min-height: 1.48rem !important;
+    padding: 0.14rem 0.26rem !important;
+  }
+
+  .panel--identity .passport-stamp {
+    right: clamp(0.5rem, 3vw, 0.9rem) !important;
+    bottom: clamp(-0.34rem, -0.8vw, -0.12rem) !important;
+    width: clamp(12.4rem, 50vw, 15rem) !important;
+    height: clamp(7.8rem, 31vw, 9.5rem) !important;
+  }
+
+  .panel--identity .passport-stamp img {
+    right: clamp(1.42rem, 5vw, 2rem) !important;
+    width: clamp(5.2rem, 21vw, 6.6rem) !important;
+    height: clamp(5.2rem, 21vw, 6.6rem) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .panel--identity .identity-profile ul {
+    grid-template-columns: 1fr;
+  }
+}

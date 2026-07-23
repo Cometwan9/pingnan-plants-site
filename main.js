@@ -65,6 +65,9 @@ const mapStatus = document.querySelector("#mapStatus");
 const mapTitle = document.querySelector("#mapTitle");
 const discoverFromMap = document.querySelector("#discoverFromMap");
 const mapPlantScanButton = document.querySelector("#mapPlantScanButton");
+const realWorldGarden = document.querySelector("#realWorldGarden");
+const realWorldGardenPlace = document.querySelector("#realWorldGardenPlace");
+const realWorldGardenMeta = document.querySelector("#realWorldGardenMeta");
 const dandelionSprig = document.querySelector('[data-sprig="dandelion"]');
 const atlasProgress = document.querySelector("#atlasProgress");
 const atlasProgressBar = document.querySelector("#atlasProgressBar");
@@ -167,6 +170,9 @@ const identityBirthday = document.querySelector("#identityBirthday");
 const identityLocation = document.querySelector("#identityLocation");
 const identityHouse = document.querySelector("#identityHouse");
 const identityPassportStage = document.querySelector("#identityPassportStage");
+const identitySecret = document.querySelector("#identitySecret");
+const identityCustomNote = document.querySelector("#identityCustomNote");
+const identityGardenerLog = document.querySelector("#identityGardenerLog");
 const identityHouseText = document.querySelector("#identityHouseText");
 const identityBio = document.querySelector("#identityBio");
 const identityWorldLine = document.querySelector("#identityWorldLine");
@@ -333,6 +339,7 @@ const state = {
   atlasSelectedLocked: null,
   claimedAtlasLevels: new Set(),
   mapPois: [],
+  gardenRelations: {},
   currentWeather: {
     label: "读取中",
     scene: "calm",
@@ -1147,6 +1154,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "生日",
     regionLabel: "地区",
     houseLabel: "房屋",
+    stageLabel: "阶段",
+    secretLabel: "秘密",
+    customLabel: "自定义",
+    gardenerLabel: "园丁登记",
+    secretLocked: "秘密 · 待解锁",
+    secretUnlocked: "花园暗号已记录",
+    customEmpty: "可编辑名字与短句",
+    customNamed: "自定义档案已登记",
+    gardenerLog: "第 {count} 次登记",
+    exchangeLog: "互访 {count} 座花园",
     atlasShort: "图鉴经验",
     knownSprigs: "已认识",
     expeditionLabel: "探险",
@@ -1172,6 +1189,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "Birthday",
     regionLabel: "Region",
     houseLabel: "House",
+    stageLabel: "Stage",
+    secretLabel: "Secret",
+    customLabel: "Custom",
+    gardenerLabel: "Gardener Log",
+    secretLocked: "Secret · locked",
+    secretUnlocked: "Garden code recorded",
+    customEmpty: "Name and motto editable",
+    customNamed: "Custom profile registered",
+    gardenerLog: "Check-in #{count}",
+    exchangeLog: "{count} gardens visited",
     atlasShort: "Atlas EXP",
     knownSprigs: "Known sprigs",
     expeditionLabel: "Trip",
@@ -1197,6 +1224,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "生日",
     regionLabel: "地區",
     houseLabel: "房屋",
+    stageLabel: "階段",
+    secretLabel: "秘密",
+    customLabel: "自訂",
+    gardenerLabel: "園丁登記",
+    secretLocked: "秘密 · 待解鎖",
+    secretUnlocked: "花園暗號已記錄",
+    customEmpty: "可編輯名字與短句",
+    customNamed: "自訂檔案已登記",
+    gardenerLog: "第 {count} 次登記",
+    exchangeLog: "互訪 {count} 座花園",
     atlasShort: "圖鑑經驗",
     knownSprigs: "已認識",
     expeditionLabel: "探險",
@@ -1222,6 +1259,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "誕生日",
     regionLabel: "地域",
     houseLabel: "家",
+    stageLabel: "段階",
+    secretLabel: "秘密",
+    customLabel: "カスタム",
+    gardenerLabel: "庭師登録",
+    secretLocked: "秘密 · 未解放",
+    secretUnlocked: "庭の合言葉を記録",
+    customEmpty: "名前とひとことを編集可",
+    customNamed: "カスタム登録済み",
+    gardenerLog: "{count}回目の登録",
+    exchangeLog: "{count}つの庭を訪問",
     atlasShort: "図鑑EXP",
     knownSprigs: "知っている種々",
     expeditionLabel: "探索",
@@ -1247,6 +1294,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "생일",
     regionLabel: "지역",
     houseLabel: "집",
+    stageLabel: "단계",
+    secretLabel: "비밀",
+    customLabel: "사용자 지정",
+    gardenerLabel: "정원사 등록",
+    secretLocked: "비밀 · 잠김",
+    secretUnlocked: "정원 암호 기록됨",
+    customEmpty: "이름과 문구 편집 가능",
+    customNamed: "맞춤 프로필 등록됨",
+    gardenerLog: "{count}번째 등록",
+    exchangeLog: "{count}개 정원 방문",
     atlasShort: "도감 경험치",
     knownSprigs: "알게 된 쫑쫑",
     expeditionLabel: "탐험",
@@ -1272,6 +1329,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "Anniversaire",
     regionLabel: "Région",
     houseLabel: "Maison",
+    stageLabel: "Étape",
+    secretLabel: "Secret",
+    customLabel: "Personnalisation",
+    gardenerLabel: "Registre",
+    secretLocked: "Secret · verrouillé",
+    secretUnlocked: "Code du jardin noté",
+    customEmpty: "Nom et phrase modifiables",
+    customNamed: "Profil personnalisé inscrit",
+    gardenerLog: "Inscription n° {count}",
+    exchangeLog: "{count} jardins visités",
     atlasShort: "EXP d'atlas",
     knownSprigs: "Sprigs connus",
     expeditionLabel: "Explorer",
@@ -1297,6 +1364,16 @@ const runtimeLocaleCopy = {
     birthdayLabel: "Cumpleaños",
     regionLabel: "Región",
     houseLabel: "Casa",
+    stageLabel: "Etapa",
+    secretLabel: "Secreto",
+    customLabel: "Personal",
+    gardenerLabel: "Registro",
+    secretLocked: "Secreto · bloqueado",
+    secretUnlocked: "Clave del jardín registrada",
+    customEmpty: "Nombre y frase editables",
+    customNamed: "Perfil personalizado registrado",
+    gardenerLog: "Registro n.º {count}",
+    exchangeLog: "{count} jardines visitados",
     atlasShort: "EXP de atlas",
     knownSprigs: "Sprigs conocidos",
     expeditionLabel: "Explorar",
@@ -1312,12 +1389,12 @@ const featureTips = [
   [".pill--seed", "种子数量"],
   [".stamina-pill", "当前体力"],
   ['.dock [data-panel="panel-identity"]', "背包"],
-  ['.dock [data-panel="panel-map"]', "寻找线索"],
+  ['.dock [data-panel="panel-map"]', "花园雷达"],
   ["#homeButton", "回到花园"],
   [".garden-action-button--expedition", "派出探险"],
   ["#captureButton", "继续识别"],
-  ["#discoverFromMap", "附近线索"],
-  [".map-dot", "探索点"],
+  ["#discoverFromMap", "附近花园"],
+  [".map-dot", "邻近花园"],
   ["#dispatchButton", "出发"],
   [".duration-picker", "选择时长"],
   [".quest-claim", "领取体力"],
@@ -1686,12 +1763,13 @@ function isGuideTargetClick(target) {
   return Boolean(selector && target.closest(selector));
 }
 
-function openPlantScanPanelFromMap() {
+function openPlantScanPanelFromMap({ startCamera = false } = {}) {
   state.selectedMapPoi = null;
   state.lastScan = null;
   updateCaptureUi();
   captureText.textContent = `拍眼前的叶片、花或整株植物。`;
   openPanel("panel-discover");
+  if (startCamera) captureArRecognition();
 }
 
 function playGuideTargetFeedback(target) {
@@ -2143,34 +2221,55 @@ function hideAtlasDexDetail() {
   atlasDexGrid?.querySelectorAll(".atlas-dex-cell.is-active").forEach((cell) => cell.classList.remove("is-active"));
 }
 
+function getAtlasStudyLevel(entry) {
+  if (!entry || entry.locked) return 0;
+  const scanCount = state.scanRecords.filter((record) => record?.sprigId === entry.id || record?.name === entry.name).length;
+  let level = state.unlockedSprigs.has(entry.id) ? 1 : 0;
+  if (scanCount > 0) level += 1;
+  if (state.gardenSprigs.has(entry.id)) level += 1;
+  if (scanCount > 2) level += 1;
+  return clamp(level, 0, 4);
+}
+
+function getLockedAtlasCopy(level, value, fallback = "？？？") {
+  return level > 0 && value ? value : fallback;
+}
+
+function getAtlasAffectionCopy(level) {
+  if (level >= 4) return "很亲近";
+  if (level >= 3) return "愿意靠近";
+  if (level >= 2) return "记得你";
+  if (level >= 1) return "刚认识";
+  return "？？？";
+}
+
 function showAtlasDexDetail(entry) {
   if (!atlasDexDetail || !entry) return;
   state.atlasSelectedId = entry.id;
   const locked = Boolean(entry.locked);
+  const studyLevel = getAtlasStudyLevel(entry);
   const image = entry.image || "./assets/ui/seed.png";
   const rarity = entry.rarity || "普通";
   const typeLabel = getAtlasShortType(entry);
-  const place = locked
-    ? "？？？"
-    : [entry.region || getGardenLabel(), (entry.habitat || "").split("·").pop()?.trim()].filter(Boolean).join(" · ") || getGardenLabel();
-  const weather = locked
-    ? "？？？"
-    : entry.weatherLines?.[0]?.slice(0, 18) || entry.habitat || "天气随园而变";
-  const status = locked ? "未发现" : entry.status || (state.gardenSprigs.has(entry.id) ? "已放入花园" : "已记录");
-  const blurb = locked
-    ? "继续扫描植物，并到对应地点完成发现，问号会一点点亮起来。"
-    : entry.personality || entry.knowledge?.[0] || entry.voiceLines?.[0] || entry.hint || "这一页还很安静。";
+  const habitat = [entry.region || getGardenLabel(), entry.habitat].filter(Boolean).join(" · ");
+  const voice = entry.voiceLines?.[0] || entry.knowledge?.[0] || entry.hint || "它还在观察你。";
+  const personality = getLockedAtlasCopy(studyLevel, entry.personality, "？？？");
+  const habit = getLockedAtlasCopy(studyLevel >= 2 ? 1 : 0, habitat, "继续扫描后解锁");
+  const affection = getAtlasAffectionCopy(studyLevel);
+  const blurb = locked || studyLevel === 0
+    ? "这一页还没亮起来。去花园或扫描植物，会慢慢认识它。"
+    : getLockedAtlasCopy(studyLevel >= 3 ? 1 : 0, voice, "它还没开口。再靠近一点。");
 
   if (atlasDexDetailImage) {
     atlasDexDetailImage.src = image;
     atlasDexDetailImage.alt = locked ? "未解锁种种剪影" : entry.name;
     atlasDexDetailImage.classList.toggle("is-silhouette", locked);
   }
-  if (atlasDexDetailKicker) atlasDexDetailKicker.textContent = locked ? "未解锁 · ？？？" : `${typeLabel}系 / ${rarity}`;
+  if (atlasDexDetailKicker) atlasDexDetailKicker.textContent = locked ? "未解锁 · ？？？" : `${typeLabel} · ${rarity}`;
   if (atlasDexDetailName) atlasDexDetailName.textContent = locked ? "？？？" : entry.name;
-  if (atlasDexDetailPlace) atlasDexDetailPlace.textContent = place;
-  if (atlasDexDetailWeather) atlasDexDetailWeather.textContent = weather;
-  if (atlasDexDetailStatus) atlasDexDetailStatus.textContent = status;
+  if (atlasDexDetailPlace) atlasDexDetailPlace.textContent = personality;
+  if (atlasDexDetailWeather) atlasDexDetailWeather.textContent = habit;
+  if (atlasDexDetailStatus) atlasDexDetailStatus.textContent = affection;
   if (atlasDexDetailBlurb) atlasDexDetailBlurb.textContent = blurb;
   if (atlasDexDetailGarden) {
     atlasDexDetailGarden.disabled = locked || !state.gardenSprigs.has(entry.id);
@@ -2368,6 +2467,22 @@ function getGardenLabel() {
   if (state.currentMapPack) return state.currentMapPack.locationLabel || state.currentMapPack.name;
   if (state.explorationMode === "unknown") return state.user.location || "未知花园";
   return "种种大世界";
+}
+
+function getRealWorldGardenLabel() {
+  return state.currentMapPack?.locationLabel || state.currentMapPack?.name || state.onboarding.city || state.user.location || "附近";
+}
+
+function renderRealWorldGardenView() {
+  if (!realWorldGarden || !realWorldGardenPlace || !realWorldGardenMeta) return;
+  const place = getRealWorldGardenLabel();
+  const weather = state.currentWeather || {};
+  const weatherText = weather.label && weather.label !== "读取中"
+    ? `${weather.label}${Number.isFinite(weather.temperature) ? ` ${weather.temperature}°` : ""}`
+    : "现实世界正在风格化";
+  realWorldGarden.dataset.weather = weather.scene || "calm";
+  realWorldGardenPlace.textContent = `${place}现实花园`;
+  realWorldGardenMeta.textContent = `${weatherText} · 可扫描附近花园`;
 }
 
 function getRegionMeta(province = regionSelect.value) {
@@ -3301,6 +3416,72 @@ function searchAmapPois(AMap, center) {
   });
 }
 
+const nearbyGardenOwnerNames = ["小禾", "阿露", "岚岚", "青介", "米芽", "藤井", "溪木", "小满"];
+const nearbyGardenThemes = ["露台", "街角", "溪畔", "天台", "巷口", "雨棚", "山脚", "窗边"];
+const nearbyGardenGifts = ["芽芽邮票", "风干叶签", "小花种袋", "藤蔓书签", "水边石片", "晴天便签"];
+
+function createNearbyGardenMeta(poi, index) {
+  const seed = hashScanSeed(`${poi.id || poi.name}:${poi.address || ""}:${index}`);
+  const owner = nearbyGardenOwnerNames[seed % nearbyGardenOwnerNames.length];
+  const theme = nearbyGardenThemes[Math.floor(seed / 3) % nearbyGardenThemes.length];
+  const gift = nearbyGardenGifts[Math.floor(seed / 7) % nearbyGardenGifts.length];
+  const baseName = String(poi.name || poi.address || getRealWorldGardenLabel()).replace(/\s+/g, "");
+  const gardenName = baseName.length > 8 ? `${baseName.slice(0, 8)}花园` : `${theme}花园`;
+  const relationCodes = ["nearby", "new", "ready"];
+  const relationCode = relationCodes[seed % relationCodes.length];
+  return {
+    gardenName,
+    ownerName: `${owner}园丁`,
+    exchangeGift: gift,
+    relationCode,
+  };
+}
+
+function getGardenRelation(poi) {
+  const saved = state.gardenRelations?.[poi.id] || {};
+  const code = saved.code || poi.relationCode || "nearby";
+  const exchanged = code === "exchanged" || Boolean(saved.exchanged);
+  if (exchanged) {
+    return {
+      code: "exchanged",
+      label: "已互访",
+      action: "已交换",
+      exchanged: true,
+    };
+  }
+  if (code === "ready") {
+    return {
+      code,
+      label: "可交换",
+      action: "交换",
+      exchanged: false,
+    };
+  }
+  if (code === "new") {
+    return {
+      code,
+      label: "新邻居",
+      action: "交换",
+      exchanged: false,
+    };
+  }
+  return {
+    code: "nearby",
+    label: "附近花园",
+    action: "交换",
+    exchanged: false,
+  };
+}
+
+function decorateNearbyGardenPoi(poi, index) {
+  const meta = createNearbyGardenMeta(poi, index);
+  return {
+    ...poi,
+    ...meta,
+    exchangeSeeds: 1 + (hashScanSeed(`${poi.id}:exchange`) % 2),
+  };
+}
+
 function normalizeAmapPois(pois, center) {
   const seen = new Set();
   return pois
@@ -3324,7 +3505,8 @@ function normalizeAmapPois(pois, center) {
         angle: angleFromCenter(center, location) ?? index * 47 - 120,
         source: "amap",
       };
-    });
+    })
+    .map(decorateNearbyGardenPoi);
 }
 
 function radarPositionForPoi(poi, index) {
@@ -3337,14 +3519,17 @@ function radarPositionForPoi(poi, index) {
 }
 
 function renderMapPois(pois, statusText) {
-  state.mapPois = pois.slice(0, 8);
+  state.mapPois = pois.slice(0, 8).map((poi, index) => (
+    poi.gardenName ? poi : decorateNearbyGardenPoi(poi, index)
+  ));
   mapDots.replaceChildren();
   mapResults.replaceChildren();
   mapStatus.textContent = statusText;
+  renderRealWorldGardenView();
 
   if (!state.mapPois.length) {
     const empty = document.createElement("p");
-    empty.textContent = "附近暂时没有识别到线索。";
+    empty.textContent = "附近暂时没有识别到花园。";
     mapResults.append(empty);
     return;
   }
@@ -3352,44 +3537,97 @@ function renderMapPois(pois, statusText) {
   state.mapPois.forEach((poi, index) => {
     const sprig = sprigs[poi.sprigId] || sprigs.dandelion;
     const position = radarPositionForPoi(poi, index);
+    const relation = getGardenRelation(poi);
     const dot = document.createElement("button");
-    dot.className = "map-dot";
+    dot.className = `map-dot map-dot--garden map-dot--${relation.code}`;
     dot.type = "button";
     dot.dataset.poiIndex = String(index);
     dot.style.left = `${position.x}%`;
     dot.style.top = `${position.y}%`;
-    dot.title = `${poi.name} · ${formatMapDistance(poi.distance)}`;
+    dot.title = `${poi.gardenName} · ${relation.label} · ${formatMapDistance(poi.distance)}`;
 
     const icon = document.createElement("img");
     icon.src = sprig.image;
     icon.alt = "";
     const label = document.createElement("span");
-    label.textContent = sprig.plant;
+    label.textContent = poi.ownerName.replace("园丁", "");
     dot.append(icon, label);
     mapDots.append(dot);
 
-    const item = document.createElement("button");
-    item.className = "map-result";
-    item.type = "button";
-    item.dataset.poiIndex = String(index);
+    const item = document.createElement("article");
+    item.className = `map-result map-result--garden map-result--${relation.code}`;
+    if (relation.exchanged) item.classList.add("is-exchanged");
+
+    const scanButton = document.createElement("button");
+    scanButton.className = "map-result-scan";
+    scanButton.type = "button";
+    scanButton.dataset.poiIndex = String(index);
     const name = document.createElement("strong");
-    name.textContent = poi.name;
+    name.textContent = poi.gardenName;
     const meta = document.createElement("span");
-    meta.textContent = `${sprig.name} · ${formatMapDistance(poi.distance)}`;
-    item.append(name, meta);
+    meta.textContent = `${poi.ownerName} · ${formatMapDistance(poi.distance)} · ${sprig.name}`;
+    scanButton.append(name, meta);
+
+    const relationBadge = document.createElement("em");
+    relationBadge.className = "garden-relation-badge";
+    relationBadge.textContent = relation.label;
+
+    const exchangeButton = document.createElement("button");
+    exchangeButton.className = "garden-exchange-button";
+    exchangeButton.type = "button";
+    exchangeButton.dataset.exchangeIndex = String(index);
+    exchangeButton.disabled = relation.exchanged;
+    exchangeButton.textContent = relation.exchanged ? "已交换" : `交换${poi.exchangeGift}`;
+
+    item.append(scanButton, relationBadge, exchangeButton);
     mapResults.append(item);
   });
 }
 
-function renderFallbackMapPois(statusText = "雷达待机，等待附近线索。") {
+function buildSyntheticNearbyGardens(center, pack = null, count = 5) {
+  const [lng, lat] = center || AMAP_CONFIG.fallbackCenter;
+  const label = pack?.locationLabel || pack?.name || getRealWorldGardenLabel();
+  const gardenSeeds = ["路口", "天台", "溪畔", "窗边", "雨棚", "街角"];
+  return Array.from({ length: count }, (_, index) => {
+    const angle = index * 67 - 118;
+    const distance = 680 + index * 430;
+    const offset = distance / 111320;
+    const position = [
+      lng + Math.cos(toRadians(angle)) * offset,
+      lat + Math.sin(toRadians(angle)) * offset,
+    ];
+    return decorateNearbyGardenPoi(
+      {
+        id: `synthetic-${pack?.id || "local"}-${index}`,
+        name: `${label}${gardenSeeds[index % gardenSeeds.length]}`,
+        type: "附近花园",
+        address: `${label}附近`,
+        distance,
+        sprigId: sprigIds[index % sprigIds.length],
+        angle,
+        position,
+        source: "synthetic-garden",
+      },
+      index,
+    );
+  });
+}
+
+function renderFallbackMapPois(statusText = "雷达待机，等待附近花园。") {
   const pack = state.currentMapPack || (state.explorationReady ? activeMapPack : null);
   if (!pack) {
-    renderMapPois([], statusText);
+    const cityCenter = getSelectedCityCenter();
+    const center = cityCenter ? [cityCenter.lng, cityCenter.lat] : AMAP_CONFIG.fallbackCenter;
+    renderMapPois(buildSyntheticNearbyGardens(center, null, 4), statusText);
     return;
   }
   const center = state.userLocation
     ? [state.userLocation.lng, state.userLocation.lat]
     : pack?.center || AMAP_CONFIG.fallbackCenter;
+  if (!pack?.locations?.length) {
+    renderMapPois(buildSyntheticNearbyGardens(center, pack, 5), statusText);
+    return;
+  }
   const pois = (pack?.locations || []).map((poi, index) => ({
     id: poi.id || `pack-${pack.id}-${index}`,
     name: poi.name || "附近线索",
@@ -3399,7 +3637,7 @@ function renderFallbackMapPois(statusText = "雷达待机，等待附近线索�
     sprigId: poi.sprigId || sprigIds[index % sprigIds.length],
     angle: angleFromCenter(center, poi.position) ?? index * 47 - 120,
     source: "map-pack",
-  }));
+  })).map(decorateNearbyGardenPoi);
   renderMapPois(pois, statusText);
 }
 
@@ -3410,28 +3648,51 @@ function selectMapPoi(index) {
   state.selectedMapPoi = poi;
   state.lastScan = null;
   updateCaptureUi();
+  captureText.textContent = `在${poi.gardenName || poi.name}附近取景，识别植物后可以解锁更多种种。`;
   openPanel("panel-discover");
+  captureArRecognition();
+}
+
+function exchangeNearbyGarden(index) {
+  const poi = state.mapPois[index];
+  if (!poi) return;
+  const relation = getGardenRelation(poi);
+  if (relation.exchanged) {
+    mapStatus.textContent = `${poi.gardenName} 今天已经互访过。`;
+    return;
+  }
+  state.gardenRelations[poi.id] = {
+    code: "exchanged",
+    exchanged: true,
+    exchangedAt: Date.now(),
+    gift: poi.exchangeGift,
+  };
+  addSeeds(poi.exchangeSeeds || 1);
+  updateLevel(8);
+  playGardenSound("success");
+  renderMapPois(state.mapPois, `${poi.ownerName}送来${poi.exchangeGift} · 已互访`);
+  saveGardenProfile();
 }
 
 async function scanNearbySprigs() {
   discoverFromMap.disabled = true;
-  mapStatus.textContent = "正在向地图取线索。";
+  mapStatus.textContent = "正在向现实花园取样。";
 
   try {
     const AMap = await loadAmap();
-    mapStatus.textContent = "正在读取附近。";
+    mapStatus.textContent = "正在读取附近花园。";
     const { center, label } = await getAmapCenter(AMap);
-    mapStatus.textContent = "正在筛选植物线索。";
+    mapStatus.textContent = "正在整理可互访花园。";
     const rawPois = await searchAmapPois(AMap, center);
     const pois = normalizeAmapPois(rawPois, center);
     if (!pois.length) throw new Error("no-amap-pois");
-    renderMapPois(pois, `${label} · ${pois.length} 条线索`);
+    renderMapPois(pois, `${label} · ${pois.length} 座附近花园`);
   } catch (error) {
     const gardenLabel = getGardenLabel();
     const fallbackText =
       error?.message === "missing-amap-key"
-        ? `地图 key 还没接好，先看${gardenLabel}。`
-        : `附近线索暂时没回来，先看${gardenLabel}。`;
+        ? `地图 key 还没接好，先看${gardenLabel}附近花园。`
+        : `附近花园暂时没回来，先看${gardenLabel}。`;
     renderFallbackMapPois(fallbackText);
   } finally {
     discoverFromMap.disabled = false;
@@ -3921,6 +4182,7 @@ async function updateWeather(location = null) {
       : `${label} ${weather.label} --°`;
     weatherPill.title = `天气源：${weather.source}${weather.observedAt ? ` · ${weather.observedAt}` : ""}`;
     setWeatherScene(weather.scene);
+    renderRealWorldGardenView();
     runSprigDailyLife("weather");
   } catch {
     state.currentWeather = { label: "暂不可用", scene: "calm", temperature: null, source: "", observedAt: "" };
@@ -3928,6 +4190,7 @@ async function updateWeather(location = null) {
     weatherValue.textContent = `${label} 天气暂不可用`;
     weatherPill.title = "天气源暂不可用";
     setWeatherScene("calm");
+    renderRealWorldGardenView();
     runSprigDailyLife("weather");
   }
 }
@@ -3998,6 +4261,7 @@ function serializeGardenProfile() {
     specialties: state.specialties,
     scanRecords: state.scanRecords,
     lastScan: state.lastScan,
+    gardenRelations: state.gardenRelations,
     sprigAnimationTasks: state.sprigAnimationTasks,
     firstLoginAt: state.firstLoginAt || "",
     lastLoginAt: state.lastLoginAt || "",
@@ -4030,6 +4294,7 @@ function applyGardenProfile(profile = {}) {
   state.specialties = Array.isArray(profile.specialties) ? profile.specialties : state.specialties;
   state.scanRecords = Array.isArray(profile.scanRecords) ? profile.scanRecords.slice(0, 4) : state.scanRecords;
   state.lastScan = profile.lastScan || state.lastScan;
+  state.gardenRelations = profile.gardenRelations && typeof profile.gardenRelations === "object" ? profile.gardenRelations : state.gardenRelations;
   state.sprigAnimationTasks = profile.sprigAnimationTasks && typeof profile.sprigAnimationTasks === "object" ? profile.sprigAnimationTasks : state.sprigAnimationTasks;
   state.firstLoginAt = profile.firstLoginAt || state.firstLoginAt || "";
   state.lastLoginAt = profile.lastLoginAt || state.lastLoginAt || "";
@@ -4066,6 +4331,7 @@ function applyGardenProfile(profile = {}) {
   setStamina(state.stamina);
   seedValue.textContent = state.seeds;
   syncIdentityNurseryStatus();
+  renderRealWorldGardenView();
 }
 
 async function saveProfileToServer(profile) {
@@ -4281,10 +4547,10 @@ function enterMapPack(mapPack, userLocation = null, mode = "manual") {
   rebuildActiveMapPack(mapPack);
   applyGeneratedSprig(generateSprigFromLocation(userLocation, mapPack));
   clearMapPackPicker();
-  mapTitle.textContent = `${mapPack.name}雷达`;
+  mapTitle.textContent = "花园雷达";
   syncUserHud();
   syncExpeditionChoice();
-  renderFallbackMapPois(`${mapPack.name} · ${getMapPackStatusLabel(mapPack.status)}`);
+  renderFallbackMapPois(`${mapPack.name} · 可互访花园 · ${getMapPackStatusLabel(mapPack.status)}`);
 }
 
 function enterUnknownGarden(userLocation = null, label = "未知花园") {
@@ -4296,10 +4562,10 @@ function enterUnknownGarden(userLocation = null, label = "未知花园") {
   state.user.location = label;
   applyGeneratedSprig(generateSprigFromLocation(userLocation, null));
   clearMapPackPicker();
-  mapTitle.textContent = "野外探索雷达";
+  mapTitle.textContent = "花园雷达";
   syncUserHud();
   syncExpeditionChoice();
-  renderMapPois([], "你附近还没有完整地图包。");
+  renderMapPois([], "你附近还没有识别到可互访花园。");
 }
 
 async function startLocationExploration() {
@@ -4344,7 +4610,7 @@ async function startLocationExploration() {
     state.currentMapPack = null;
     state.userLocation = null;
     state.generatedSprig = null;
-    mapTitle.textContent = "附近花园雷达";
+    mapTitle.textContent = "花园雷达";
     expeditionTitle.textContent = "选择一片花园开始探险";
     expeditionTimer.textContent = "等待选择";
     expeditionText.textContent = "位置没读到，先手动选一片花园。";
@@ -4490,7 +4756,16 @@ function getPassportId() {
 
 function identityProfileLabels(runtime) {
   const labels = identityName.closest(".identity-profile").querySelectorAll("li b");
-  const values = [runtime.gardenLabel, runtime.birthdayLabel, runtime.regionLabel, runtime.houseLabel];
+  const values = [
+    runtime.gardenLabel,
+    runtime.birthdayLabel,
+    runtime.regionLabel,
+    runtime.houseLabel,
+    runtime.stageLabel,
+    runtime.secretLabel,
+    runtime.customLabel,
+    runtime.gardenerLabel,
+  ];
   labels.forEach((label, index) => {
     label.textContent = values[index] || label.textContent;
   });
@@ -4530,6 +4805,27 @@ function renderIdentityCard() {
   passportStampImage.src = starterSprig.image;
   passportStampImage.alt = starterSprig.name;
   identityPassportStage.textContent = `Lv.${milestone.level} · ${getPassportStageName(milestone.level)}`;
+  const exchangeCount = Object.values(state.gardenRelations || {}).filter((relation) => (
+    relation?.code === "exchanged" || relation?.exchanged
+  )).length;
+  const secretUnlocked = unlocked.length >= 3 || exchangeCount > 0 || (state.scanRecords || []).length > 0;
+  if (identitySecret) {
+    identitySecret.textContent = secretUnlocked
+      ? (exchangeCount > 0 ? runtime.exchangeLog.replace("{count}", String(exchangeCount)) : runtime.secretUnlocked)
+      : runtime.secretLocked;
+    identitySecret.closest("li")?.classList.toggle("is-unlocked", secretUnlocked);
+    identitySecret.closest("li")?.classList.toggle("is-locked", !secretUnlocked);
+  }
+  if (identityCustomNote) {
+    const hasCustomProfile = Boolean(state.user.bio?.trim()) || state.user.name !== runtime.defaultUserName;
+    identityCustomNote.textContent = hasCustomProfile ? runtime.customNamed : runtime.customEmpty;
+    identityCustomNote.closest("li")?.classList.toggle("is-unlocked", hasCustomProfile);
+  }
+  if (identityGardenerLog) {
+    const loginCount = Math.max(1, Number(state.loginCount || 1));
+    const gardenerLog = runtime.gardenerLog.replace("{count}", String(loginCount));
+    identityGardenerLog.textContent = `${gardenerLog} · ${state.onboarding.city || state.gardenName}`;
+  }
   if (identityStory) {
     identityStory.textContent =
       state.onboarding.language === "en"
@@ -5332,7 +5628,7 @@ document.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
   playGuideTargetFeedback(event.target);
-  window.setTimeout(completeCurrentGuideStep, 520);
+  window.setTimeout(completeCurrentGuideStep, 240);
 }, true);
 
 window.addEventListener("resize", () => {
@@ -5506,6 +5802,14 @@ closePassportShare.addEventListener("click", () => {
   passportShareCard.classList.add("is-hidden");
 });
 
+identityTabs?.addEventListener("pointerdown", (event) => {
+  const button = event.target.closest("[data-identity-tab]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  setIdentityTab(button.dataset.identityTab);
+});
+
 identityTabs?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-identity-tab]");
   if (!button) return;
@@ -5602,7 +5906,7 @@ discoverFromMap.addEventListener("click", () => {
 
 mapPlantScanButton.addEventListener("click", () => {
   playGardenSound("tap");
-  openPlantScanPanelFromMap();
+  openPlantScanPanelFromMap({ startCamera: true });
 });
 
 mapPackPicker?.addEventListener("click", (event) => {
@@ -5646,6 +5950,11 @@ mapDots.addEventListener("click", (event) => {
 });
 
 mapResults.addEventListener("click", (event) => {
+  const exchangeButton = event.target.closest("[data-exchange-index]");
+  if (exchangeButton) {
+    exchangeNearbyGarden(Number(exchangeButton.dataset.exchangeIndex));
+    return;
+  }
   const item = event.target.closest("[data-poi-index]");
   if (!item) return;
   selectMapPoi(Number(item.dataset.poiIndex));
@@ -5920,7 +6229,8 @@ syncExpeditionChoice();
 restoreExpeditionState();
 updateGoalCount();
 syncQuestClaims();
-renderMapPois([], "读取你所在的花园后，会显示附近可探索点位。");
+renderMapPois([], "扫描你所在的花园后，会显示附近可互访花园。");
+renderRealWorldGardenView();
 setupFeatureTips();
 syncDailyCheckin();
 updateWeather();

@@ -111,7 +111,7 @@ test("guide observation steps pause until the player continues", () => {
   assert.match(targetFeedbackBlock, /guideTarget\.classList\.contains\("sprig"\)/);
   assert.match(targetFeedbackBlock, /showKnowledgeForSprig\(guideTarget,\s*sprig\)/);
   assert.match(targetClickBlock, /playGuideTargetFeedback\(event\.target\)/);
-  assert.match(targetClickBlock, /window\.setTimeout\(completeCurrentGuideStep,\s*520\)/);
+  assert.match(targetClickBlock, /window\.setTimeout\(completeCurrentGuideStep,\s*240\)/);
   assert.match(nextBlock, /if \(state\.guideObserving\)/);
   assert.match(nextBlock, /if \(!state\.guideObservationReady\) return/);
   assert.match(nextBlock, /goToGuideStep\(state\.guideStep \+ 1\)/);
@@ -505,7 +505,14 @@ test("identity passport keeps aligned columns and uses a postmark sprig stamp", 
   assert.match(script, /if \(identityWorldLine\)/);
   assert.match(html, /id="identityPassportStage"/);
   assert.match(html, /<li><b>花园<\/b><em id="identityGardenName"/);
+  assert.match(html, /class="identity-info--secret is-locked"[\s\S]*id="identitySecret"/);
+  assert.match(html, /class="identity-info--custom"[\s\S]*id="identityCustomNote"/);
+  assert.match(html, /class="identity-info--gardener"[\s\S]*id="identityGardenerLog"/);
   assert.doesNotMatch(html, /<li><span>☘<\/span><b>花园/);
+  assert.match(script, /const identitySecret = document\.querySelector\("#identitySecret"\)/);
+  assert.match(script, /secretUnlocked/);
+  assert.match(script, /runtime\.exchangeLog\.replace\("\{count\}"/);
+  assert.match(script, /identityTabs\?\.addEventListener\("pointerdown"/);
   assert.match(html, /<div class="growth-card" hidden>/);
   assert.match(styles, /\.identity-hero\s*\{[\s\S]*grid-template-columns:\s*minmax\(12\.2rem,\s*0\.82fr\) minmax\(17rem,\s*1\.18fr\)/);
   assert.match(styles, /\.panel--identity\s*\{[\s\S]*calc\(clamp\(3\.8rem,\s*8vw,\s*6\.5rem\)\s*\+\s*4\.4rem\)/);
@@ -614,6 +621,12 @@ test("identity passport keeps aligned columns and uses a postmark sprig stamp", 
   assert.match(styles, /\.panel--identity \.identity-profile ul\s*\{[\s\S]*border-top:\s*0\.1rem solid rgba\(138,\s*115,\s*80,\s*0\.2\)/);
   assert.match(styles, /\.identity-inline-input\s*\{[\s\S]*border-bottom:\s*0\.12rem solid/);
   assert.match(styles, /\.identity-inline-input--bio\s*\{[\s\S]*font-size:\s*clamp\(0\.92rem/);
+  assert.match(styles, /Passport registration polish/);
+  assert.match(styles, /\.panel--identity \.passport-stamp\s*\{[\s\S]*width:\s*clamp\(17\.2rem,\s*38vw,\s*21\.6rem\)/);
+  assert.match(styles, /\.panel--identity \.passport-stamp::after\s*\{[\s\S]*animation:\s*passportSealRotate 18s linear infinite/);
+  assert.match(styles, /@keyframes passportSealRotate/);
+  assert.match(styles, /\.panel--identity \.identity-profile li\.is-unlocked/);
+  assert.match(styles, /\.guide-card\.is-stepping,\n\.guide-card\.is-leaving\s*\{[\s\S]*animation-duration:\s*0\.18s !important/);
 });
 
 test("identity passport tabs switch real sections", () => {
@@ -863,8 +876,10 @@ test("map radar is wired to Gaode API with local fallback", () => {
   assert.match(html, /id="mapResults"/);
   assert.match(html, /id="mapStatus"/);
   assert.match(html, /id="mapPlantScanButton"/);
-  assert.match(html, /id="discoverFromMap">读取附近线索<\/button>/);
-  assert.match(html, /id="mapPlantScanButton"[\s\S]*>打开取景<\/button>/);
+  assert.match(html, /id="mapTitle">花园雷达<\/h2>/);
+  assert.match(html, /id="realWorldGarden"/);
+  assert.match(html, /id="discoverFromMap">扫描附近花园<\/button>/);
+  assert.match(html, /id="mapPlantScanButton"[\s\S]*>扫描植物<\/button>/);
   assert.match(html, /data-panel="panel-discover"/);
   assert.match(script, /AMAP_DEFAULT_CONFIG/);
   assert.match(script, /webapi\.amap\.com\/loader\.js/);
@@ -876,12 +891,35 @@ test("map radar is wired to Gaode API with local fallback", () => {
   assert.match(script, /searchNearBy/);
   assert.match(script, /renderFallbackMapPois/);
   assert.match(script, /mapPlantScanButton\.addEventListener/);
+  assert.match(script, /openPlantScanPanelFromMap\(\{ startCamera:\s*true \}\)/);
   assert.match(server, /AMAP_WEB_KEY/);
   assert.match(server, /AMAP_SECURITY_JS_CODE/);
   assert.match(server, /SPRIG_AMAP_CONFIG/);
   assert.match(gitignore, /config\.local\.js/);
   assert.match(envExample, /AMAP_WEB_KEY=/);
   assert.match(envExample, /AMAP_SECURITY_JS_CODE=/);
+});
+
+test("map radar shows nearby gardens with exchange relationships and AR scan entry", () => {
+  assert.match(script, /gardenRelations:\s*\{\}/);
+  assert.match(script, /gardenRelations:\s*state\.gardenRelations/);
+  assert.match(script, /function renderRealWorldGardenView/);
+  assert.match(script, /function createNearbyGardenMeta/);
+  assert.match(script, /function buildSyntheticNearbyGardens/);
+  assert.match(script, /function getGardenRelation/);
+  assert.match(script, /function exchangeNearbyGarden/);
+  assert.match(script, /exchangeNearbyGarden\(Number\(exchangeButton\.dataset\.exchangeIndex\)\)/);
+  assert.match(script, /captureText\.textContent = `在\$\{poi\.gardenName \|\| poi\.name\}附近取景/);
+  assert.match(script, /captureArRecognition\(\)/);
+  assert.match(script, /附近暂时没有识别到花园。/);
+  assert.match(script, /source:\s*"synthetic-garden"/);
+  assert.match(styles, /\.real-world-garden/);
+  assert.match(styles, /\.real-world-marker/);
+  assert.match(styles, /\.map-result--garden/);
+  assert.match(styles, /\.garden-relation-badge/);
+  assert.match(styles, /\.garden-exchange-button/);
+  assert.match(styles, /\.map-dot--exchanged/);
+  assert.match(styles, /Garden radar: real-world view, nearby gardens and exchange states/);
 });
 
 test("plant identification is proxied through the local API server", () => {
@@ -1057,7 +1095,7 @@ test("atlas uses a 3x3 dex grid with same-page detail overlay", () => {
   assert.match(script, /function hideAtlasDexDetail/);
   assert.match(script, /已发现 \$\{unlocked\.length\}/);
   assert.match(script, /textContent = locked \? "？？？" : entry\.name/);
-  assert.match(script, /继续扫描植物，并到对应地点完成发现/);
+  assert.match(script, /继续扫描后解锁/);
   assert.match(script, /atlasDexGrid\?\.addEventListener\("click"/);
   assert.match(script, /atlasDexDetailClose\?\.addEventListener/);
   assert.match(script, /function renderAtlasRewards/);
