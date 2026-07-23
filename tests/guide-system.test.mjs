@@ -68,6 +68,8 @@ test("player guide covers the main game loops", () => {
   assert.match(script, /pauseAfter:\s*2200/);
   assert.match(script, /targetKind:\s*"sprig"/);
   assert.match(script, /guideLayer\.dataset\.guideKind/);
+  assert.match(script, /afterOpenTab:\s*"items"/);
+  assert.match(script, /pauseAfter:\s*4600/);
   assert.match(script, /observeSelector:\s*"#panel-identity"/);
   assert.match(script, /observeClass:\s*"guide-scroll-glow"/);
   assert.match(script, /observeSelector:\s*"#captureButton"/);
@@ -107,7 +109,7 @@ test("guide observation steps pause until the player continues", () => {
   assert.match(completeBlock, /setGuideObservationReady\(true\)/);
   assert.match(completeBlock, /return;\s*\n\s*\}/);
   assert.match(targetFeedbackBlock, /guideTarget\.classList\.add\("guide-target-nudge"\)/);
-  assert.match(targetFeedbackBlock, /openPanel\(guideTarget\.dataset\.panel\)/);
+  assert.match(targetFeedbackBlock, /openPanel\(guideTarget\.dataset\.panel,\s*\{ identityTab:\s*step\.afterOpenTab \}\)/);
   assert.match(targetFeedbackBlock, /openPlantScanPanelFromMap\(\)/);
   assert.match(targetFeedbackBlock, /captureArRecognition\(\)/);
   assert.match(targetFeedbackBlock, /guideTarget\.classList\.contains\("sprig"\)/);
@@ -304,8 +306,8 @@ test("daily checkin stays in the home flow while daily tasks live in expedition"
   assert.match(html, /daily-pixel-icon daily-pixel-icon--friend/);
   assert.doesNotMatch(expeditionPanel, /quest-card[\s\S]*assets\/sprigs/);
   assert.doesNotMatch(expeditionPanel, /quest-card[\s\S]*assets\/garden-icons/);
-  assert.match(html, /class="daily-pixel-icon daily-pixel-icon--task"/);
-  assert.match(html, /class="daily-pixel-icon daily-pixel-icon--energy"/);
+  assert.match(html, /class="checkin-pixel-icon checkin-pixel-icon--task"/);
+  assert.match(html, /class="checkin-pixel-icon checkin-pixel-icon--energy"/);
   assert.match(styles, /\.daily-task-card,\n\.daily-reward-card/);
   assert.match(styles, /\.daily-pixel-icon--energy i/);
   assert.match(styles, /\.quest-section\s*\{[\s\S]*display:\s*grid/);
@@ -1117,6 +1119,21 @@ test("atlas uses a 3x3 dex grid with same-page detail overlay", () => {
 test("nursery presents a seed greenhouse drop zone instead of a giant seed icon", () => {
   assert.match(html, /种子温室/);
   assert.doesNotMatch(html, /种子培育室/);
+  assert.match(html, /class="identity-section backpack-overview-section identity-page is-hidden"[\s\S]*随身小包/);
+  assert.match(html, /id="backpackAvatar"/);
+  assert.match(html, /id="backpackWardrobeList"[\s\S]*园丁围裙/);
+  assert.match(html, /id="backpackToolList"[\s\S]*种子袋/);
+  assert.match(html, /id="backpackRecordLine"[\s\S]*图鉴 1 · 扫描 0/);
+  assert.match(html, /id="backpackFootprintLine"[\s\S]*初到花园/);
+  assert.match(script, /function renderBackpackOverview/);
+  assert.match(script, /backpackWardrobeList\?\.replaceChildren/);
+  assert.match(script, /backpackToolList\?\.replaceChildren/);
+  assert.match(script, /openPanel\(guideTarget\.dataset\.panel,\s*\{ identityTab:\s*step\.afterOpenTab \}\)/);
+  assert.match(styles, /Backpack contents: avatar, wardrobe, tools, records and footprints/);
+  assert.match(styles, /\.panel--identity\[data-active-identity-tab="items"\] \.backpack-overview-section\s*\{[\s\S]*order:\s*0 !important/);
+  assert.match(styles, /\.backpack-overview-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(styles, /\.backpack-player-card\s*\{[\s\S]*grid-column:\s*1 \/ -1/);
+  assert.match(styles, /\.backpack-chip-list \.is-equipped\s*\{[\s\S]*background:\s*#fff2b9/);
   assert.match(html, /<h3>种子袋<\/h3>/);
   assert.match(html, /seed-pouch-card[\s\S]*assets\/ui\/icon-seed-pouch\.svg/);
   assert.doesNotMatch(html, /seed-pouch-card[\s\S]*assets\/ui\/icon-seed\.svg/);

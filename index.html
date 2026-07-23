@@ -125,18 +125,37 @@
 
         <section class="daily-checkin-modal is-hidden" id="dailyCheckinModal" aria-label="今日签到" aria-live="polite">
           <article class="daily-checkin-card">
-            <p>今日签到</p>
+            <p class="daily-checkin-kicker">
+              <span class="checkin-pixel-icon checkin-pixel-icon--calendar" aria-hidden="true"></span>
+              <span><b>幸运日历</b><small>今日签到</small></span>
+            </p>
             <h2 id="dailyCheckinTitle">花园醒来了</h2>
-            <div class="daily-task-card">
-              <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span>
-              <div>
-                <strong>今日小任务</strong>
-                <small>领体力，去花园走一圈。</small>
-              </div>
-            </div>
+            <details class="daily-task-card" open>
+              <summary>
+                <span class="checkin-pixel-icon checkin-pixel-icon--task" aria-hidden="true"></span>
+                <span>
+                  <strong>今日任务</strong>
+                  <small>领体力后，去花园走一圈。</small>
+                </span>
+              </summary>
+              <ul>
+                <li><b>花园巡看</b><span>触碰种种或打开花园雷达。</span></li>
+                <li><b>随身记录</b><span>种子、服装和足迹会写进背包。</span></li>
+              </ul>
+            </details>
             <div class="daily-reward-card" id="dailyCheckinReward">
-              <span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span>
-              <strong>体力 +6</strong>
+              <article class="checkin-reward-item checkin-reward-item--energy">
+                <span class="checkin-pixel-icon checkin-pixel-icon--energy" aria-hidden="true"></span>
+                <div><strong>体力 +6</strong><small>今日行动</small></div>
+              </article>
+              <article class="checkin-reward-item checkin-reward-item--seed">
+                <span class="checkin-pixel-icon checkin-pixel-icon--seed" aria-hidden="true"></span>
+                <div><strong>种子签</strong><small>累计 3 天</small></div>
+              </article>
+              <article class="checkin-reward-item checkin-reward-item--outfit">
+                <span class="checkin-pixel-icon checkin-pixel-icon--outfit" aria-hidden="true"></span>
+                <div><strong>服装签</strong><small>幸运日历</small></div>
+              </article>
             </div>
             <button class="daily-checkin-button" type="button" id="dailyCheckinModalButton">领取</button>
             <button class="daily-checkin-close" type="button" id="dailyCheckinClose" aria-label="稍后再领">稍后</button>
@@ -638,6 +657,39 @@
               <div class="identity-friends" id="identityFriendList"></div>
             </div>
           </div>
+
+          <section class="identity-section backpack-overview-section identity-page is-hidden" data-identity-page="items" aria-label="随身小包">
+            <h3><span class="section-title-icon backpack-pocket-icon" aria-hidden="true"><i></i></span><b>随身小包</b></h3>
+            <div class="backpack-overview-grid">
+              <article class="backpack-player-card">
+                <span class="backpack-avatar" id="backpackAvatar" aria-hidden="true">园</span>
+                <div>
+                  <strong id="backpackProfileName">花园观察员</strong>
+                  <span id="backpackProfileMeta">浙江省 · 杭州市</span>
+                </div>
+              </article>
+              <article class="backpack-pocket-card backpack-pocket-card--wardrobe">
+                <h4>服装</h4>
+                <div class="backpack-chip-list" id="backpackWardrobeList">
+                  <span>园丁围裙</span>
+                </div>
+              </article>
+              <article class="backpack-pocket-card backpack-pocket-card--tools">
+                <h4>道具</h4>
+                <div class="backpack-chip-list" id="backpackToolList">
+                  <span>种子袋</span>
+                </div>
+              </article>
+              <article class="backpack-pocket-card backpack-pocket-card--records">
+                <h4>记录</h4>
+                <div class="backpack-stat-line" id="backpackRecordLine">图鉴 1 · 扫描 0</div>
+              </article>
+              <article class="backpack-pocket-card backpack-pocket-card--footprints">
+                <h4>足迹</h4>
+                <div class="backpack-stat-line" id="backpackFootprintLine">杭州市 · 初到花园</div>
+              </article>
+            </div>
+          </section>
 
           <section class="identity-section specialty-section identity-page is-hidden" data-identity-page="items">
             <h3><span class="section-title-icon svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-specialty-collection.svg" alt="" /></span><b id="specialtyBagTitle">地貌</b></h3>

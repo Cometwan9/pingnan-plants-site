@@ -182,6 +182,13 @@ const identityAtlasText = document.querySelector("#identityAtlasText");
 const identityAtlasBar = document.querySelector("#identityAtlasBar");
 const identityFriendList = document.querySelector("#identityFriendList");
 const identityAtlasGrid = document.querySelector("#identityAtlasGrid");
+const backpackAvatar = document.querySelector("#backpackAvatar");
+const backpackProfileName = document.querySelector("#backpackProfileName");
+const backpackProfileMeta = document.querySelector("#backpackProfileMeta");
+const backpackWardrobeList = document.querySelector("#backpackWardrobeList");
+const backpackToolList = document.querySelector("#backpackToolList");
+const backpackRecordLine = document.querySelector("#backpackRecordLine");
+const backpackFootprintLine = document.querySelector("#backpackFootprintLine");
 const specialtyShelf = document.querySelector("#specialtyShelf");
 const landformRegionList = document.querySelector("#landformRegionList");
 const landformPrev = document.querySelector("#landformPrev");
@@ -650,13 +657,14 @@ const guideSteps = [
     speaker: "蕨芽种种 · 慢半拍的档案员",
     mascot: sprigs.fern.image,
     title: "背包在这里",
-    text: "护照、图鉴、风物都收在这本册子里。",
+    text: "里面不空。形象、衣服、道具、记录和足迹都在这里慢慢长出来。",
     action: "打开背包",
+    afterOpenTab: "items",
     expression: "focused",
     motion: "peek",
     observeSelector: "#panel-identity",
     observeClass: "guide-scroll-glow",
-    pauseAfter: 2400,
+    pauseAfter: 4600,
   },
   {
     selector: '.dock [data-panel="panel-map"]',
@@ -1449,6 +1457,10 @@ function setIdentityTab(tab = "card") {
   // Scroll the inner pages surface (panel itself is overflow:hidden on purpose).
   identityPanel?.querySelector("#identityPages")?.scrollTo?.({ top: 0, behavior: "auto" });
   identityPanel?.scrollTo?.({ top: 0, behavior: "auto" });
+  requestAnimationFrame(() => {
+    identityPanel?.querySelector("#identityPages")?.scrollTo?.({ top: 0, behavior: "auto" });
+    identityPanel?.scrollTo?.({ top: 0, behavior: "auto" });
+  });
 }
 
 function foldAtlasIntoBackpack() {
@@ -1775,7 +1787,8 @@ function openPlantScanPanelFromMap({ startCamera = false } = {}) {
 }
 
 function playGuideTargetFeedback(target) {
-  const selector = guideSteps[state.guideStep]?.selector;
+  const step = guideSteps[state.guideStep] || {};
+  const selector = step.selector;
   const guideTarget = selector ? target.closest(selector) : null;
   if (!guideTarget) return;
 
@@ -1789,7 +1802,7 @@ function playGuideTargetFeedback(target) {
   }
 
   if (guideTarget.dataset.panel) {
-    openPanel(guideTarget.dataset.panel);
+    openPanel(guideTarget.dataset.panel, { identityTab: step.afterOpenTab });
   } else if (guideTarget.id === "homeButton") {
     closePanels();
   } else if (guideTarget.id === "mapPlantScanButton") {
@@ -4208,6 +4221,25 @@ function todayKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
+function getCheckinRewardMarkup(seedBonus) {
+  const nextStreak = state.dailyStreak + 1;
+  const luckyOutfit = nextStreak % 7 === 0;
+  return `
+    <article class="checkin-reward-item checkin-reward-item--energy">
+      <span class="checkin-pixel-icon checkin-pixel-icon--energy" aria-hidden="true"></span>
+      <div><strong>体力 +6</strong><small>今日行动</small></div>
+    </article>
+    <article class="checkin-reward-item checkin-reward-item--seed${seedBonus ? " is-lucky" : ""}">
+      <span class="checkin-pixel-icon checkin-pixel-icon--seed" aria-hidden="true"></span>
+      <div><strong>${seedBonus ? "种子 +2" : "种子签"}</strong><small>${seedBonus ? "幸运日" : "累计 3 天"}</small></div>
+    </article>
+    <article class="checkin-reward-item checkin-reward-item--outfit${luckyOutfit ? " is-lucky" : ""}">
+      <span class="checkin-pixel-icon checkin-pixel-icon--outfit" aria-hidden="true"></span>
+      <div><strong>${luckyOutfit ? "服装签 +1" : "服装签"}</strong><small>${luckyOutfit ? "幸运日" : "幸运日历"}</small></div>
+    </article>
+  `;
+}
+
 function syncDailyCheckin() {
   const claimed = state.lastDailyCheckin === todayKey();
   if (dailyCheckinModalButton) {
@@ -4216,9 +4248,7 @@ function syncDailyCheckin() {
   }
   if (dailyCheckinReward) {
     const seedBonus = state.dailyStreak > 0 && (state.dailyStreak + 1) % 3 === 0;
-    dailyCheckinReward.innerHTML = seedBonus
-      ? `<span class="daily-pixel-icon daily-pixel-icon--seed" aria-hidden="true"><img src="./assets/ui/icon-seed.svg" alt="" /></span><strong>体力 +6 · 种子 +2</strong>`
-      : `<span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span><strong>体力 +6</strong>`;
+    dailyCheckinReward.innerHTML = getCheckinRewardMarkup(seedBonus);
   }
 }
 
@@ -4779,6 +4809,12 @@ function identityProfileLabels(runtime) {
   });
 }
 
+function getGardenExchangeCount() {
+  return Object.values(state.gardenRelations || {}).filter((relation) => (
+    relation?.code === "exchanged" || relation?.exchanged
+  )).length;
+}
+
 function renderIdentityCard() {
   if (!identityName) return;
   const runtime = getRuntimeCopy();
@@ -4813,9 +4849,7 @@ function renderIdentityCard() {
   passportStampImage.src = starterSprig.image;
   passportStampImage.alt = starterSprig.name;
   identityPassportStage.textContent = `Lv.${milestone.level} · ${getPassportStageName(milestone.level)}`;
-  const exchangeCount = Object.values(state.gardenRelations || {}).filter((relation) => (
-    relation?.code === "exchanged" || relation?.exchanged
-  )).length;
+  const exchangeCount = getGardenExchangeCount();
   const secretUnlocked = unlocked.length >= 3 || exchangeCount > 0 || (state.scanRecords || []).length > 0;
   if (identitySecret) {
     identitySecret.textContent = secretUnlocked
@@ -4857,8 +4891,57 @@ function renderIdentityCard() {
     }),
   );
   identitySeedCount.textContent = state.onboarding.language === "en" ? `${state.seeds} seeds` : `${state.seeds} 颗种子`;
+  renderBackpackOverview();
   syncIdentityNurseryStatus();
   renderSpecialtyShelf();
+}
+
+function createBackpackChip(label, meta = "", className = "") {
+  const chip = document.createElement("span");
+  chip.className = className;
+  const name = document.createElement("b");
+  name.textContent = label;
+  chip.append(name);
+  if (meta) {
+    const detail = document.createElement("em");
+    detail.textContent = meta;
+    chip.append(detail);
+  }
+  return chip;
+}
+
+function renderBackpackOverview() {
+  if (!backpackAvatar) return;
+  const unlockedCount = getUnlockedEntries().length;
+  const scanCount = state.scanRecords?.length || 0;
+  const exchangeCount = getGardenExchangeCount();
+  const specialtyCount = state.specialties?.length || 0;
+  const city = state.onboarding.city || state.user.location || state.gardenName;
+  const region = getOnboardingRegionLabel();
+
+  backpackAvatar.textContent = state.user.avatar || Array.from(state.user.name || "园")[0] || "园";
+  backpackProfileName.textContent = state.user.name || getRuntimeCopy().defaultUserName;
+  backpackProfileMeta.textContent = `${region} · Lv.${getAtlasGrowthProgress(unlockedCount).milestone.level}`;
+
+  backpackWardrobeList?.replaceChildren(
+    createBackpackChip("园丁围裙", "已穿戴", "is-equipped"),
+    createBackpackChip("草叶帽", unlockedCount >= 3 ? "已解锁" : "待解锁", unlockedCount >= 3 ? "is-unlocked" : "is-locked"),
+    createBackpackChip("雨靴", specialtyCount > 0 ? "已解锁" : "等探险", specialtyCount > 0 ? "is-unlocked" : "is-locked"),
+  );
+
+  backpackToolList?.replaceChildren(
+    createBackpackChip("种子袋", `${state.seeds} 颗`, "is-equipped"),
+    createBackpackChip("相机", scanCount > 0 ? "有记录" : "可使用", scanCount > 0 ? "is-unlocked" : ""),
+    createBackpackChip("花园雷达", exchangeCount > 0 ? "已互访" : "待扫描", exchangeCount > 0 ? "is-unlocked" : ""),
+  );
+
+  if (backpackRecordLine) {
+    backpackRecordLine.textContent = `图鉴 ${unlockedCount} · 扫描 ${scanCount} · 风物 ${specialtyCount}`;
+  }
+  if (backpackFootprintLine) {
+    const relationText = exchangeCount > 0 ? `互访 ${exchangeCount} 座花园` : "第一条脚印";
+    backpackFootprintLine.textContent = `${city} · ${relationText}`;
+  }
 }
 
 function syncIdentityNurseryStatus() {
@@ -4931,6 +5014,7 @@ async function sharePassportCard() {
 
 function renderSpecialtyShelf() {
   if (!specialtyShelf) return;
+  renderBackpackOverview();
   const discoveredNames = new Set(state.specialties.map((item) => item.name));
   renderLandformOverview(discoveredNames);
   specialtyShelf.replaceChildren(
@@ -4977,7 +5061,7 @@ function selectLandformRegion(regionId, options = {}) {
   landformRegionList?.querySelectorAll("[data-landform-region]").forEach((button) => {
     const isTarget = button.dataset.landformRegion === regionId;
     button.classList.toggle("is-active", isTarget);
-    if (isTarget) button.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    if (isTarget && scrollSection) button.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
   });
 
   const panorama = document.querySelector(".landform-panorama");
