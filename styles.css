@@ -23430,3 +23430,651 @@ button {
   padding-inline: var(--squad-card-pad) !important;
   margin-top: clamp(0.2rem, 1vw, 0.34rem) !important;
 }
+
+/* EOF atlas storybook repair: sprig profile reads like a living regional field book. */
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page {
+  --atlas-page-ink: #695a3f;
+  --atlas-page-green: #357a45;
+  --atlas-page-line: rgba(181, 151, 89, 0.46);
+  --atlas-page-paper: #fff5c9;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
+  align-items: stretch !important;
+  justify-items: stretch !important;
+  width: 100% !important;
+  gap: clamp(0.72rem, 3.2vw, 0.96rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--collected,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card--locked {
+  width: 100% !important;
+  border-radius: clamp(1rem, 4vw, 1.28rem) !important;
+  background: #fbf1c4 !important;
+  color: var(--atlas-page-ink) !important;
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card h2 {
+  margin: 0 0 clamp(0.58rem, 2.6vw, 0.78rem) !important;
+  color: var(--atlas-page-ink) !important;
+  font-size: clamp(1rem, 4.4vw, 1.24rem) !important;
+  line-height: 1.1 !important;
+  text-align: left !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-height: clamp(20.6rem, 86vw, 29rem) !important;
+  gap: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  scrollbar-width: none !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list::-webkit-scrollbar {
+  display: none !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-storybook {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 0.48fr) minmax(0, 0.52fr) !important;
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  min-height: clamp(20.6rem, 86vw, 29rem) !important;
+  border-radius: clamp(0.82rem, 3.5vw, 1rem) !important;
+  background: var(--atlas-page-paper) !important;
+  color: var(--atlas-page-ink) !important;
+  overflow: hidden !important;
+  scroll-snap-align: start !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page {
+  display: grid !important;
+  min-width: 0 !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  padding: clamp(0.76rem, 3.6vw, 1.08rem) !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page--portrait {
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  align-items: end !important;
+  border-right: 0.08rem solid var(--atlas-page-line) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page--notes {
+  position: relative !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto !important;
+  align-content: start !important;
+  gap: clamp(0.34rem, 1.6vw, 0.48rem) !important;
+  padding-bottom: clamp(3rem, 12vw, 3.9rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-kicker {
+  margin: 0 !important;
+  color: #8d7651 !important;
+  font-size: clamp(0.66rem, 2.8vw, 0.82rem) !important;
+  font-weight: 850 !important;
+  line-height: 1.1 !important;
+  text-align: left !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait {
+  align-self: end !important;
+  justify-self: stretch !important;
+  display: grid !important;
+  place-items: end center !important;
+  width: 100% !important;
+  min-height: clamp(12.4rem, 52vw, 18rem) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait img {
+  width: min(132%, 14.5rem) !important;
+  height: min(132%, 14.5rem) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  image-rendering: pixelated !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait--locked img {
+  filter: brightness(0) saturate(0) opacity(0.35) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-storybook h3 {
+  margin: 0 !important;
+  color: var(--atlas-page-green) !important;
+  font-size: clamp(1.12rem, 5vw, 1.55rem) !important;
+  line-height: 1.08 !important;
+  text-align: left !important;
+  word-break: keep-all !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page--portrait h3 {
+  color: var(--atlas-page-green) !important;
+  font-size: clamp(1.28rem, 5.8vw, 1.86rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-affinity {
+  margin: 0 !important;
+  color: #d79d47 !important;
+  font-size: clamp(0.82rem, 3.5vw, 1rem) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: left !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes {
+  display: grid !important;
+  gap: clamp(0.3rem, 1.55vw, 0.44rem) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes div {
+  display: grid !important;
+  grid-template-columns: clamp(2.15rem, 9vw, 2.7rem) minmax(0, 1fr) !important;
+  gap: clamp(0.28rem, 1.4vw, 0.42rem) !important;
+  align-items: start !important;
+  min-width: 0 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes dt,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes dd {
+  margin: 0 !important;
+  color: var(--atlas-page-ink) !important;
+  font-size: clamp(0.68rem, 2.95vw, 0.84rem) !important;
+  line-height: 1.22 !important;
+  text-align: left !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes dt {
+  color: #8a7658 !important;
+  font-weight: 900 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes dd {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  font-weight: 850 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-brief-notes .is-unknown dd {
+  color: rgba(105, 90, 63, 0.42) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-unlock-hint {
+  margin: 0 !important;
+  color: rgba(105, 90, 63, 0.68) !important;
+  font-size: clamp(0.58rem, 2.45vw, 0.7rem) !important;
+  line-height: 1.22 !important;
+  text-align: left !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-page-corner {
+  position: absolute !important;
+  right: clamp(0.58rem, 2.6vw, 0.8rem) !important;
+  bottom: clamp(0.58rem, 2.6vw, 0.8rem) !important;
+  display: grid !important;
+  place-items: center !important;
+  width: clamp(2.38rem, 10vw, 2.86rem) !important;
+  height: clamp(2.38rem, 10vw, 2.86rem) !important;
+  border: 0 !important;
+  border-radius: 0.46rem 0.46rem 0.94rem 0.46rem !important;
+  background: #ecd995 !important;
+  color: #806b46 !important;
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-page-corner span {
+  display: none !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-page-corner::before {
+  content: "" !important;
+  width: 44% !important;
+  height: 44% !important;
+  border-right: 0.22rem solid currentColor !important;
+  border-bottom: 0.22rem solid currentColor !important;
+  transform: rotate(-45deg) translate(-0.08rem, -0.08rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  grid-auto-columns: auto !important;
+  gap: clamp(0.54rem, 2.6vw, 0.76rem) !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid article {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: clamp(0.38rem, 1.8vw, 0.56rem) !important;
+  border-radius: clamp(0.72rem, 3vw, 0.92rem) !important;
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid article > b {
+  width: 92% !important;
+  height: 92% !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid article img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+
+@media (max-width: 430px) {
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-storybook {
+    grid-template-columns: minmax(0, 0.46fr) minmax(0, 0.54fr) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page {
+    padding: clamp(0.62rem, 3.2vw, 0.82rem) !important;
+  }
+
+  .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait img {
+    width: min(142%, 12.8rem) !important;
+    height: min(142%, 12.8rem) !important;
+  }
+}
+
+/* EOF dock shape guard: bottom buttons stay clean rectangles, no clipped corners. */
+.eight-bit-ui .dock button {
+  clip-path: none !important;
+}
+
+/* Name screen garden gate and vines. */
+.name-screen {
+  --name-card-width: min(86vw, 34.8rem);
+  --name-card-pad-x: clamp(1.55rem, 5.4vw, 3rem);
+  --name-card-pad-y: clamp(1.45rem, 4.6vw, 2.55rem);
+  --name-row-gap: clamp(1.18rem, 3.4vw, 1.78rem);
+  --name-field-radius: clamp(0.78rem, 2.9vw, 1.22rem);
+  overflow: hidden !important;
+  isolation: isolate;
+  place-items: center !important;
+  padding: clamp(1rem, 4vw, 2rem) !important;
+  background:
+    linear-gradient(180deg, rgba(216, 241, 255, 0.1), rgba(255, 250, 219, 0.18) 44%, rgba(198, 226, 156, 0.1)),
+    url("./assets/garden-panorama-cottage.png") center top / cover no-repeat !important;
+  backdrop-filter: none !important;
+}
+
+.name-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 246, 0.08), rgba(249, 246, 216, 0.5) 58%, rgba(255, 251, 229, 0.12)),
+    radial-gradient(ellipse at 50% 72%, rgba(255, 250, 216, 0.24), transparent 48%);
+  pointer-events: none;
+}
+
+.garden-gate-arch,
+.garden-gate-rail,
+.garden-vine {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.garden-gate-arch {
+  left: 50%;
+  top: clamp(3.8rem, 8vh, 5.2rem);
+  z-index: 1;
+  width: min(52vw, 18.2rem);
+  height: clamp(4.4rem, 12.5vh, 6.6rem);
+  border: 0.16rem solid rgba(231, 211, 161, 0.92);
+  border-bottom-width: 0.28rem;
+  background:
+    linear-gradient(90deg, rgba(248, 237, 193, 0.76) 0 0.45rem, transparent 0.45rem calc(100% - 0.45rem), rgba(248, 237, 193, 0.76) calc(100% - 0.45rem)),
+    linear-gradient(135deg, rgba(229, 244, 198, 0.68), rgba(177, 214, 152, 0.72));
+  box-shadow:
+    0 0.18rem 0 rgba(255, 250, 222, 0.9) inset,
+    0 0.7rem 1.1rem rgba(111, 135, 83, 0.18);
+  border-radius: 38% 38% 0 0 / 48% 48% 0 0;
+  opacity: 0.76;
+  transform: translateX(-50%);
+}
+
+.garden-gate-arch::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.18rem;
+  width: 27%;
+  height: 47%;
+  border: 0.14rem solid rgba(125, 154, 96, 0.84);
+  border-bottom: 0;
+  border-radius: 0.62rem 0.62rem 0 0;
+  background:
+    linear-gradient(90deg, transparent 47%, rgba(125, 154, 96, 0.5) 47% 53%, transparent 53%),
+    rgba(191, 225, 174, 0.72);
+  transform: translateX(-50%);
+}
+
+.garden-gate-arch::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  width: 13%;
+  height: 72%;
+  border-inline: 0.16rem solid rgba(244, 230, 185, 0.78);
+  background: rgba(221, 239, 190, 0.36);
+  transform: translateX(-50%);
+}
+
+.garden-gate-rail {
+  top: clamp(7rem, 15vh, 9.8rem);
+  z-index: 0;
+  width: min(20vw, 9.4rem);
+  height: clamp(3.6rem, 9vh, 5.1rem);
+  border-bottom: 0.16rem solid rgba(199, 214, 159, 0.72);
+  background:
+    linear-gradient(90deg, transparent 0 0.34rem, rgba(255, 255, 242, 0.88) 0.34rem 1.02rem, transparent 1.02rem 1.5rem) left bottom / 1.5rem 88% repeat-x,
+    linear-gradient(180deg, transparent 0 48%, rgba(255, 253, 228, 0.78) 48% 62%, transparent 62%);
+  opacity: 0.68;
+}
+
+.garden-gate-rail--left {
+  right: calc(50% + min(13vw, 7.4rem));
+}
+
+.garden-gate-rail--right {
+  left: calc(50% + min(13vw, 7.4rem));
+}
+
+.garden-vine {
+  top: clamp(13rem, 27vh, 18rem);
+  z-index: 5;
+  width: clamp(4.6rem, 15vw, 7.4rem);
+  height: clamp(10rem, 28vh, 15rem);
+  opacity: 0.86;
+}
+
+.garden-vine::before {
+  content: "";
+  position: absolute;
+  inset: 0.4rem 1.55rem 0.4rem 1.55rem;
+  border-left: 0.18rem solid rgba(105, 153, 78, 0.72);
+  border-top: 0.14rem solid rgba(105, 153, 78, 0.58);
+  border-radius: 55% 0 0 45%;
+}
+
+.garden-vine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 32% 10%, #7fba57 0 0.36rem, transparent 0.38rem),
+    radial-gradient(ellipse at 66% 18%, #a9d778 0 0.34rem, transparent 0.36rem),
+    radial-gradient(ellipse at 28% 32%, #8fca63 0 0.4rem, transparent 0.42rem),
+    radial-gradient(ellipse at 70% 45%, #6fa64e 0 0.36rem, transparent 0.38rem),
+    radial-gradient(ellipse at 36% 60%, #b5dd78 0 0.38rem, transparent 0.4rem),
+    radial-gradient(ellipse at 64% 75%, #82b95c 0 0.34rem, transparent 0.36rem),
+    radial-gradient(circle at 40% 86%, #fff2a7 0 0.16rem, transparent 0.18rem),
+    radial-gradient(circle at 58% 90%, #fff2a7 0 0.14rem, transparent 0.16rem);
+}
+
+.garden-vine--left {
+  left: max(0.4rem, calc(50% - 22.5rem));
+  transform: rotate(-4deg);
+}
+
+.garden-vine--right {
+  right: max(0.4rem, calc(50% - 22.5rem));
+  transform: scaleX(-1) rotate(-4deg);
+}
+
+.name-screen .name-card,
+.eight-bit-ui .name-screen .name-card {
+  position: relative;
+  z-index: 4;
+  width: var(--name-card-width) !important;
+  padding: var(--name-card-pad-y) var(--name-card-pad-x) !important;
+  border: 0.16rem solid rgba(167, 210, 134, 0.95) !important;
+  border-radius: clamp(0.76rem, 2.4vw, 1.04rem) !important;
+  color: #4f684a !important;
+  background:
+    linear-gradient(90deg, rgba(149, 195, 111, 0.14) 0 0.34rem, transparent 0.34rem calc(100% - 0.34rem), rgba(149, 195, 111, 0.14) calc(100% - 0.34rem)),
+    linear-gradient(180deg, rgba(255, 252, 235, 0.98), rgba(255, 245, 207, 0.97)) !important;
+  box-shadow:
+    0 0 0 0.3rem rgba(255, 251, 221, 0.68) inset,
+    0 0 0 0.58rem rgba(113, 154, 80, 0.08) inset,
+    0 1rem 0 rgba(117, 154, 78, 0.12) !important;
+}
+
+.name-screen .name-card::before,
+.name-screen .name-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.name-screen .name-card::before {
+  inset: clamp(0.54rem, 1.8vw, 0.82rem);
+  z-index: -1;
+  border: 0.1rem solid rgba(188, 224, 148, 0.72);
+  border-radius: clamp(0.58rem, 1.9vw, 0.82rem);
+  background:
+    radial-gradient(circle at 1.2rem 1.2rem, #8fbd61 0 0.24rem, transparent 0.26rem),
+    radial-gradient(circle at calc(100% - 1.2rem) 1.2rem, #8fbd61 0 0.24rem, transparent 0.26rem),
+    radial-gradient(circle at 1.2rem calc(100% - 1.2rem), #eac66c 0 0.2rem, transparent 0.22rem),
+    radial-gradient(circle at calc(100% - 1.2rem) calc(100% - 1.2rem), #eac66c 0 0.2rem, transparent 0.22rem);
+}
+
+.name-screen .name-card::after {
+  left: calc(var(--name-card-pad-x) * 0.55);
+  right: calc(var(--name-card-pad-x) * 0.55);
+  top: clamp(0.68rem, 2vw, 1rem);
+  z-index: -1;
+  height: clamp(3.1rem, 9vw, 4.65rem);
+  border: 0.1rem solid rgba(190, 148, 78, 0.2);
+  border-radius: 0.4rem;
+  background:
+    linear-gradient(90deg, rgba(151, 107, 52, 0.08) 0 0.18rem, transparent 0.18rem calc(100% - 0.18rem), rgba(151, 107, 52, 0.08) calc(100% - 0.18rem)),
+    linear-gradient(180deg, rgba(255, 229, 155, 0.46), rgba(255, 241, 189, 0.16));
+}
+
+.name-screen .setup-step {
+  min-height: clamp(18.2rem, 42vh, 22.5rem);
+}
+
+.name-screen .setup-step h1,
+.eight-bit-ui .name-screen .setup-step h1 {
+  position: relative;
+  width: 100%;
+  margin: 0 0 var(--name-row-gap) !important;
+  padding: clamp(0.34rem, 1.4vw, 0.48rem) 0 clamp(0.26rem, 1vw, 0.38rem);
+  color: #4d6847 !important;
+  font-size: clamp(2.05rem, 7.2vw, 3.32rem) !important;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-shadow: 0 0.08rem 0 rgba(255, 247, 204, 0.9);
+}
+
+.name-screen .setup-step h1::before,
+.name-screen .setup-step h1::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: clamp(0.72rem, 2.8vw, 1rem);
+  height: clamp(2.4rem, 7.2vw, 3.4rem);
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at 48% 24%, rgba(255, 244, 162, 0.75) 0 0.15rem, transparent 0.17rem),
+    linear-gradient(180deg, #94c66b, #6ca34f);
+  box-shadow: 0 0 0 0.08rem rgba(94, 132, 67, 0.18);
+  transform: translateY(-50%);
+}
+
+.name-screen .setup-step h1::before {
+  left: calc(var(--name-card-pad-x) * -0.72);
+}
+
+.name-screen .setup-step h1::after {
+  right: calc(var(--name-card-pad-x) * -0.72);
+}
+
+.name-screen .name-card label {
+  gap: clamp(0.46rem, 1.45vw, 0.64rem);
+  margin: 0 0 var(--name-row-gap);
+  color: #6f9164;
+  font-size: clamp(0.98rem, 3.35vw, 1.28rem);
+}
+
+.name-screen .name-card label > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+}
+
+.name-screen .name-card label > span::before {
+  content: "";
+  display: inline-block;
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 0.12rem;
+  background: #b9dc76;
+  box-shadow:
+    0.22rem -0.14rem 0 -0.08rem #80b85b,
+    0.36rem 0.16rem 0 -0.08rem #f1d982;
+  transform: rotate(45deg);
+}
+
+.name-screen .name-card input,
+.name-screen .name-card select,
+.eight-bit-ui .name-screen .name-card input,
+.eight-bit-ui .name-screen .name-card select {
+  width: 100%;
+  min-height: clamp(3.45rem, 9.2vw, 4.45rem);
+  padding-inline: clamp(1.05rem, 4vw, 1.7rem);
+  border: 0.14rem solid rgba(196, 225, 167, 0.98) !important;
+  border-radius: var(--name-field-radius) !important;
+  color: #526b4a !important;
+  background-color: rgba(255, 255, 250, 0.94) !important;
+  font-size: clamp(1rem, 3.8vw, 1.42rem);
+  box-shadow:
+    0 0.12rem 0 rgba(255, 255, 255, 0.76) inset,
+    0 0 0 0.18rem rgba(226, 241, 207, 0.58) !important;
+}
+
+.name-screen .name-card select {
+  padding-right: clamp(2.4rem, 8vw, 3.4rem);
+  background:
+    linear-gradient(45deg, transparent 50%, #5f744e 50%) calc(100% - clamp(1.45rem, 4.8vw, 2.1rem)) 50% / 0.42rem 0.42rem no-repeat,
+    rgba(255, 255, 253, 0.9) !important;
+}
+
+.name-screen .setup-actions {
+  grid-template-columns: 1fr !important;
+  gap: clamp(0.64rem, 2.2vw, 0.86rem);
+  margin-top: clamp(0.36rem, 1.4vw, 0.7rem);
+}
+
+.name-screen .setup-actions .primary,
+.name-screen .setup-actions .secondary,
+.name-screen .setup-actions #setupSubmit {
+  grid-column: 1 !important;
+  width: 100%;
+  min-height: clamp(3.28rem, 8.4vw, 4.15rem);
+  border-radius: var(--name-field-radius) !important;
+  font-size: clamp(1rem, 3.8vw, 1.34rem);
+  box-shadow:
+    0 0.12rem 0 rgba(255, 255, 255, 0.62) inset,
+    0 0.24rem 0 rgba(151, 107, 52, 0.14) !important;
+}
+
+.name-screen .setup-actions .primary {
+  border-color: #d89f2b !important;
+  background:
+    linear-gradient(180deg, #ffe17a, #ffd05a) !important;
+}
+
+.name-screen .setup-actions .primary::first-letter,
+.name-screen .setup-actions .secondary::first-letter {
+  letter-spacing: 0;
+}
+
+.name-screen .setup-actions .secondary:disabled {
+  color: #7c9a69;
+  background: rgba(255, 240, 185, 0.58);
+  border-color: rgba(188, 226, 148, 0.82);
+}
+
+@media (max-width: 720px) {
+  .name-screen {
+    place-items: start center !important;
+    --name-card-pad-x: clamp(1.55rem, 6vw, 2.38rem);
+    --name-card-pad-y: clamp(1.34rem, 4.8vw, 2rem);
+    padding-top: clamp(10.7rem, 23.5vh, 13.1rem) !important;
+    background-position: center top !important;
+  }
+
+  .garden-gate-arch {
+    top: clamp(5.1rem, 9.6vh, 6rem);
+    width: min(56vw, 16.4rem);
+    height: clamp(4.4rem, 12vh, 5.8rem);
+  }
+
+  .garden-gate-rail {
+    top: clamp(7rem, 13vh, 8.7rem);
+    width: min(19vw, 5.6rem);
+    height: clamp(3.2rem, 8vh, 4.2rem);
+  }
+
+  .garden-vine {
+    top: clamp(14rem, 30vh, 17.2rem);
+    width: clamp(3.7rem, 15vw, 5.3rem);
+    height: clamp(8.2rem, 24vh, 11.4rem);
+  }
+
+  .garden-vine--left {
+    left: 0.1rem;
+  }
+
+  .garden-vine--right {
+    right: 0.1rem;
+  }
+
+  .name-screen .name-card,
+  .eight-bit-ui .name-screen .name-card {
+    width: min(86vw, 32rem) !important;
+  }
+
+  .name-screen .setup-step h1,
+  .eight-bit-ui .name-screen .setup-step h1 {
+    font-size: clamp(2rem, 9vw, 3.05rem) !important;
+  }
+}

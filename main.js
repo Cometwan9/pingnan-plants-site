@@ -185,7 +185,7 @@ const PROFILE_KEY = "sprigGardenProfile";
 const PLAYER_ID_KEY = "sprigGardenPlayerId";
 const CHECKIN_PROMPT_KEY = "sprigDailyPromptDate";
 const NATIONAL_ATLAS_COUNT = 31142;
-const ATLAS_LOCKED_PAGE_SIZE = 12;
+const ATLAS_LOCKED_PAGE_SIZE = 9;
 const ATLAS_MODEL_SOURCE = "Flora of China Checklist";
 const BOOT_LOADING_MS = 6200;
 const BOOT_LOADING_LINE_MS = 2800;
@@ -535,7 +535,7 @@ const guideSteps = [
     mascot: sprigs.dandelion.image,
     title: "试试扫描",
     text: "有植物就拍。没在户外，也可以上传照片。",
-    action: "点扫描植物",
+    action: "点打开取景",
     expression: "bright",
     motion: "sway",
     observeSelector: "#captureButton",
@@ -653,7 +653,7 @@ const onboardingCityCenters = [
 
 const localeCopy = {
   "zh-CN": {
-    nameTitle: "给花园起名",
+    nameTitle: "命名花园",
     nameText: "门牌要亮起来了。",
     nameLabel: "花园名",
     languageLabel: "语言",
@@ -739,6 +739,72 @@ const localeCopy = {
     loadingMid: "光が少しずつ入る",
     loadingBuild: "道と屋根が目覚める",
     loadingEnd: "種々があなたに気づいた",
+  },
+  ko: {
+    nameTitle: "정원 이름 짓기",
+    nameText: "문패가 깨어나고 있어요.",
+    nameLabel: "정원 이름",
+    languageLabel: "언어",
+    regionTitle: "출발지 선택",
+    regionText: "쫑쫑이 이곳의 바람과 흙을 기억해요.",
+    locate: "현재 위치 읽기",
+    locateIdle: "지역을 직접 선택할 수도 있어요.",
+    province: "지역 · 성/도",
+    city: "도시",
+    birthdayTitle: "생일 씨앗 깨우기",
+    birthdayText: "당신의 날에 싹이 트기 시작해요.",
+    birthday: "생일",
+    prev: "이전",
+    next: "다음",
+    submit: "정원 불러오기",
+    loadingStart: "정원이 눈을 깜빡여요",
+    loadingMid: "햇빛이 조금씩 들어와요",
+    loadingBuild: "길과 지붕이 깨어나요",
+    loadingEnd: "쫑쫑이 당신을 알아챘어요",
+  },
+  fr: {
+    nameTitle: "Nommer le jardin",
+    nameText: "La pancarte du portail s'éveille.",
+    nameLabel: "Nom du jardin",
+    languageLabel: "Langue",
+    regionTitle: "Choisir un départ",
+    regionText: "Les sprigs garderont la mémoire de ce lieu.",
+    locate: "Lire ma position",
+    locateIdle: "Tu peux aussi choisir une région.",
+    province: "Région",
+    city: "Ville",
+    birthdayTitle: "Réveiller la graine d'anniversaire",
+    birthdayText: "Elle germera le jour qui est le tien.",
+    birthday: "Anniversaire",
+    prev: "Retour",
+    next: "Suivant",
+    submit: "Charger le jardin",
+    loadingStart: "Le jardin cligne des yeux",
+    loadingMid: "La lumière entre doucement",
+    loadingBuild: "Les allées et le toit s'éveillent",
+    loadingEnd: "Les sprigs t'ont entendu arriver",
+  },
+  es: {
+    nameTitle: "Nombrar el jardín",
+    nameText: "El letrero de la puerta despierta.",
+    nameLabel: "Nombre del jardín",
+    languageLabel: "Idioma",
+    regionTitle: "Elegir punto de partida",
+    regionText: "Los sprigs recordarán el clima de este lugar.",
+    locate: "Leer ubicación actual",
+    locateIdle: "También puedes elegir una región.",
+    province: "Región",
+    city: "Ciudad",
+    birthdayTitle: "Despertar la semilla de cumpleaños",
+    birthdayText: "Brotará en tu día.",
+    birthday: "Cumpleaños",
+    prev: "Atrás",
+    next: "Siguiente",
+    submit: "Cargar jardín",
+    loadingStart: "El jardín parpadea despierto",
+    loadingMid: "La luz entra poco a poco",
+    loadingBuild: "Los senderos y techos despiertan",
+    loadingEnd: "Los sprigs oyeron tu llegada",
   },
 };
 
@@ -950,6 +1016,8 @@ const runtimeLocaleCopy = {
     atlasShort: "图鉴经验",
     knownSprigs: "已认识",
     expeditionLabel: "探险",
+    terrain: "地貌",
+    seedPouch: "种子袋",
   },
   en: {
     identityTitle: "Sprig Pack",
@@ -973,6 +1041,8 @@ const runtimeLocaleCopy = {
     atlasShort: "Atlas EXP",
     knownSprigs: "Known sprigs",
     expeditionLabel: "Trip",
+    terrain: "Terrain",
+    seedPouch: "Seed Pouch",
   },
   "zh-TW": {
     identityTitle: "種種背包",
@@ -996,6 +1066,8 @@ const runtimeLocaleCopy = {
     atlasShort: "圖鑑經驗",
     knownSprigs: "已認識",
     expeditionLabel: "探險",
+    terrain: "地貌",
+    seedPouch: "種子袋",
   },
   ja: {
     identityTitle: "種々バッグ",
@@ -1019,6 +1091,83 @@ const runtimeLocaleCopy = {
     atlasShort: "図鑑EXP",
     knownSprigs: "知っている種々",
     expeditionLabel: "探索",
+    terrain: "地形",
+    seedPouch: "種袋",
+  },
+  ko: {
+    identityTitle: "쫑쫑 가방",
+    atlasRelation: "도감 연결",
+    specialtyBag: "지역 기념품",
+    carryItems: "소지품",
+    house: "집",
+    sprigFriends: "쫑쫑 친구",
+    story: "이야기",
+    edit: "편집",
+    save: "저장",
+    expeditionIdle: "정원을 읽는 중",
+    expeditionButton: "탐험 시작",
+    specialtyEmptyTitle: "기념품 가방이 비었어요",
+    specialtyEmptyText: "탐험이 끝나면 지역 기념품이 여기에 정리돼요.",
+    defaultUserName: "정원 관찰자",
+    gardenLabel: "정원",
+    birthdayLabel: "생일",
+    regionLabel: "지역",
+    houseLabel: "집",
+    atlasShort: "도감 경험치",
+    knownSprigs: "알게 된 쫑쫑",
+    expeditionLabel: "탐험",
+    terrain: "지형",
+    seedPouch: "씨앗 주머니",
+  },
+  fr: {
+    identityTitle: "Sac des sprigs",
+    atlasRelation: "Liens d'atlas",
+    specialtyBag: "Souvenirs locaux",
+    carryItems: "Objets",
+    house: "Maison",
+    sprigFriends: "Amis sprigs",
+    story: "Histoire",
+    edit: "Modifier",
+    save: "Enregistrer",
+    expeditionIdle: "Lecture du jardin",
+    expeditionButton: "Partir explorer",
+    specialtyEmptyTitle: "Sac de souvenirs vide",
+    specialtyEmptyText: "Après une exploration, les souvenirs locaux apparaîtront ici.",
+    defaultUserName: "Gardien du jardin",
+    gardenLabel: "Jardin",
+    birthdayLabel: "Anniversaire",
+    regionLabel: "Région",
+    houseLabel: "Maison",
+    atlasShort: "EXP d'atlas",
+    knownSprigs: "Sprigs connus",
+    expeditionLabel: "Explorer",
+    terrain: "Terrain",
+    seedPouch: "Sac de graines",
+  },
+  es: {
+    identityTitle: "Mochila sprig",
+    atlasRelation: "Vínculos del atlas",
+    specialtyBag: "Recuerdos locales",
+    carryItems: "Objetos",
+    house: "Casa",
+    sprigFriends: "Amigos sprig",
+    story: "Historia",
+    edit: "Editar",
+    save: "Guardar",
+    expeditionIdle: "Leyendo tu jardín",
+    expeditionButton: "Explorar",
+    specialtyEmptyTitle: "Bolsa de recuerdos vacía",
+    specialtyEmptyText: "Tras explorar, los recuerdos locales aparecerán aquí.",
+    defaultUserName: "Cuidador del jardín",
+    gardenLabel: "Jardín",
+    birthdayLabel: "Cumpleaños",
+    regionLabel: "Región",
+    houseLabel: "Casa",
+    atlasShort: "EXP de atlas",
+    knownSprigs: "Sprigs conocidos",
+    expeditionLabel: "Explorar",
+    terrain: "Terreno",
+    seedPouch: "Bolsa de semillas",
   },
 };
 
@@ -1033,7 +1182,7 @@ const featureTips = [
   ["#homeButton", "回到花园"],
   [".garden-action-button--expedition", "派出探险"],
   ["#captureButton", "继续识别"],
-  ["#discoverFromMap", "去发现"],
+  ["#discoverFromMap", "附近线索"],
   [".map-dot", "探索点"],
   ["#dispatchButton", "出发"],
   [".duration-picker", "选择时长"],
@@ -1752,6 +1901,27 @@ function getAtlasShortType(entry = {}) {
   return "地域";
 }
 
+function getSprigStudyLevel(entry = {}) {
+  const scanHits = (state.scanRecords || []).filter((record) => {
+    const haystack = `${record.title || ""} ${record.meta || ""} ${record.text || ""}`;
+    return haystack.includes(entry.name) || haystack.includes(entry.plant || "");
+  }).length;
+  const knownTalks = Object.entries(state.knowledgeIndexes || {}).reduce((total, [key, value]) => {
+    return key.includes(entry.id) ? total + Number(value || 0) : total;
+  }, 0);
+  const gardenBonus = state.gardenSprigs?.has(entry.id) ? 1 : 0;
+  return clamp(1 + gardenBonus + scanHits + Math.floor(knownTalks / 4), 1, 5);
+}
+
+function createAtlasFact(label, value, unlocked) {
+  return `
+    <div class="${unlocked ? "is-known" : "is-unknown"}">
+      <dt>${label}</dt>
+      <dd>${unlocked ? value : "???"}</dd>
+    </div>
+  `;
+}
+
 function createAtlasStoryBook(entries, category, forcedIndex = null) {
   const storyIndex = clamp(forcedIndex ?? state.atlasStoryIndex, 0, Math.max(0, entries.length - 1));
   if (forcedIndex === null) state.atlasStoryIndex = storyIndex;
@@ -1766,10 +1936,16 @@ function createAtlasStoryBook(entries, category, forcedIndex = null) {
   const status = entry.status || "已记录";
   const voiceLine = entry.voiceLines?.[0] || entry.hint || "我把今天遇见的风，夹在这一页里。";
   const habit = entry.habitat || entry.knowledge?.[0] || "喜欢待在安静、有光的角落。";
+  const preference = entry.touchLines?.[0] || entry.weatherLines?.[0] || "喜欢被认真地看见。";
+  const growth = entry.growthForm || entry.habitat || "植物线索";
   const shortPersonality = String(personality).split(/[，。、；;]/)[0] || personality;
   const shortHabit = String(habit).split(/[，。、；;]/)[0] || habit;
+  const shortPreference = String(preference).replace(/[“”"]/g, "").split(/[。！？!?]/)[0] || preference;
+  const shortGrowth = String(growth).split(/[，。、；;]/)[0] || growth;
   const shortVoiceLine = String(voiceLine).replace(/[“”"]/g, "").split(/[。！？!?]/)[0] || voiceLine;
   const pageLabel = entries.length > 1 ? `${storyIndex + 1} / ${entries.length}` : "1 / 1";
+  const studyLevel = getSprigStudyLevel(entry);
+  const affection = "♥".repeat(studyLevel) + "♡".repeat(5 - studyLevel);
 
   article.innerHTML = `
     <section class="atlas-story-page atlas-story-page--portrait" aria-label="${entry.name} 图册左页">
@@ -1782,11 +1958,15 @@ function createAtlasStoryBook(entries, category, forcedIndex = null) {
     <section class="atlas-story-page atlas-story-page--notes" aria-label="${entry.name} 图册右页">
       <p class="atlas-story-kicker">第 ${pageLabel} 页</p>
       <h3>${status}</h3>
+      <p class="atlas-affinity" aria-label="好感度">${affection}</p>
       <dl class="atlas-brief-notes">
-        <div><dt>性格</dt><dd>${shortPersonality}</dd></div>
-        <div><dt>习惯</dt><dd>${shortHabit}</dd></div>
-        <div><dt>会说</dt><dd>${shortVoiceLine}</dd></div>
+        ${createAtlasFact("性格", shortPersonality, studyLevel >= 1)}
+        ${createAtlasFact("习惯", shortHabit, studyLevel >= 2)}
+        ${createAtlasFact("喜好", shortPreference, studyLevel >= 3)}
+        ${createAtlasFact("生长", shortGrowth, studyLevel >= 4)}
+        ${createAtlasFact("会说", shortVoiceLine, studyLevel >= 5)}
       </dl>
+      <p class="atlas-unlock-hint">扫描、相遇、照顾它，问号会慢慢醒来。</p>
       <button class="atlas-page-corner" type="button" ${entries.length <= 1 ? "disabled" : ""} aria-label="翻到下一只种种">
         <span>翻</span>
       </button>
@@ -1805,26 +1985,23 @@ function createLockedAtlasDetail(entry, category) {
 
   article.innerHTML = `
     <section class="atlas-story-page atlas-story-page--portrait" aria-label="未解锁图鉴左页">
-      <p class="atlas-story-kicker">${category.label} · 未解锁</p>
+      <p class="atlas-story-kicker">${category.label}</p>
       <div class="atlas-story-portrait atlas-story-portrait--locked">
         <img src="${image}" alt="未解锁种种剪影" />
       </div>
       <h3>???</h3>
-      <dl>
-        <div><dt>生态</dt><dd>???</dd></div>
-        <div><dt>编号</dt><dd>???</dd></div>
-        <div><dt>风土</dt><dd>???</dd></div>
-      </dl>
     </section>
     <section class="atlas-story-page atlas-story-page--notes" aria-label="未解锁图鉴右页">
-      <p class="atlas-story-kicker">解锁条件</p>
+      <p class="atlas-story-kicker">线索页</p>
       <h3>???</h3>
-      <blockquote>???</blockquote>
-      <p>${unlockText}</p>
-      <dl>
-        <div><dt>扫描</dt><dd>拍到植物后，名字会出现。</dd></div>
-        <div><dt>实地</dt><dd>到附近地点发现后，性格和关系会补全。</dd></div>
+      <p class="atlas-affinity">♡♡♡♡♡</p>
+      <dl class="atlas-brief-notes">
+        <div><dt>性格</dt><dd>???</dd></div>
+        <div><dt>习惯</dt><dd>???</dd></div>
+        <div><dt>喜好</dt><dd>???</dd></div>
+        <div><dt>生长</dt><dd>???</dd></div>
       </dl>
+      <p class="atlas-unlock-hint">${unlockText}</p>
     </section>
   `;
   return article;
@@ -4213,8 +4390,8 @@ function applyLanguage() {
   setupNext.textContent = copy.next;
   setupSubmit.textContent = copy.submit;
   document.querySelector(".identity-topbar h2").textContent = runtime.identityTitle;
-  if (specialtyBagTitle) specialtyBagTitle.textContent = state.onboarding.language === "en" ? "Terrain" : "地貌";
-  document.querySelector(".seed-pouch-section h3").textContent = state.onboarding.language === "en" ? "Seed Pouch" : "种子袋";
+  if (specialtyBagTitle) specialtyBagTitle.textContent = runtime.terrain || runtime.specialtyBag;
+  document.querySelector(".seed-pouch-section h3").textContent = runtime.seedPouch || runtime.carryItems;
   setOptionalText(".house-section h3", runtime.house);
   setOptionalText(".relation-section h3", runtime.sprigFriends);
   setOptionalText(".story-section h3", runtime.story);
