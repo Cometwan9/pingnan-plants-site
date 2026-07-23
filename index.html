@@ -120,14 +120,14 @@
             <p>今日签到</p>
             <h2 id="dailyCheckinTitle">花园醒来了</h2>
             <div class="daily-task-card">
-              <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><i></i></span>
+              <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span>
               <div>
                 <strong>今日小任务</strong>
                 <small>领体力，去花园走一圈。</small>
               </div>
             </div>
             <div class="daily-reward-card" id="dailyCheckinReward">
-              <span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><i></i></span>
+              <span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span>
               <strong>体力 +6</strong>
             </div>
             <button class="daily-checkin-button" type="button" id="dailyCheckinModalButton">领取</button>
@@ -137,7 +137,7 @@
 
         <img
           class="garden-panorama"
-          src="./assets/garden-panorama.png"
+          src="./assets/garden-panorama-cottage.png"
           alt="种种大世界全景"
           onerror="this.classList.add('is-missing')"
         />
@@ -413,7 +413,7 @@
             </div>
             <section class="quest-section" aria-label="每日任务">
               <header class="quest-heading">
-                <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><i></i></span>
+                <span class="daily-pixel-icon daily-pixel-icon--task" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span>
                 <div>
                   <h3>每日任务</h3>
                   <p id="goalCount">今日还有 3 个任务</p>
@@ -421,7 +421,7 @@
               </header>
               <div class="quest-list">
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--scan" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--scan" aria-hidden="true"><img src="./assets/ui/daily-icons/scan.png" alt="" /></span></b>
                   <div>
                     <small>植物记录</small>
                     <strong>拍摄 1 种植物</strong>
@@ -431,7 +431,7 @@
                   <button class="quest-claim" type="button" data-claim="capture" aria-label="领取奖励">+</button>
                 </article>
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--expedition" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--expedition" aria-hidden="true"><img src="./assets/ui/daily-icons/expedition.png" alt="" /></span></b>
                   <div>
                     <small>地方探险</small>
                     <strong>派遣 1 次探险</strong>
@@ -441,7 +441,7 @@
                   <button class="quest-claim" type="button" id="questDispatchButton" data-claim="dispatch" aria-label="领取奖励">+</button>
                 </article>
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--plant" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--plant" aria-hidden="true"><img src="./assets/ui/daily-icons/plant.png" alt="" /></span></b>
                   <div>
                     <small>植物识别</small>
                     <strong>认识一种新植物</strong>
@@ -451,7 +451,7 @@
                   <button class="quest-claim" type="button" data-claim="plant" aria-label="领取奖励">+</button>
                 </article>
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--atlas" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--atlas" aria-hidden="true"><img src="./assets/ui/daily-icons/atlas.png" alt="" /></span></b>
                   <div>
                     <small>图鉴收集</small>
                     <strong>解锁 1 个新图鉴</strong>
@@ -461,7 +461,7 @@
                   <button class="quest-claim" type="button" data-claim="atlas" aria-label="领取奖励">+</button>
                 </article>
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--walk" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--walk" aria-hidden="true"><img src="./assets/ui/daily-icons/walk.png" alt="" /></span></b>
                   <div>
                     <small>现实行走</small>
                     <strong>完成 3000 步散步</strong>
@@ -471,7 +471,7 @@
                   <button class="quest-claim" type="button" data-claim="walk" aria-label="领取奖励">+</button>
                 </article>
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--water" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--water" aria-hidden="true"><img src="./assets/ui/daily-icons/water.png" alt="" /></span></b>
                   <div>
                     <small>花园照料</small>
                     <strong>给植物浇一次水</strong>
@@ -481,7 +481,7 @@
                   <button class="quest-claim" type="button" data-claim="water" aria-label="领取奖励">+</button>
                 </article>
                 <article class="quest-card">
-                  <b><span class="daily-pixel-icon daily-pixel-icon--friend" aria-hidden="true"><i></i></span></b>
+                  <b><span class="daily-pixel-icon daily-pixel-icon--friend" aria-hidden="true"><img src="./assets/ui/daily-icons/friend.png" alt="" /></span></b>
                   <div>
                     <small>花园照料</small>
                     <strong>和 3 只种种互动</strong>
@@ -606,7 +606,7 @@
             <h3><span class="section-title-icon svg-icon-frame" aria-hidden="true"><img src="./assets/ui/icon-specialty-collection.svg" alt="" /></span><b id="specialtyBagTitle">地貌</b></h3>
             <article class="landform-overview" aria-label="地貌总览">
               <div class="landform-panorama">
-                <img src="./assets/landforms/china-landform-overview-pixel.png" alt="中国地貌像素风总览" />
+                <img src="./assets/landforms/region-card-sheet.png" alt="中国地貌像素风总览" />
               </div>
               <div class="landform-overview-copy">
                 <strong>地貌</strong>

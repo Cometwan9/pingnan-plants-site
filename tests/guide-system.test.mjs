@@ -28,7 +28,7 @@ const cameraIcon = readFileSync(new URL("../assets/ui/icon-camera.svg", import.m
 const passportBackIcon = readFileSync(new URL("../assets/ui/icon-passport-back.svg", import.meta.url), "utf8");
 const passportShareIcon = readFileSync(new URL("../assets/ui/icon-passport-share.svg", import.meta.url), "utf8");
 const passportEditIcon = readFileSync(new URL("../assets/ui/icon-passport-edit.svg", import.meta.url), "utf8");
-const landformOverviewImage = statSync(new URL("../assets/landforms/china-landform-overview-pixel.png", import.meta.url));
+const landformOverviewImage = statSync(new URL("../assets/landforms/region-card-sheet.png", import.meta.url));
 
 test("guide layer markup is present", () => {
   assert.match(html, /id="guideButton"/);
@@ -1191,7 +1191,8 @@ test("expedition start panel keeps only core adventure controls", () => {
   assert.match(script, /button\.dataset\.knownLocationKey = candidate\.key/);
   assert.match(script, /if \(targetId === "panel-expedition"\) renderMapPackPicker\(\)/);
   assert.match(script, /function getMapPackRegionLabel\(pack = null\)/);
-  assert.match(script, /<i aria-hidden="true"><\/i><span>\$\{locating \? "读取位置" : getMapPackRegionLabel\(state\.currentMapPack\)\}<\/span>/);
+  assert.match(script, /<i aria-hidden="true"><\/i><span>\$\{expanded \|\| locating \? "读取花园" : getMapPackRegionLabel\(state\.currentMapPack\)\}<\/span>/);
+  assert.match(script, /function enterGardenAfterReading\(callback\)/);
   assert.match(script, /const label = getMapPackRegionLabel\(pack\)/);
   assert.match(script, /title\.textContent = label/);
   assert.doesNotMatch(script, /title\.textContent = `\$\{pack\.expeditionLabel \|\| pack\.name\}：\$\{getMapPackStatusLabel\(pack\.status\)\}`/);
@@ -1199,6 +1200,8 @@ test("expedition start panel keeps only core adventure controls", () => {
   assert.doesNotMatch(script, /收起花园/);
   assert.match(script, /mapPackPicker\.classList\.toggle\("is-expanded"/);
   assert.match(script, /locateFromMapPackPicker\(\)/);
+  assert.match(script, /enterGardenAfterReading\(\(\) => enterKnownCityExploration\(candidate\)\)/);
+  assert.match(script, /enterGardenAfterReading\(\(\) => enterMapPack\(mapPack, null, "manual"\)\)/);
   assert.match(script, /event\.target\.closest\("\[data-known-location-key\]"\)/);
   assert.match(script, /scrollIntoView\(\{ block: "nearest" \}\)/);
   assert.match(html, /class="adventure-status"[\s\S]*id="mapPackPicker"[\s\S]*id="expeditionSquad"/);
@@ -1269,7 +1272,7 @@ test("expedition loot is settled before entering the local collection", () => {
   assert.match(html, /class="section-title-icon svg-icon-frame"[\s\S]*assets\/ui\/icon-specialty-collection\.svg/);
   assert.match(html, /<b id="specialtyBagTitle">地貌<\/b>/);
   assert.match(html, /class="landform-overview" aria-label="地貌总览"/);
-  assert.match(html, /assets\/landforms\/china-landform-overview-pixel\.png/);
+  assert.match(html, /assets\/landforms\/region-card-sheet\.png/);
   assert.match(html, /<strong>地貌<\/strong>/);
   assert.doesNotMatch(html, /各地探险带回来的东西，会按地方收在这里。/);
   assert.doesNotMatch(html, /点亮各地风物。/);
@@ -1300,13 +1303,13 @@ test("expedition loot is settled before entering the local collection", () => {
   assert.match(script, /title:\s*"山地林野"[\s\S]*cities:\s*"宁德 \/ 成都 \/ 贵阳"/);
   assert.match(script, /function getSpecialtyRegion/);
   assert.match(script, /function renderLandformOverview/);
-  assert.match(script, /const visibleRegions = specialtyRegions\.slice\(0, 3\)/);
+  assert.match(script, /const visibleRegions = specialtyRegions/);
   assert.match(script, /landformRegionList\.replaceChildren/);
   assert.match(script, /button\.dataset\.landformRegion = region\.id/);
   assert.match(script, /button\.title = `\$\{region\.title\} \$\{collected\.length\}\/\$\{total\}`/);
   assert.match(script, /button\.setAttribute\("aria-label", `\$\{region\.title\}，已点亮 \$\{collected\.length\}\/\$\{total\}`\)/);
   assert.match(script, /button\.classList\.toggle\("is-active", index === currentLandformIndex\)/);
-  assert.match(script, /<i aria-hidden="true"><\/i>/);
+  assert.match(script, /<i class="terrain-sprite terrain-sprite--\$\{region\.id\}" aria-hidden="true"><img src="\$\{regionImage\}" alt="" \/><\/i>/);
   assert.match(script, /<strong>\$\{region\.shortTitle\}<\/strong>/);
   assert.doesNotMatch(script, /<em>\$\{collected\.length\}\/\$\{total\}<\/em>/);
   assert.doesNotMatch(script, /<strong>\$\{region\.title\}<\/strong>/);

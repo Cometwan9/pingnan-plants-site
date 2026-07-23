@@ -862,6 +862,28 @@ const specialtyPool = [
   { name: "本地小礼物", terrain: "default", icon: "parcel" },
 ];
 
+const specialtyIconImages = {
+  seed: "./assets/items/seed.png",
+  tea: "./assets/items/tea.png",
+  tile: "./assets/items/tile.png",
+  rice: "./assets/items/rice.png",
+  bamboo: "./assets/items/bamboo.png",
+  brick: "./assets/items/brick.png",
+  shell: "./assets/items/shell.png",
+  stone: "./assets/items/stone.png",
+  grape: "./assets/items/grape.png",
+  parcel: "./assets/items/parcel.png",
+};
+
+const landformRegionImages = {
+  jiangnan: "./assets/landforms/regions/jiangnan.png",
+  mountain: "./assets/landforms/regions/mountain.png",
+  northwest: "./assets/landforms/regions/northwest.png",
+  coast: "./assets/landforms/regions/coast.png",
+  plateau: "./assets/landforms/regions/plateau.png",
+  greenhouse: "./assets/landforms/regions/greenhouse.png",
+};
+
 const specialtyRegions = [
   {
     id: "jiangnan",
@@ -1944,7 +1966,7 @@ function renderAtlasRewards(milestone, unlockedCount) {
     atlasRewardButton.setAttribute("aria-label", isClaimable ? `领取 Lv.${milestone.level} 图鉴奖励` : `查看 Lv.${milestone.level} 图鉴奖励`);
   }
   if (atlasRewardButtonText) {
-    atlasRewardButtonText.textContent = isClaimable ? "可领" : isClaimed ? "已领" : "奖励";
+    atlasRewardButtonText.textContent = isClaimable ? "大礼包" : isClaimed ? "已领" : "礼包";
   }
   if (atlasRewardTitle) {
     atlasRewardTitle.textContent = `Lv.${milestone.level} 礼包`;
@@ -2325,10 +2347,22 @@ function renderMapPackPicker(message = "", options = {}) {
   toggle.type = "button";
   toggle.className = "map-pack-toggle";
   toggle.setAttribute("aria-expanded", String(expanded));
-  toggle.innerHTML = `<i aria-hidden="true"></i><span>${locating ? "读取位置" : getMapPackRegionLabel(state.currentMapPack)}</span>`;
+  toggle.innerHTML = `<i aria-hidden="true"></i><span>${expanded || locating ? "读取花园" : getMapPackRegionLabel(state.currentMapPack)}</span>`;
   mapPackPicker.append(toggle);
 
   if (expanded) {
+    const locateButton = document.createElement("button");
+    locateButton.type = "button";
+    locateButton.className = "map-pack-locate";
+    locateButton.dataset.locateGarden = "true";
+    locateButton.disabled = locating;
+    const locateTitle = document.createElement("strong");
+    locateTitle.textContent = locating ? "读取花园中" : "读取花园";
+    const locateHint = document.createElement("span");
+    locateHint.textContent = locating ? "正在获得定位" : "获得定位";
+    locateButton.append(locateTitle, locateHint);
+    mapPackPicker.append(locateButton);
+
     const helper = document.createElement("p");
     helper.className = "map-pack-helper";
     helper.textContent = locating ? "正在读取附近花园" : "读取到的花园";
@@ -2399,6 +2433,18 @@ async function locateFromMapPackPicker() {
     renderMapPackPicker("", { expanded: true, locating: false });
     syncExpeditionChoice();
   }
+}
+
+function enterGardenAfterReading(callback) {
+  renderMapPackPicker("", { expanded: true, locating: true });
+  expeditionTitle.textContent = "读取花园";
+  expeditionTimer.textContent = "正在定位";
+  expeditionText.textContent = "正在确认这片花园。";
+  window.setTimeout(() => {
+    callback();
+    renderMapPackPicker("", { expanded: true, locating: false });
+    syncExpeditionChoice();
+  }, 520);
 }
 
 function clearMapPackPicker() {
@@ -3572,8 +3618,8 @@ function syncDailyCheckin() {
   if (dailyCheckinReward) {
     const seedBonus = state.dailyStreak > 0 && (state.dailyStreak + 1) % 3 === 0;
     dailyCheckinReward.innerHTML = seedBonus
-      ? `<span class="daily-pixel-icon daily-pixel-icon--seed" aria-hidden="true"><i></i></span><strong>体力 +6 · 种子 +2</strong>`
-      : `<span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><i></i></span><strong>体力 +6</strong>`;
+      ? `<span class="daily-pixel-icon daily-pixel-icon--seed" aria-hidden="true"><img src="./assets/ui/icon-seed.svg" alt="" /></span><strong>体力 +6 · 种子 +2</strong>`
+      : `<span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span><strong>体力 +6</strong>`;
   }
 }
 
@@ -4265,7 +4311,7 @@ function renderSpecialtyShelf() {
 
 function renderLandformOverview(discoveredNames = new Set()) {
   if (!landformRegionList) return;
-  const visibleRegions = specialtyRegions.slice(0, 3);
+  const visibleRegions = specialtyRegions;
   currentLandformIndex = Math.min(currentLandformIndex, visibleRegions.length - 1);
   landformRegionList.replaceChildren(
     ...visibleRegions.map((region, index) => {
@@ -4278,8 +4324,9 @@ function renderLandformOverview(discoveredNames = new Set()) {
       button.setAttribute("aria-label", `${region.title}，已点亮 ${collected.length}/${total}`);
       button.className = `landform-region-chip landform-region-chip--${region.id}`;
       button.classList.toggle("is-active", index === currentLandformIndex);
+      const regionImage = landformRegionImages[region.id] || landformRegionImages.greenhouse;
       button.innerHTML = `
-        <i class="terrain-sprite terrain-sprite--${region.id}" aria-hidden="true"></i>
+        <i class="terrain-sprite terrain-sprite--${region.id}" aria-hidden="true"><img src="${regionImage}" alt="" /></i>
         <strong>${region.shortTitle}</strong>
       `;
       return button;
@@ -4454,7 +4501,8 @@ function sortSpecialties(items) {
 function specialtyIconMarkup(item, extraClass = "") {
   const icon = item?.icon || "parcel";
   const tone = item?.tone || "common";
-  return `<b class="specialty-icon specialty-icon--${icon} specialty-icon--${tone} ${extraClass}" aria-hidden="true"><i></i></b>`;
+  const image = specialtyIconImages[icon] || specialtyIconImages.parcel;
+  return `<b class="specialty-icon specialty-icon--${icon} specialty-icon--${tone} ${extraClass}" aria-hidden="true"><img src="${image}" alt="" /></b>`;
 }
 
 function rarityPipsMarkup(level = 1, label = "") {
@@ -5189,18 +5237,24 @@ mapPackPicker?.addEventListener("click", (event) => {
     const expanded = !mapPackPicker.classList.contains("is-expanded");
     mapPackPicker.classList.toggle("is-expanded", expanded);
     toggle.setAttribute("aria-expanded", String(expanded));
-    toggle.querySelector("span").textContent = expanded ? "选择花园" : getMapPackRegionLabel(state.currentMapPack);
+    toggle.querySelector("span").textContent = expanded ? "读取花园" : getMapPackRegionLabel(state.currentMapPack);
     if (expanded) {
-      window.setTimeout(() => mapPackPicker.querySelector(".map-pack-option")?.scrollIntoView({ block: "nearest" }), 60);
+      window.setTimeout(() => mapPackPicker.querySelector(".map-pack-locate")?.scrollIntoView({ block: "nearest" }), 60);
       locateFromMapPackPicker();
     }
+    return;
+  }
+
+  const locateButton = event.target.closest("[data-locate-garden]");
+  if (locateButton) {
+    locateFromMapPackPicker();
     return;
   }
 
   const knownButton = event.target.closest("[data-known-location-key]");
   if (knownButton) {
     const candidate = getKnownCityExplorationCandidates().find((item) => item.key === knownButton.dataset.knownLocationKey);
-    if (enterKnownCityExploration(candidate)) renderMapPackPicker("", { expanded: true });
+    enterGardenAfterReading(() => enterKnownCityExploration(candidate));
     return;
   }
 
@@ -5208,7 +5262,7 @@ mapPackPicker?.addEventListener("click", (event) => {
   if (!button) return;
   const mapPack = mapPacks.find((pack) => pack.id === button.dataset.mapPackId);
   if (!mapPack) return;
-  enterMapPack(mapPack, null, "manual");
+  enterGardenAfterReading(() => enterMapPack(mapPack, null, "manual"));
 });
 
 mapDots.addEventListener("click", (event) => {

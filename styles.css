@@ -4680,7 +4680,7 @@ button {
   z-index: 70;
   background:
     linear-gradient(rgba(255, 244, 223, 0.28), rgba(215, 240, 233, 0.46)),
-    url("./assets/garden-panorama.png") center / cover;
+    url("./assets/garden-panorama-cottage.png") center / cover;
 }
 
 .name-screen.is-hidden,
@@ -4712,7 +4712,7 @@ button {
     radial-gradient(circle at 48% 38%, rgba(255, 252, 204, 0.82), transparent 10rem),
     linear-gradient(90deg, rgba(255, 238, 163, 0.18) 0 8%, transparent 8% 15%, rgba(255, 246, 196, 0.2) 15% 23%, transparent 23% 100%),
     radial-gradient(ellipse at 50% 48%, rgba(255, 249, 211, 0.6), rgba(210, 236, 184, 0.28) 60%, rgba(246, 226, 170, 0.16)),
-    url("./assets/garden-panorama.png") center / cover;
+    url("./assets/garden-panorama-cottage.png") center / cover;
   animation: bootDreamRevealScene 6.8s cubic-bezier(0.18, 0.8, 0.2, 1) both;
 }
 
@@ -22958,10 +22958,242 @@ button {
   overflow: hidden !important;
 }
 
+/* EOF generated asset lock: real pixel maps/items stay proportional on mobile. */
+.panel--identity[data-active-identity-tab="items"] .landform-region-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.panel--identity[data-active-identity-tab="items"] .terrain-sprite {
+  display: grid !important;
+  width: clamp(3.28rem, 14vw, 4.02rem) !important;
+  height: clamp(2.46rem, 10.4vw, 3.02rem) !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  place-items: center !important;
+}
+
+.panel--identity[data-active-identity-tab="items"] .terrain-sprite img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  image-rendering: pixelated !important;
+}
+
+.specialty-icon img,
+.loot-chip .specialty-icon img,
+.specialty-reward-card .specialty-icon img,
+.panel--identity[data-active-identity-tab="items"] .specialty-card .specialty-icon img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+}
+
+.specialty-icon:has(img) i,
+.specialty-icon:has(img)::before,
+.specialty-icon:has(img)::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* EOF squad picker left inset: chosen sprig cards align with the team title and circles. */
+.panel--expedition.is-open .expedition-planning {
+  --expedition-align-edge: clamp(1.12rem, 5.2vw, 1.46rem) !important;
+}
+
+.panel--expedition.is-open .expedition-squad header,
+.panel--expedition.is-open .squad-slots,
+.panel--expedition.is-open .squad-picker,
+.panel--expedition.is-open .duration-picker {
+  padding-left: var(--expedition-align-edge) !important;
+  padding-right: var(--expedition-align-edge) !important;
+  box-sizing: border-box !important;
+}
+
+.panel--expedition.is-open .squad-picker {
+  justify-content: start !important;
+  scroll-padding-left: var(--expedition-align-edge) !important;
+  scroll-padding-right: var(--expedition-align-edge) !important;
+}
+
+.panel--expedition.is-open .squad-picker-option {
+  margin-left: 0 !important;
+}
+
+/* EOF daily quest single-icon lock: each task gets one standalone picture, never the whole sheet. */
+.quest-card > b .daily-pixel-icon,
+.quest-heading .daily-pixel-icon,
+.panel--expedition .quest-card > b .daily-pixel-icon,
+.panel--expedition .quest-heading .daily-pixel-icon,
+.panel--expedition.is-open .quest-card > b .daily-pixel-icon,
+.panel--expedition.is-open .quest-heading .daily-pixel-icon {
+  display: grid !important;
+  width: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  height: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  min-width: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  min-height: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  padding: clamp(0.22rem, 0.9vw, 0.3rem) !important;
+  place-items: center !important;
+  background: #f5efc8 !important;
+  border: 0 !important;
+  border-radius: 0.56rem !important;
+  overflow: hidden !important;
+  contain: layout paint !important;
+}
+
+.quest-card > b .daily-pixel-icon i,
+.quest-heading .daily-pixel-icon i,
+.panel--expedition .quest-card > b .daily-pixel-icon i,
+.panel--expedition .quest-heading .daily-pixel-icon i,
+.panel--expedition.is-open .quest-card > b .daily-pixel-icon i,
+.panel--expedition.is-open .quest-heading .daily-pixel-icon i {
+  display: block !important;
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  image-rendering: pixelated !important;
+  transform: none !important;
+}
+
+.quest-card > b .daily-pixel-icon i::before,
+.quest-card > b .daily-pixel-icon i::after,
+.quest-heading .daily-pixel-icon i::before,
+.quest-heading .daily-pixel-icon i::after,
+.panel--expedition .daily-pixel-icon i::before,
+.panel--expedition .daily-pixel-icon i::after,
+.panel--expedition.is-open .daily-pixel-icon i::before,
+.panel--expedition.is-open .daily-pixel-icon i::after {
+  content: none !important;
+  display: none !important;
+}
+
+.daily-pixel-icon--task i,
+.daily-pixel-icon--energy i {
+  background-image: url("./assets/ui/daily-icons/task.png") !important;
+}
+
+.daily-pixel-icon--scan i {
+  background-image: url("./assets/ui/daily-icons/scan.png") !important;
+}
+
+.daily-pixel-icon--expedition i {
+  background-image: url("./assets/ui/daily-icons/expedition.png") !important;
+}
+
+.daily-pixel-icon--plant i {
+  background-image: url("./assets/ui/daily-icons/plant.png") !important;
+}
+
+.daily-pixel-icon--atlas i {
+  background-image: url("./assets/ui/daily-icons/atlas.png") !important;
+}
+
+.daily-pixel-icon--walk i {
+  background-image: url("./assets/ui/daily-icons/walk.png") !important;
+}
+
+.daily-pixel-icon--water i {
+  background-image: url("./assets/ui/daily-icons/water.png") !important;
+}
+
+.daily-pixel-icon--friend i {
+  background-image: url("./assets/ui/daily-icons/friend.png") !important;
+}
+
+/* EOF daily quest real image lock: use one img per task, no vector/cropped sprite fallback. */
+.daily-pixel-icon > img,
+.quest-card > b .daily-pixel-icon > img,
+.quest-heading .daily-pixel-icon > img,
+.daily-task-card .daily-pixel-icon > img,
+.daily-reward-card .daily-pixel-icon > img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  image-rendering: pixelated !important;
+}
+
+.daily-pixel-icon:has(> img) i,
+.daily-pixel-icon:has(> img) i::before,
+.daily-pixel-icon:has(> img) i::after {
+  content: none !important;
+  display: none !important;
+  background-image: none !important;
+}
+
+/* EOF expedition garden locate action: show how the current garden is read. */
+.panel--expedition.is-open .map-pack-locate {
+  display: grid !important;
+  grid-template-columns: clamp(1.38rem, 5.4vw, 1.72rem) minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: clamp(0.42rem, 2vw, 0.58rem) !important;
+  min-height: clamp(2.72rem, 10.6vw, 3.18rem) !important;
+  width: 100% !important;
+  padding: clamp(0.56rem, 2.5vw, 0.7rem) clamp(0.72rem, 3.2vw, 0.92rem) !important;
+  border: 0.12rem solid #9ac782 !important;
+  border-radius: 0.72rem !important;
+  background: #fffaf0 !important;
+  color: #58704c !important;
+  text-align: left !important;
+  box-shadow: none !important;
+}
+
+.panel--expedition.is-open .map-pack-locate::before {
+  content: "" !important;
+  display: block !important;
+  width: clamp(1.18rem, 4.8vw, 1.42rem) !important;
+  height: clamp(1.18rem, 4.8vw, 1.42rem) !important;
+  border: 0.12rem solid #78975b !important;
+  border-radius: 50% !important;
+  background:
+    linear-gradient(#78975b 0 0) center / 55% 0.12rem no-repeat,
+    linear-gradient(#78975b 0 0) center / 0.12rem 55% no-repeat,
+    #e6f2bb !important;
+  box-sizing: border-box !important;
+}
+
+.panel--expedition.is-open .map-pack-locate strong,
+.panel--expedition.is-open .map-pack-locate span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.panel--expedition.is-open .map-pack-locate strong {
+  font-size: clamp(0.9rem, 3.55vw, 1.05rem) !important;
+  font-weight: 850 !important;
+}
+
+.panel--expedition.is-open .map-pack-locate span {
+  justify-self: end !important;
+  color: #78975b !important;
+  font-size: clamp(0.72rem, 2.8vw, 0.84rem) !important;
+  font-weight: 750 !important;
+}
+
+.panel--expedition.is-open .map-pack-locate:disabled {
+  opacity: 0.72 !important;
+}
+
+/* EOF atlas mobile unlock repair: release hard height locks and make the reward a big gift. */
+.panel--identity[data-active-identity-tab="atlas"] .identity-pages,
 .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden),
 .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-book-layout,
 .panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
   height: auto !important;
+  min-height: 0 !important;
   max-height: none !important;
   overflow: visible !important;
 }
@@ -23536,3 +23768,286 @@ button {
   overflow-y: auto !important;
 }
 
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
+  display: grid !important;
+  grid-template-rows: auto auto auto auto !important;
+  gap: clamp(0.76rem, 3.4vw, 1rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-summary {
+  grid-template-columns: minmax(0, 1fr) clamp(4.8rem, 20vw, 5.6rem) !important;
+  align-items: center !important;
+  gap: clamp(0.72rem, 3vw, 0.95rem) !important;
+  padding: clamp(0.82rem, 3.5vw, 1rem) clamp(0.92rem, 4vw, 1.16rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-button {
+  width: clamp(4.55rem, 19vw, 5.45rem) !important;
+  min-width: clamp(4.55rem, 19vw, 5.45rem) !important;
+  min-height: clamp(4.25rem, 18vw, 5rem) !important;
+  padding: clamp(0.34rem, 1.5vw, 0.48rem) !important;
+  border: 0.12rem solid rgba(142, 174, 103, 0.74) !important;
+  border-radius: 0.62rem !important;
+  background: #fff4bd !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag {
+  width: clamp(3.05rem, 13vw, 3.72rem) !important;
+  height: clamp(2.9rem, 12.2vw, 3.48rem) !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag::before {
+  width: 2.45rem !important;
+  height: 1.82rem !important;
+  bottom: 0.18rem !important;
+  border-radius: 0.2rem 0.2rem 0.34rem 0.34rem !important;
+  background: #f0c977 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag::after {
+  width: 1.46rem !important;
+  height: 0.72rem !important;
+  top: 0.18rem !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-bag i {
+  top: 1.4rem !important;
+  width: 0.92rem !important;
+  height: 0.64rem !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-reward-button b {
+  color: #6d5b34 !important;
+  font-size: clamp(0.76rem, 3.1vw, 0.92rem) !important;
+  line-height: 1 !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-card {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: stretch !important;
+  gap: clamp(0.7rem, 3vw, 0.9rem) !important;
+  width: 100% !important;
+  min-height: clamp(14.8rem, 64vw, 19rem) !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-snap-type: x mandatory !important;
+  scrollbar-width: none !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list .atlas-storybook,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-storybook {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  min-height: clamp(14.8rem, 64vw, 19rem) !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  scroll-snap-align: start !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-page {
+  min-height: clamp(13.2rem, 57vw, 17rem) !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait {
+  min-height: clamp(8.4rem, 36vw, 11rem) !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-story-portrait img {
+  width: min(94%, 10.5rem) !important;
+  height: min(94%, 10.5rem) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid {
+  min-height: clamp(10.8rem, 44vw, 13rem) !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+/* EOF expedition squad composition repair: title, slots and picker are separate rows. */
+.panel--expedition.is-open .expedition-squad {
+  --squad-card-pad: clamp(1rem, 4.6vw, 1.32rem) !important;
+  --squad-slot-size: clamp(4.08rem, 17vw, 4.82rem) !important;
+  --squad-picker-size: clamp(3.52rem, 15vw, 4.18rem) !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto !important;
+  align-items: start !important;
+  gap: clamp(0.68rem, 3vw, 0.92rem) !important;
+  min-height: 0 !important;
+  padding: clamp(0.82rem, 3.8vw, 1.08rem) 0 clamp(0.92rem, 4vw, 1.16rem) !important;
+  overflow: visible !important;
+}
+
+.panel--expedition.is-open .expedition-squad header {
+  position: static !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 0.12rem !important;
+  width: 100% !important;
+  padding: 0 var(--squad-card-pad) !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.panel--expedition.is-open .expedition-squad h3,
+.panel--expedition.is-open .expedition-squad p {
+  position: static !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  color: #5b7048 !important;
+  text-align: left !important;
+  transform: none !important;
+  opacity: 1 !important;
+  white-space: normal !important;
+}
+
+.panel--expedition.is-open .expedition-squad h3 {
+  font-size: clamp(1.02rem, 4.5vw, 1.22rem) !important;
+  line-height: 1.1 !important;
+}
+
+.panel--expedition.is-open .expedition-squad p {
+  display: block !important;
+  font-size: clamp(0.66rem, 2.8vw, 0.78rem) !important;
+  line-height: 1.15 !important;
+}
+
+.panel--expedition.is-open .squad-slots {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: var(--squad-slot-size) !important;
+  justify-content: start !important;
+  align-items: start !important;
+  gap: clamp(1.02rem, 5.2vw, 1.42rem) !important;
+  width: 100% !important;
+  min-height: calc(var(--squad-slot-size) + 1.22rem) !important;
+  padding: 0 var(--squad-card-pad) !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-padding-inline: var(--squad-card-pad) !important;
+  scrollbar-width: none !important;
+}
+
+.panel--expedition.is-open .squad-slots::-webkit-scrollbar,
+.panel--expedition.is-open .squad-picker::-webkit-scrollbar {
+  display: none !important;
+}
+
+.panel--expedition.is-open .squad-slot {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: var(--squad-slot-size) !important;
+  min-width: var(--squad-slot-size) !important;
+  max-width: var(--squad-slot-size) !important;
+  height: var(--squad-slot-size) !important;
+  min-height: var(--squad-slot-size) !important;
+  max-height: var(--squad-slot-size) !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  overflow: visible !important;
+}
+
+.panel--expedition.is-open .squad-slot img {
+  width: 78% !important;
+  height: 78% !important;
+  object-fit: contain !important;
+}
+
+.panel--expedition.is-open .squad-slot span {
+  position: absolute !important;
+  left: 50% !important;
+  top: calc(100% + 0.18rem) !important;
+  width: max-content !important;
+  max-width: calc(var(--squad-slot-size) + 0.9rem) !important;
+  overflow: hidden !important;
+  color: #65734f !important;
+  font-size: clamp(0.56rem, 2.45vw, 0.68rem) !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  transform: translateX(-50%) !important;
+}
+
+.panel--expedition.is-open .squad-picker {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: var(--squad-picker-size) !important;
+  justify-content: start !important;
+  align-items: start !important;
+  gap: clamp(0.7rem, 3.6vw, 0.98rem) !important;
+  width: 100% !important;
+  min-height: calc(var(--squad-picker-size) + 1.35rem) !important;
+  padding: 0 var(--squad-card-pad) !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-padding-inline: var(--squad-card-pad) !important;
+  scrollbar-width: none !important;
+}
+
+.panel--expedition.is-open .squad-picker.is-hidden {
+  display: none !important;
+}
+
+.panel--expedition.is-open .squad-picker-option {
+  display: grid !important;
+  grid-template-rows: var(--squad-picker-size) auto !important;
+  justify-items: center !important;
+  align-items: start !important;
+  gap: clamp(0.18rem, 1vw, 0.28rem) !important;
+  width: var(--squad-picker-size) !important;
+  min-width: var(--squad-picker-size) !important;
+  max-width: var(--squad-picker-size) !important;
+  min-height: calc(var(--squad-picker-size) + 1.18rem) !important;
+  padding: 0 !important;
+  border-radius: 0.68rem !important;
+  overflow: visible !important;
+}
+
+.panel--expedition.is-open .squad-picker-option img {
+  width: var(--squad-picker-size) !important;
+  height: var(--squad-picker-size) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.panel--expedition.is-open .squad-picker-option span {
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  color: #65734f !important;
+  font-size: clamp(0.58rem, 2.5vw, 0.7rem) !important;
+  line-height: 1.05 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  transform: none !important;
+}
+
+.panel--expedition.is-open .duration-picker {
+  padding-inline: var(--squad-card-pad) !important;
+  margin-top: clamp(0.2rem, 1vw, 0.34rem) !important;
+}
