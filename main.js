@@ -2454,6 +2454,18 @@ function renderMapPackPicker(message = "", options = {}) {
   mapPackPicker.append(toggle);
 
   if (expanded) {
+    const locateButton = document.createElement("button");
+    locateButton.type = "button";
+    locateButton.className = "map-pack-locate";
+    locateButton.dataset.locateGarden = "true";
+    locateButton.disabled = locating;
+    const locateTitle = document.createElement("strong");
+    locateTitle.textContent = locating ? "读取花园中" : "读取花园";
+    const locateHint = document.createElement("span");
+    locateHint.textContent = locating ? "正在获得定位" : "获得定位";
+    locateButton.append(locateTitle, locateHint);
+    mapPackPicker.append(locateButton);
+
     const helper = document.createElement("p");
     helper.className = "map-pack-helper";
     helper.textContent = locating ? "正在读取附近花园" : "读取到的花园";
@@ -5318,9 +5330,15 @@ mapPackPicker?.addEventListener("click", (event) => {
     toggle.setAttribute("aria-expanded", String(expanded));
     toggle.querySelector("span").textContent = expanded ? "选择花园" : getMapPackRegionLabel(state.currentMapPack);
     if (expanded) {
-      window.setTimeout(() => mapPackPicker.querySelector(".map-pack-option")?.scrollIntoView({ block: "nearest" }), 60);
+      window.setTimeout(() => mapPackPicker.querySelector(".map-pack-locate")?.scrollIntoView({ block: "nearest" }), 60);
       locateFromMapPackPicker();
     }
+    return;
+  }
+
+  const locateButton = event.target.closest("[data-locate-garden]");
+  if (locateButton) {
+    locateFromMapPackPicker();
     return;
   }
 

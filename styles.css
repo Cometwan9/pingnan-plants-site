@@ -23058,3 +23058,58 @@ button {
 .daily-pixel-icon--friend i {
   background-image: url("./assets/ui/daily-icons/friend.png") !important;
 }
+
+/* EOF expedition garden locate action: show how the current garden is read. */
+.panel--expedition.is-open .map-pack-locate {
+  display: grid !important;
+  grid-template-columns: clamp(1.38rem, 5.4vw, 1.72rem) minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: clamp(0.42rem, 2vw, 0.58rem) !important;
+  min-height: clamp(2.72rem, 10.6vw, 3.18rem) !important;
+  width: 100% !important;
+  padding: clamp(0.56rem, 2.5vw, 0.7rem) clamp(0.72rem, 3.2vw, 0.92rem) !important;
+  border: 0.12rem solid #9ac782 !important;
+  border-radius: 0.72rem !important;
+  background: #fffaf0 !important;
+  color: #58704c !important;
+  text-align: left !important;
+  box-shadow: none !important;
+}
+
+.panel--expedition.is-open .map-pack-locate::before {
+  content: "" !important;
+  display: block !important;
+  width: clamp(1.18rem, 4.8vw, 1.42rem) !important;
+  height: clamp(1.18rem, 4.8vw, 1.42rem) !important;
+  border: 0.12rem solid #78975b !important;
+  border-radius: 50% !important;
+  background:
+    linear-gradient(#78975b 0 0) center / 55% 0.12rem no-repeat,
+    linear-gradient(#78975b 0 0) center / 0.12rem 55% no-repeat,
+    #e6f2bb !important;
+  box-sizing: border-box !important;
+}
+
+.panel--expedition.is-open .map-pack-locate strong,
+.panel--expedition.is-open .map-pack-locate span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.panel--expedition.is-open .map-pack-locate strong {
+  font-size: clamp(0.9rem, 3.55vw, 1.05rem) !important;
+  font-weight: 850 !important;
+}
+
+.panel--expedition.is-open .map-pack-locate span {
+  justify-self: end !important;
+  color: #78975b !important;
+  font-size: clamp(0.72rem, 2.8vw, 0.84rem) !important;
+  font-weight: 750 !important;
+}
+
+.panel--expedition.is-open .map-pack-locate:disabled {
+  opacity: 0.72 !important;
+}
