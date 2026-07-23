@@ -22972,3 +22972,89 @@ button {
 .panel--expedition.is-open .squad-picker-option {
   margin-left: 0 !important;
 }
+
+/* EOF daily quest single-icon lock: each task gets one standalone picture, never the whole sheet. */
+.quest-card > b .daily-pixel-icon,
+.quest-heading .daily-pixel-icon,
+.panel--expedition .quest-card > b .daily-pixel-icon,
+.panel--expedition .quest-heading .daily-pixel-icon,
+.panel--expedition.is-open .quest-card > b .daily-pixel-icon,
+.panel--expedition.is-open .quest-heading .daily-pixel-icon {
+  display: grid !important;
+  width: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  height: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  min-width: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  min-height: clamp(2.65rem, 10.8vw, 3.05rem) !important;
+  padding: clamp(0.22rem, 0.9vw, 0.3rem) !important;
+  place-items: center !important;
+  background: #f5efc8 !important;
+  border: 0 !important;
+  border-radius: 0.56rem !important;
+  overflow: hidden !important;
+  contain: layout paint !important;
+}
+
+.quest-card > b .daily-pixel-icon i,
+.quest-heading .daily-pixel-icon i,
+.panel--expedition .quest-card > b .daily-pixel-icon i,
+.panel--expedition .quest-heading .daily-pixel-icon i,
+.panel--expedition.is-open .quest-card > b .daily-pixel-icon i,
+.panel--expedition.is-open .quest-heading .daily-pixel-icon i {
+  display: block !important;
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  image-rendering: pixelated !important;
+  transform: none !important;
+}
+
+.quest-card > b .daily-pixel-icon i::before,
+.quest-card > b .daily-pixel-icon i::after,
+.quest-heading .daily-pixel-icon i::before,
+.quest-heading .daily-pixel-icon i::after,
+.panel--expedition .daily-pixel-icon i::before,
+.panel--expedition .daily-pixel-icon i::after,
+.panel--expedition.is-open .daily-pixel-icon i::before,
+.panel--expedition.is-open .daily-pixel-icon i::after {
+  content: none !important;
+  display: none !important;
+}
+
+.daily-pixel-icon--task i,
+.daily-pixel-icon--energy i {
+  background-image: url("./assets/ui/daily-icons/task.png") !important;
+}
+
+.daily-pixel-icon--scan i {
+  background-image: url("./assets/ui/daily-icons/scan.png") !important;
+}
+
+.daily-pixel-icon--expedition i {
+  background-image: url("./assets/ui/daily-icons/expedition.png") !important;
+}
+
+.daily-pixel-icon--plant i {
+  background-image: url("./assets/ui/daily-icons/plant.png") !important;
+}
+
+.daily-pixel-icon--atlas i {
+  background-image: url("./assets/ui/daily-icons/atlas.png") !important;
+}
+
+.daily-pixel-icon--walk i {
+  background-image: url("./assets/ui/daily-icons/walk.png") !important;
+}
+
+.daily-pixel-icon--water i {
+  background-image: url("./assets/ui/daily-icons/water.png") !important;
+}
+
+.daily-pixel-icon--friend i {
+  background-image: url("./assets/ui/daily-icons/friend.png") !important;
+}
