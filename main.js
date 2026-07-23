@@ -852,6 +852,28 @@ const specialtyPool = [
   { name: "本地小礼物", terrain: "default", icon: "parcel" },
 ];
 
+const specialtyIconImages = {
+  seed: "./assets/items/seed.png",
+  tea: "./assets/items/tea.png",
+  tile: "./assets/items/tile.png",
+  rice: "./assets/items/rice.png",
+  bamboo: "./assets/items/bamboo.png",
+  brick: "./assets/items/brick.png",
+  shell: "./assets/items/shell.png",
+  stone: "./assets/items/stone.png",
+  grape: "./assets/items/grape.png",
+  parcel: "./assets/items/parcel.png",
+};
+
+const landformRegionImages = {
+  jiangnan: "./assets/landforms/regions/jiangnan.png",
+  mountain: "./assets/landforms/regions/mountain.png",
+  northwest: "./assets/landforms/regions/northwest.png",
+  coast: "./assets/landforms/regions/coast.png",
+  plateau: "./assets/landforms/regions/plateau.png",
+  greenhouse: "./assets/landforms/regions/greenhouse.png",
+};
+
 const specialtyRegions = [
   {
     id: "jiangnan",
@@ -4368,7 +4390,7 @@ function renderSpecialtyShelf() {
 
 function renderLandformOverview(discoveredNames = new Set()) {
   if (!landformRegionList) return;
-  const visibleRegions = specialtyRegions.slice(0, 3);
+  const visibleRegions = specialtyRegions;
   currentLandformIndex = Math.min(currentLandformIndex, visibleRegions.length - 1);
   landformRegionList.replaceChildren(
     ...visibleRegions.map((region, index) => {
@@ -4381,8 +4403,9 @@ function renderLandformOverview(discoveredNames = new Set()) {
       button.setAttribute("aria-label", `${region.title}，已点亮 ${collected.length}/${total}`);
       button.className = `landform-region-chip landform-region-chip--${region.id}`;
       button.classList.toggle("is-active", index === currentLandformIndex);
+      const regionImage = landformRegionImages[region.id] || landformRegionImages.greenhouse;
       button.innerHTML = `
-        <i class="terrain-sprite terrain-sprite--${region.id}" aria-hidden="true"></i>
+        <i class="terrain-sprite terrain-sprite--${region.id}" aria-hidden="true"><img src="${regionImage}" alt="" /></i>
         <strong>${region.shortTitle}</strong>
       `;
       return button;
@@ -4557,7 +4580,8 @@ function sortSpecialties(items) {
 function specialtyIconMarkup(item, extraClass = "") {
   const icon = item?.icon || "parcel";
   const tone = item?.tone || "common";
-  return `<b class="specialty-icon specialty-icon--${icon} specialty-icon--${tone} ${extraClass}" aria-hidden="true"><i></i></b>`;
+  const image = specialtyIconImages[icon] || specialtyIconImages.parcel;
+  return `<b class="specialty-icon specialty-icon--${icon} specialty-icon--${tone} ${extraClass}" aria-hidden="true"><img src="${image}" alt="" /></b>`;
 }
 
 function rarityPipsMarkup(level = 1, label = "") {

@@ -22906,3 +22906,45 @@ button {
     object-position: center !important;
   }
 }
+
+/* EOF generated asset lock: real pixel maps/items stay proportional on mobile. */
+.panel--identity[data-active-identity-tab="items"] .landform-region-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.panel--identity[data-active-identity-tab="items"] .terrain-sprite {
+  display: grid !important;
+  width: clamp(3.28rem, 14vw, 4.02rem) !important;
+  height: clamp(2.46rem, 10.4vw, 3.02rem) !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  place-items: center !important;
+}
+
+.panel--identity[data-active-identity-tab="items"] .terrain-sprite img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  image-rendering: pixelated !important;
+}
+
+.specialty-icon img,
+.loot-chip .specialty-icon img,
+.specialty-reward-card .specialty-icon img,
+.panel--identity[data-active-identity-tab="items"] .specialty-card .specialty-icon img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+}
+
+.specialty-icon:has(img) i,
+.specialty-icon:has(img)::before,
+.specialty-icon:has(img)::after {
+  content: none !important;
+  display: none !important;
+}
