@@ -4680,7 +4680,7 @@ button {
   z-index: 70;
   background:
     linear-gradient(rgba(255, 244, 223, 0.28), rgba(215, 240, 233, 0.46)),
-    url("./assets/garden-panorama.png") center / cover;
+    url("./assets/garden-panorama-cottage.png") center / cover;
 }
 
 .name-screen.is-hidden,
@@ -4712,7 +4712,7 @@ button {
     radial-gradient(circle at 48% 38%, rgba(255, 252, 204, 0.82), transparent 10rem),
     linear-gradient(90deg, rgba(255, 238, 163, 0.18) 0 8%, transparent 8% 15%, rgba(255, 246, 196, 0.2) 15% 23%, transparent 23% 100%),
     radial-gradient(ellipse at 50% 48%, rgba(255, 249, 211, 0.6), rgba(210, 236, 184, 0.28) 60%, rgba(246, 226, 170, 0.16)),
-    url("./assets/garden-panorama.png") center / cover;
+    url("./assets/garden-panorama-cottage.png") center / cover;
   animation: bootDreamRevealScene 6.8s cubic-bezier(0.18, 0.8, 0.2, 1) both;
 }
 
