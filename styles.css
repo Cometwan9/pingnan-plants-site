@@ -22906,3 +22906,633 @@ button {
     object-position: center !important;
   }
 }
+
+/* ===== elorze fix: backpack single scroll surface (all viewports) ===== */
+.pill--seed.is-nursery-dragging {
+  opacity: 0.78;
+  transform: scale(1.06);
+  z-index: 80;
+}
+
+.panel--identity.is-open {
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+  height: 100svh !important;
+  max-height: 100svh !important;
+  overflow: hidden !important;
+}
+
+.panel--identity .identity-pages,
+.panel--identity[data-active-identity-tab="card"] .identity-pages,
+.panel--identity[data-active-identity-tab="items"] .identity-pages,
+.panel--identity[data-active-identity-tab="atlas"] .identity-pages {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(126, 155, 94, 0.42) transparent !important;
+}
+
+.panel--identity .identity-pages::-webkit-scrollbar {
+  width: 0.42rem !important;
+}
+
+.panel--identity .identity-pages::-webkit-scrollbar-thumb {
+  border-radius: 999px !important;
+  background: rgba(126, 155, 94, 0.42) !important;
+}
+
+.panel--identity .identity-pages::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.panel--identity .identity-page:not(.is-hidden) {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] {
+  overflow: hidden !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden),
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-book-layout,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-list,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .locked-grid,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-bookmarks {
+  touch-action: pan-x pan-y !important;
+}
+
+.panel--identity[data-active-identity-tab="items"] {
+  overflow: hidden !important;
+}
+
+@media (max-width: 720px) {
+  .panel--identity .identity-pages,
+  .panel--identity[data-active-identity-tab="card"] .identity-pages,
+  .panel--identity[data-active-identity-tab="items"] .identity-pages,
+  .panel--identity[data-active-identity-tab="atlas"] .identity-pages {
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+  }
+}
+
+/* ===== elorze fix: atlas region cards as compact readable dex entries ===== */
+.panel--identity .identity-atlas-page:not(.is-hidden),
+.panel--atlas.is-open {
+  --atlas-book-width: min(100%, 26.5rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-bookmarks,
+.panel--atlas .atlas-bookmarks {
+  display: grid !important;
+  grid-auto-flow: row !important;
+  grid-auto-columns: unset !important;
+  grid-template-columns: 1fr !important;
+  gap: clamp(0.58rem, 2.2vw, 0.78rem) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  scroll-snap-type: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-bookmarks button,
+.panel--atlas .atlas-bookmarks button,
+.panel--identity .identity-atlas-page .atlas-region-card,
+.panel--atlas .atlas-region-card {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: clamp(5.8rem, 28%, 7.4rem) minmax(0, 1fr) !important;
+  grid-template-rows: none !important;
+  grid-template-areas: "preview copy" !important;
+  place-items: stretch !important;
+  justify-items: stretch !important;
+  align-items: stretch !important;
+  min-width: 0 !important;
+  min-height: clamp(6.4rem, 28vw, 7.8rem) !important;
+  height: auto !important;
+  max-width: 100% !important;
+  padding: clamp(0.62rem, 2.4vw, 0.82rem) !important;
+  overflow: hidden !important;
+  border: 0.12rem solid rgba(84, 138, 122, 0.22) !important;
+  border-radius: 0.92rem !important;
+  background: #d9f1df !important;
+  color: #245f58 !important;
+  scroll-snap-align: unset !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-card::before,
+.panel--atlas .atlas-region-card::before {
+  inset: 0 0 0 42% !important;
+  opacity: 0.35 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-card.is-active,
+.panel--atlas .atlas-region-card.is-active {
+  background: #c5ead6 !important;
+  color: #1f5f5c !important;
+  border-color: rgba(46, 130, 118, 0.42) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-card.is-locked,
+.panel--atlas .atlas-region-card.is-locked {
+  background: #d5eef2 !important;
+  color: #2b7d8e !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-bookmarks button.is-active::after,
+.panel--atlas .atlas-bookmarks button.is-active::after {
+  display: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-preview,
+.panel--atlas .atlas-region-preview {
+  grid-area: preview !important;
+  position: relative !important;
+  z-index: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.12rem !important;
+  min-width: 0 !important;
+  min-height: 100% !important;
+  border-radius: 0.72rem !important;
+  background: rgba(255, 248, 220, 0.55) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-preview img,
+.panel--atlas .atlas-region-preview img {
+  width: clamp(3.6rem, 16vw, 5rem) !important;
+  height: clamp(3.6rem, 16vw, 5rem) !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+  opacity: 1 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-card.is-locked .atlas-region-preview img,
+.panel--atlas .atlas-region-card.is-locked .atlas-region-preview img {
+  filter: brightness(0) saturate(0) opacity(0.28) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-copy,
+.panel--atlas .atlas-region-copy {
+  grid-area: copy !important;
+  position: relative !important;
+  z-index: 2 !important;
+  display: grid !important;
+  align-content: center !important;
+  justify-items: start !important;
+  gap: 0.34rem !important;
+  min-width: 0 !important;
+  padding-left: clamp(0.42rem, 1.8vw, 0.62rem) !important;
+  text-align: left !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-copy b,
+.panel--atlas .atlas-region-copy b {
+  display: block !important;
+  color: inherit !important;
+  font-size: clamp(1.28rem, 5.2vw, 1.62rem) !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-copy i,
+.panel--atlas .atlas-region-copy i {
+  display: block !important;
+  width: min(5.2rem, 72%) !important;
+  height: 0.34rem !important;
+  overflow: hidden !important;
+  border-radius: 0.2rem !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  font-size: 0 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-copy span,
+.panel--atlas .atlas-region-copy span {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  color: inherit !important;
+  font-size: clamp(0.82rem, 3.2vw, 0.98rem) !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  opacity: 0.86 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-region-lock,
+.panel--atlas .atlas-region-lock {
+  position: absolute !important;
+  left: clamp(0.72rem, 2.4vw, 0.96rem) !important;
+  bottom: clamp(0.62rem, 2vw, 0.82rem) !important;
+  z-index: 3 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: clamp(1.58rem, 6.2vw, 1.9rem) !important;
+  height: clamp(1.58rem, 6.2vw, 1.9rem) !important;
+  border-radius: 50% !important;
+  border: 0.12rem solid rgba(43, 125, 142, 0.42) !important;
+  color: #2b7d8e !important;
+  font-size: 0.74rem !important;
+  font-weight: 950 !important;
+  background: rgba(232, 251, 248, 0.86) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-page-controls,
+.panel--atlas .atlas-page-controls {
+  position: static !important;
+  inset: auto !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 0.55rem !important;
+  width: 100% !important;
+  margin: 0 0 0.72rem !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-page-controls button,
+.panel--atlas .atlas-page-controls button {
+  width: auto !important;
+  min-width: 4.2rem !important;
+  height: auto !important;
+  min-height: 2.45rem !important;
+  padding: 0 0.72rem !important;
+  pointer-events: auto !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-page-controls span,
+.panel--atlas .atlas-page-controls span {
+  display: block !important;
+  text-align: center !important;
+}
+
+.panel--identity .identity-atlas-page .locked-grid,
+.panel--atlas .locked-grid {
+  padding-inline: 0 !important;
+}
+
+@media (min-width: 721px) {
+  .panel--identity .identity-atlas-page:not(.is-hidden),
+  .panel--atlas.is-open {
+    --atlas-book-width: min(100%, 34rem) !important;
+  }
+
+  .panel--identity .identity-atlas-page .atlas-bookmarks,
+  .panel--atlas .atlas-bookmarks {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.72rem !important;
+  }
+
+  .panel--identity .identity-atlas-page .atlas-region-card,
+  .panel--atlas .atlas-region-card {
+    min-height: 8.2rem !important;
+  }
+
+  .panel--identity .identity-atlas-page .atlas-region-copy b,
+  .panel--atlas .atlas-region-copy b {
+    font-size: 1.42rem !important;
+  }
+
+  .panel--identity .identity-atlas-page .atlas-region-preview img,
+  .panel--atlas .atlas-region-preview img {
+    width: 4.6rem !important;
+    height: 4.6rem !important;
+  }
+}
+
+/* elorze: beat atlas tab-specific mobile direction lock + keep region copy visible */
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks {
+  display: grid !important;
+  grid-auto-flow: row !important;
+  grid-auto-columns: unset !important;
+  grid-template-columns: 1fr !important;
+  gap: clamp(0.58rem, 2.2vw, 0.78rem) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  scroll-snap-type: none !important;
+  min-height: 0 !important;
+  flex-shrink: initial !important;
+}
+
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks .atlas-region-copy,
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks .atlas-region-preview {
+  display: grid !important;
+}
+
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks .atlas-region-preview {
+  display: flex !important;
+}
+
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks .atlas-region-copy b,
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks .atlas-region-copy span,
+#panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks .atlas-region-copy i {
+  display: block !important;
+}
+
+@media (min-width: 721px) {
+  #panel-identity[data-active-identity-tab="atlas"] #atlasBookmarks {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.72rem !important;
+  }
+}
+
+/* ===== elorze: atlas 3×3 dex grid + same-page detail ===== */
+.panel--identity .identity-atlas-page .atlas-pages--dex,
+.panel--atlas .atlas-pages--dex {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  grid-template-areas:
+    "summary"
+    "dex" !important;
+  gap: clamp(0.72rem, 2.4vw, 1rem) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex,
+.panel--atlas .atlas-dex {
+  grid-area: dex !important;
+  display: grid !important;
+  gap: clamp(0.62rem, 2vw, 0.82rem) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-header,
+.panel--atlas .atlas-dex-header {
+  display: grid !important;
+  gap: 0.52rem !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-header #atlasDexCount,
+.panel--atlas .atlas-dex-header #atlasDexCount {
+  margin: 0 !important;
+  color: #3f6d52 !important;
+  font-size: clamp(0.98rem, 3.4vw, 1.18rem) !important;
+  font-weight: 950 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-header .atlas-page-controls,
+.panel--atlas .atlas-dex-header .atlas-page-controls {
+  position: static !important;
+  inset: auto !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-grid,
+.panel--atlas .atlas-dex-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(0.48rem, 2vw, 0.72rem) !important;
+  width: 100% !important;
+  padding: 0.12rem 0 0.4rem !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-cell,
+.panel--atlas .atlas-dex-cell {
+  position: relative !important;
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+  place-items: center !important;
+  gap: 0.28rem !important;
+  min-height: clamp(5.6rem, 24vw, 7.2rem) !important;
+  aspect-ratio: 1 / 1.05 !important;
+  padding: clamp(0.42rem, 1.8vw, 0.58rem) !important;
+  border: 0.12rem solid rgba(84, 138, 122, 0.28) !important;
+  border-radius: 0.88rem !important;
+  background: #e7f6df !important;
+  color: #245f58 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-cell.is-active,
+.panel--atlas .atlas-dex-cell.is-active {
+  border-color: rgba(46, 130, 118, 0.62) !important;
+  background: #d4efd4 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-cell.is-locked,
+.panel--atlas .atlas-dex-cell.is-locked {
+  background: #e3eef0 !important;
+  color: #6a7f86 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-cell img,
+.panel--atlas .atlas-dex-cell img {
+  width: min(72%, 4.4rem) !important;
+  height: min(72%, 4.4rem) !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-cell.is-locked img,
+.panel--atlas .atlas-dex-cell.is-locked img {
+  filter: brightness(0) saturate(0) opacity(0.34) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-cell b,
+.panel--atlas .atlas-dex-cell b {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  font-size: clamp(0.68rem, 2.8vw, 0.84rem) !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail,
+.panel--atlas .atlas-dex-detail {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 24 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: clamp(0.8rem, 3vw, 1.2rem) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail.is-hidden,
+.panel--atlas .atlas-dex-detail.is-hidden {
+  display: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-backdrop,
+.panel--atlas .atlas-dex-detail-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  border: 0 !important;
+  background: rgba(42, 58, 40, 0.42) !important;
+  cursor: pointer !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-card,
+.panel--atlas .atlas-dex-detail-card {
+  position: relative !important;
+  z-index: 1 !important;
+  display: grid !important;
+  gap: clamp(0.42rem, 1.8vw, 0.62rem) !important;
+  width: min(100%, 22rem) !important;
+  max-height: min(78svh, 34rem) !important;
+  overflow: auto !important;
+  padding: clamp(1rem, 3.6vw, 1.35rem) !important;
+  border: 0.14rem solid rgba(84, 138, 122, 0.34) !important;
+  border-radius: 1rem !important;
+  background: #fff8df !important;
+  color: #355543 !important;
+  box-shadow: none !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-close,
+.panel--atlas .atlas-dex-detail-close {
+  position: absolute !important;
+  top: 0.55rem !important;
+  right: 0.55rem !important;
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+  border: 0.1rem solid rgba(84, 138, 122, 0.28) !important;
+  border-radius: 0.55rem !important;
+  background: #f3efd0 !important;
+  color: #355543 !important;
+  font-size: 1.2rem !important;
+  font-weight: 900 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-portrait,
+.panel--atlas .atlas-dex-detail-portrait {
+  display: grid !important;
+  place-items: center !important;
+  min-height: 8.2rem !important;
+  margin: 0 !important;
+  border-radius: 0.78rem !important;
+  background: #fbffd8 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-portrait img,
+.panel--atlas .atlas-dex-detail-portrait img {
+  width: min(72%, 7.2rem) !important;
+  height: min(72%, 7.2rem) !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-portrait img.is-silhouette,
+.panel--atlas .atlas-dex-detail-portrait img.is-silhouette {
+  filter: brightness(0) saturate(0) opacity(0.36) !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-kicker,
+.panel--atlas .atlas-dex-detail-kicker {
+  margin: 0 !important;
+  color: #7d6a48 !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-card h3,
+.panel--atlas .atlas-dex-detail-card h3 {
+  margin: 0 !important;
+  color: #2f6a48 !important;
+  font-size: clamp(1.35rem, 5vw, 1.7rem) !important;
+  line-height: 1.05 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta,
+.panel--atlas .atlas-dex-detail-meta {
+  display: grid !important;
+  gap: 0.34rem !important;
+  margin: 0 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta div,
+.panel--atlas .atlas-dex-detail-meta div {
+  display: grid !important;
+  grid-template-columns: 4.4rem minmax(0, 1fr) !important;
+  gap: 0.4rem !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta dt,
+.panel--atlas .atlas-dex-detail-meta dt {
+  color: #8f7650 !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-meta dd,
+.panel--atlas .atlas-dex-detail-meta dd {
+  margin: 0 !important;
+  color: #4d5a44 !important;
+  font-size: 0.86rem !important;
+  font-weight: 850 !important;
+  line-height: 1.35 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-blurb,
+.panel--atlas .atlas-dex-detail-blurb {
+  margin: 0 !important;
+  color: #55624c !important;
+  font-size: 0.92rem !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-actions,
+.panel--atlas .atlas-dex-detail-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 0.55rem !important;
+  margin-top: 0.28rem !important;
+}
+
+.panel--identity .identity-atlas-page .atlas-dex-detail-actions .is-hidden,
+.panel--atlas .atlas-dex-detail-actions .is-hidden {
+  display: none !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page:not(.is-hidden),
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-book-layout--dex,
+.panel--identity[data-active-identity-tab="atlas"] .identity-atlas-page .atlas-pages--dex {
+  position: relative !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.panel--identity[data-active-identity-tab="atlas"] .identity-pages {
+  overflow-y: auto !important;
+}
+

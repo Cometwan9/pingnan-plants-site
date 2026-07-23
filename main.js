@@ -74,11 +74,20 @@ const atlasRewardPopover = document.querySelector("#atlasRewardPopover");
 const atlasRewardTitle = document.querySelector("#atlasRewardTitle");
 const atlasRewardText = document.querySelector("#atlasRewardText");
 const atlasRewardList = document.querySelector("#atlasRewardList");
-const atlasCollectedTitle = document.querySelector("#atlasCollectedTitle");
-const atlasLockedTitle = document.querySelector("#atlasLockedTitle");
-const atlasCollectedList = document.querySelector("#atlasCollectedList");
-const atlasLockedGrid = document.querySelector("#atlasLockedGrid");
-const atlasBookmarks = document.querySelector("#atlasBookmarks");
+const atlasDexCount = document.querySelector("#atlasDexCount");
+const atlasDexGrid = document.querySelector("#atlasDexGrid");
+const atlasDexDetail = document.querySelector("#atlasDexDetail");
+const atlasDexDetailBackdrop = document.querySelector("#atlasDexDetailBackdrop");
+const atlasDexDetailClose = document.querySelector("#atlasDexDetailClose");
+const atlasDexDetailDismiss = document.querySelector("#atlasDexDetailDismiss");
+const atlasDexDetailGarden = document.querySelector("#atlasDexDetailGarden");
+const atlasDexDetailImage = document.querySelector("#atlasDexDetailImage");
+const atlasDexDetailKicker = document.querySelector("#atlasDexDetailKicker");
+const atlasDexDetailName = document.querySelector("#atlasDexDetailName");
+const atlasDexDetailPlace = document.querySelector("#atlasDexDetailPlace");
+const atlasDexDetailWeather = document.querySelector("#atlasDexDetailWeather");
+const atlasDexDetailStatus = document.querySelector("#atlasDexDetailStatus");
+const atlasDexDetailBlurb = document.querySelector("#atlasDexDetailBlurb");
 const atlasPrevPage = document.querySelector("#atlasPrevPage");
 const atlasNextPage = document.querySelector("#atlasNextPage");
 const atlasPageLabel = document.querySelector("#atlasPageLabel");
@@ -185,7 +194,7 @@ const PROFILE_KEY = "sprigGardenProfile";
 const PLAYER_ID_KEY = "sprigGardenPlayerId";
 const CHECKIN_PROMPT_KEY = "sprigDailyPromptDate";
 const NATIONAL_ATLAS_COUNT = 31142;
-const ATLAS_LOCKED_PAGE_SIZE = 12;
+const ATLAS_DEX_PAGE_SIZE = 9;
 const ATLAS_MODEL_SOURCE = "Flora of China Checklist";
 const BOOT_LOADING_MS = 6200;
 const BOOT_LOADING_LINE_MS = 2800;
@@ -272,7 +281,7 @@ let atlasEntries = activeMapPack.sprigs || [];
 let sprigs = Object.fromEntries(atlasEntries.map((entry) => [entry.id, entry]));
 let sprigIds = Object.keys(sprigs);
 let atlasEntryById = Object.fromEntries(atlasEntries.map((entry) => [entry.id, entry]));
-let currentLockedAtlasPage = [];
+let currentLockedAtlasPage = []; // kept for legacy test hooks; dex grid no longer uses this buffer
 let currentLandformIndex = 0;
 
 function getPlayerId() {
@@ -319,6 +328,7 @@ const state = {
   atlasCategory: "pingnan",
   atlasStoryIndex: 0,
   atlasPage: 0,
+  atlasSelectedId: null,
   atlasSelectedLocked: null,
   claimedAtlasLevels: new Set(),
   mapPois: [],
@@ -1063,6 +1073,8 @@ function setIdentityTab(tab = "card") {
   });
   if (tab === "atlas") renderAtlas();
   if (tab === "items") renderSpecialtyShelf();
+  // Scroll the inner pages surface (panel itself is overflow:hidden on purpose).
+  identityPanel?.querySelector("#identityPages")?.scrollTo?.({ top: 0, behavior: "auto" });
   identityPanel?.scrollTo?.({ top: 0, behavior: "auto" });
 }
 
@@ -1682,37 +1694,10 @@ function wanderSprigs() {
   syncKnowledgePopSpeakerPosition();
 }
 
-function createAtlasArticle(entry, locked = false) {
+function createAtlasEmpty(text) {
   const article = document.createElement("article");
-  article.classList.toggle("locked", locked);
-  if (locked) {
-    article.tabIndex = 0;
-    article.setAttribute("role", "button");
-    article.setAttribute("aria-label", "查看未解锁图鉴线索");
-  }
-  article.dataset.sprig = entry.id;
-  article.dataset.lockedAtlas = locked ? "true" : "false";
-  article.dataset.habitat = entry.habitat || "";
-  article.dataset.atlasTone = entry.tone || getActiveAtlasCategory().tone || "all";
-
-  const icon = document.createElement("b");
-  const image = document.createElement("img");
-  image.src = entry.image || "./assets/ui/seed.png";
-  image.alt = locked ? "未解锁线索" : entry.name;
-  icon.append(image);
-
-  const copy = document.createElement("div");
-  const title = document.createElement("strong");
-  title.textContent = locked ? "???" : entry.name;
-  const text = document.createElement("span");
-  text.textContent = locked
-    ? "编号 ???"
-    : `${entry.habitat || "植物线索"} · ${entry.knowledge?.[0] || entry.hint}`;
-  copy.append(title, text);
-
-  const count = document.createElement("em");
-  count.textContent = locked ? "" : "1/5";
-  article.append(icon, copy, count);
+  article.className = "atlas-empty";
+  article.textContent = text;
   return article;
 }
 
@@ -1730,84 +1715,6 @@ function getAtlasShortType(entry = {}) {
   return "地域";
 }
 
-function createAtlasStoryBook(entries, category, forcedIndex = null) {
-  const storyIndex = clamp(forcedIndex ?? state.atlasStoryIndex, 0, Math.max(0, entries.length - 1));
-  if (forcedIndex === null) state.atlasStoryIndex = storyIndex;
-  const entry = entries[storyIndex];
-  const article = document.createElement("article");
-  article.className = "atlas-storybook";
-  article.dataset.sprig = entry.id;
-  article.dataset.atlasTone = entry.tone || category.tone || "all";
-
-  const image = entry.image || "./assets/ui/seed.png";
-  const personality = entry.personality || "喜欢把路边的小事记得很清楚";
-  const status = entry.status || "已记录";
-  const voiceLine = entry.voiceLines?.[0] || entry.hint || "我把今天遇见的风，夹在这一页里。";
-  const habit = entry.habitat || entry.knowledge?.[0] || "喜欢待在安静、有光的角落。";
-  const shortPersonality = String(personality).split(/[，。、；;]/)[0] || personality;
-  const shortHabit = String(habit).split(/[，。、；;]/)[0] || habit;
-  const shortVoiceLine = String(voiceLine).replace(/[“”"]/g, "").split(/[。！？!?]/)[0] || voiceLine;
-  const pageLabel = entries.length > 1 ? `${storyIndex + 1} / ${entries.length}` : "1 / 1";
-
-  article.innerHTML = `
-    <section class="atlas-story-page atlas-story-page--portrait" aria-label="${entry.name} 图册左页">
-      <p class="atlas-story-kicker">${category.label}</p>
-      <div class="atlas-story-portrait">
-        <img src="${image}" alt="${entry.name}" />
-      </div>
-      <h3>${entry.name}</h3>
-    </section>
-    <section class="atlas-story-page atlas-story-page--notes" aria-label="${entry.name} 图册右页">
-      <p class="atlas-story-kicker">第 ${pageLabel} 页</p>
-      <h3>${status}</h3>
-      <dl class="atlas-brief-notes">
-        <div><dt>性格</dt><dd>${shortPersonality}</dd></div>
-        <div><dt>习惯</dt><dd>${shortHabit}</dd></div>
-        <div><dt>会说</dt><dd>${shortVoiceLine}</dd></div>
-      </dl>
-      <button class="atlas-page-corner" type="button" ${entries.length <= 1 ? "disabled" : ""} aria-label="翻到下一只种种">
-        <span>翻</span>
-      </button>
-    </section>
-  `;
-  return article;
-}
-
-function createLockedAtlasDetail(entry, category) {
-  const article = document.createElement("article");
-  article.className = "atlas-storybook atlas-storybook--locked";
-  article.dataset.sprig = entry.id;
-  article.dataset.atlasTone = entry.tone || category.tone || "all";
-  const image = entry.image || "./assets/ui/seed.png";
-  const unlockText = "继续扫描植物，并到对应地点完成发现，问号会一点点亮起来。";
-
-  article.innerHTML = `
-    <section class="atlas-story-page atlas-story-page--portrait" aria-label="未解锁图鉴左页">
-      <p class="atlas-story-kicker">${category.label} · 未解锁</p>
-      <div class="atlas-story-portrait atlas-story-portrait--locked">
-        <img src="${image}" alt="未解锁种种剪影" />
-      </div>
-      <h3>???</h3>
-      <dl>
-        <div><dt>生态</dt><dd>???</dd></div>
-        <div><dt>编号</dt><dd>???</dd></div>
-        <div><dt>风土</dt><dd>???</dd></div>
-      </dl>
-    </section>
-    <section class="atlas-story-page atlas-story-page--notes" aria-label="未解锁图鉴右页">
-      <p class="atlas-story-kicker">解锁条件</p>
-      <h3>???</h3>
-      <blockquote>???</blockquote>
-      <p>${unlockText}</p>
-      <dl>
-        <div><dt>扫描</dt><dd>拍到植物后，名字会出现。</dd></div>
-        <div><dt>实地</dt><dd>到附近地点发现后，性格和关系会补全。</dd></div>
-      </dl>
-    </section>
-  `;
-  return article;
-}
-
 function getAtlasCategoryLabel(entry) {
   if (entry.habitat?.includes("水生") || entry.habitat?.includes("湿地")) return "水生";
   if (entry.habitat?.includes("盆生") || entry.habitat?.includes("庭院")) return "盆生";
@@ -1818,6 +1725,157 @@ function getAtlasCategoryLabel(entry) {
 
 function getActiveAtlasCategory() {
   return atlasCategories.find((item) => item.id === state.atlasCategory) || atlasCategories[0];
+}
+
+function getAtlasRoster() {
+  const real = atlasEntries.filter(Boolean);
+  const pageSlots = Math.max(ATLAS_DEX_PAGE_SIZE, Math.ceil(Math.max(real.length, 1) / ATLAS_DEX_PAGE_SIZE) * ATLAS_DEX_PAGE_SIZE);
+  const roster = real.map((entry) => ({
+    ...entry,
+    locked: !state.unlockedSprigs.has(entry.id),
+  }));
+  while (roster.length < pageSlots) {
+    const index = roster.length + 1;
+    roster.push({
+      id: `virtual-slot-${index}`,
+      name: "？？？",
+      image: "./assets/ui/seed.png",
+      rarity: "未知",
+      region: getGardenLabel(),
+      habitat: "待发现",
+      personality: "",
+      knowledge: [],
+      voiceLines: [],
+      weatherLines: [],
+      virtual: true,
+      locked: true,
+    });
+  }
+  return roster;
+}
+
+function getAtlasDexPageEntries() {
+  const roster = getAtlasRoster();
+  const pageCount = Math.max(1, Math.ceil(roster.length / ATLAS_DEX_PAGE_SIZE));
+  state.atlasPage = clamp(state.atlasPage, 0, pageCount - 1);
+  const start = state.atlasPage * ATLAS_DEX_PAGE_SIZE;
+  return {
+    roster,
+    pageCount,
+    pageEntries: roster.slice(start, start + ATLAS_DEX_PAGE_SIZE),
+  };
+}
+
+function createAtlasDexCell(entry, index) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "atlas-dex-cell";
+  button.setAttribute("role", "listitem");
+  button.dataset.sprig = entry.id;
+  button.dataset.slot = String(index);
+  button.classList.toggle("is-locked", Boolean(entry.locked));
+  button.classList.toggle("is-virtual", Boolean(entry.virtual));
+  button.setAttribute("aria-label", entry.locked ? "未解锁种种" : `${entry.name}图鉴`);
+
+  const image = document.createElement("img");
+  image.src = entry.image || "./assets/ui/seed.png";
+  image.alt = "";
+  image.setAttribute("aria-hidden", "true");
+
+  const label = document.createElement("b");
+  label.textContent = entry.locked ? "？？？" : entry.name;
+
+  button.append(image, label);
+  return button;
+}
+
+function hideAtlasDexDetail() {
+  state.atlasSelectedId = null;
+  if (!atlasDexDetail) return;
+  atlasDexDetail.classList.add("is-hidden");
+  atlasDexDetail.hidden = true;
+  atlasDexGrid?.querySelectorAll(".atlas-dex-cell.is-active").forEach((cell) => cell.classList.remove("is-active"));
+}
+
+function showAtlasDexDetail(entry) {
+  if (!atlasDexDetail || !entry) return;
+  state.atlasSelectedId = entry.id;
+  const locked = Boolean(entry.locked);
+  const image = entry.image || "./assets/ui/seed.png";
+  const rarity = entry.rarity || "普通";
+  const typeLabel = getAtlasShortType(entry);
+  const place = locked
+    ? "？？？"
+    : [entry.region || getGardenLabel(), (entry.habitat || "").split("·").pop()?.trim()].filter(Boolean).join(" · ") || getGardenLabel();
+  const weather = locked
+    ? "？？？"
+    : entry.weatherLines?.[0]?.slice(0, 18) || entry.habitat || "天气随园而变";
+  const status = locked ? "未发现" : entry.status || (state.gardenSprigs.has(entry.id) ? "已放入花园" : "已记录");
+  const blurb = locked
+    ? "继续扫描植物，并到对应地点完成发现，问号会一点点亮起来。"
+    : entry.personality || entry.knowledge?.[0] || entry.voiceLines?.[0] || entry.hint || "这一页还很安静。";
+
+  if (atlasDexDetailImage) {
+    atlasDexDetailImage.src = image;
+    atlasDexDetailImage.alt = locked ? "未解锁种种剪影" : entry.name;
+    atlasDexDetailImage.classList.toggle("is-silhouette", locked);
+  }
+  if (atlasDexDetailKicker) atlasDexDetailKicker.textContent = locked ? "未解锁 · ？？？" : `${typeLabel}系 / ${rarity}`;
+  if (atlasDexDetailName) atlasDexDetailName.textContent = locked ? "？？？" : entry.name;
+  if (atlasDexDetailPlace) atlasDexDetailPlace.textContent = place;
+  if (atlasDexDetailWeather) atlasDexDetailWeather.textContent = weather;
+  if (atlasDexDetailStatus) atlasDexDetailStatus.textContent = status;
+  if (atlasDexDetailBlurb) atlasDexDetailBlurb.textContent = blurb;
+  if (atlasDexDetailGarden) {
+    atlasDexDetailGarden.disabled = locked || !state.gardenSprigs.has(entry.id);
+    atlasDexDetailGarden.classList.toggle("is-hidden", locked);
+  }
+
+  atlasDexDetail.classList.remove("is-hidden");
+  atlasDexDetail.hidden = false;
+  atlasDexGrid?.querySelectorAll(".atlas-dex-cell").forEach((cell) => {
+    cell.classList.toggle("is-active", cell.dataset.sprig === entry.id);
+  });
+}
+
+function openAtlasDexCell(cell) {
+  if (!cell?.dataset?.sprig) return;
+  const { roster } = getAtlasDexPageEntries();
+  const entry = roster.find((item) => item.id === cell.dataset.sprig);
+  if (!entry) return;
+  showAtlasDexDetail(entry);
+}
+
+function renderAtlas() {
+  const unlocked = getUnlockedEntries();
+  const { pageCount, pageEntries, roster } = getAtlasDexPageEntries();
+  const { milestone, percent } = getAtlasGrowthProgress(unlocked.length);
+  const rewardMilestone = getAtlasRewardMilestone(unlocked.length);
+
+  if (atlasProgress) atlasProgress.textContent = `种种图鉴 · 已认识：${unlocked.length}`;
+  if (atlasProgressBar) atlasProgressBar.style.width = `${percent}%`;
+  renderAtlasRewards(rewardMilestone, unlocked.length);
+
+  if (atlasDexCount) {
+    atlasDexCount.textContent = `已发现 ${unlocked.length} / ${Math.max(roster.filter((item) => !item.virtual).length, unlocked.length)}`;
+  }
+  if (atlasPageLabel) atlasPageLabel.textContent = `${state.atlasPage + 1} / ${pageCount}`;
+  if (atlasPrevPage) atlasPrevPage.disabled = state.atlasPage <= 0;
+  if (atlasNextPage) atlasNextPage.disabled = state.atlasPage >= pageCount - 1;
+
+  if (atlasDexGrid) {
+    atlasDexGrid.replaceChildren(...pageEntries.map((entry, index) => createAtlasDexCell(entry, index)));
+  }
+
+  if (state.atlasSelectedId) {
+    const selected = roster.find((item) => item.id === state.atlasSelectedId);
+    if (selected) showAtlasDexDetail(selected);
+    else hideAtlasDexDetail();
+  } else {
+    hideAtlasDexDetail();
+  }
+
+  renderIdentityCard();
 }
 
 function getAtlasCategoryCount(category) {
@@ -1896,160 +1954,6 @@ function renderAtlasRewards(milestone, unlockedCount) {
   }
 }
 
-function createVirtualAtlasEntry(category, offset) {
-  const safeOffset = Math.max(1, offset);
-  if (category.virtual === "gardens") {
-    const packs = Array.isArray(window.SPRIG_MAP_PACKS) ? window.SPRIG_MAP_PACKS : [activeMapPack].filter(Boolean);
-    const pack = packs[safeOffset - 1];
-    const future = futureGardenRegions[(safeOffset - packs.length - 1) % futureGardenRegions.length];
-    const garden = pack || future || {};
-    return {
-      id: `virtual-garden-${garden.id || safeOffset}`,
-      image: "./assets/ui/seed.png",
-      habitat: getMapPackStatusLabel(garden.status || "growing"),
-      regionScope: [garden.name || "未来花园"],
-      tone: category.tone,
-      slotName: garden.name || "未来花园",
-      slotCode: `GD-${String(safeOffset).padStart(3, "0")}`,
-      modelHint: garden.description || "这片地方还在长叶。",
-    };
-  }
-  const source = atlasEntries[safeOffset % Math.max(1, atlasEntries.length)] || {};
-  const habitatMap = {
-    region: "地方特有线索",
-    land: "陆生植物线索",
-    aquatic: "水生 / 湿地植物线索",
-    pot: "盆生 / 庭院植物线索",
-    epiphyte: "附生 / 林下植物线索",
-    all: "全国植物线索",
-  };
-  return {
-    id: `virtual-${category.id}-${safeOffset}`,
-    image: source.image || "./assets/ui/seed.png",
-    habitat: habitatMap[category.id] || "植物线索",
-    regionScope: category.id === "region" ? [state.onboarding.province || "中国"] : ["全国"],
-    tone: category.tone,
-    slotName: "待发现种种",
-    slotCode: `ZZ-${String(safeOffset).padStart(4, "0")}`,
-    modelHint: habitatMap[category.id] || "植物线索",
-  };
-}
-
-function getLockedAtlasPage(category, realLocked, lockedTotal) {
-  const safePage = clamp(state.atlasPage, 0, Math.max(0, Math.ceil(lockedTotal / ATLAS_LOCKED_PAGE_SIZE) - 1));
-  state.atlasPage = safePage;
-  const start = safePage * ATLAS_LOCKED_PAGE_SIZE;
-  const end = Math.min(start + ATLAS_LOCKED_PAGE_SIZE, lockedTotal);
-  const pageEntries = [];
-  for (let index = start; index < end; index += 1) {
-    if (index < realLocked.length) {
-      pageEntries.push({
-        ...realLocked[index],
-        slotName: "待发现种种",
-        slotCode: `ZZ-${String(index + 1).padStart(4, "0")}`,
-        modelHint: realLocked[index].habitat || getAtlasCategoryLabel(realLocked[index]),
-        tone: category.tone,
-      });
-    } else {
-      pageEntries.push(createVirtualAtlasEntry(category, index - realLocked.length + 1));
-    }
-  }
-  return pageEntries;
-}
-
-function renderAtlasBookmarks() {
-  if (!atlasBookmarks) return;
-  const unlocked = getUnlockedEntries();
-  atlasBookmarks.replaceChildren(
-    ...atlasCategories.map((category) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.dataset.atlasCategory = category.id;
-      button.dataset.atlasTone = category.tone;
-      button.setAttribute("aria-label", `${category.label}：${category.description}`);
-      button.className = "atlas-region-card";
-      button.classList.toggle("is-active", category.id === state.atlasCategory);
-      const categoryTotal = getAtlasCategoryCount(category);
-      const unlockedInCategory = category.locked ? [] : unlocked.filter(category.match);
-      const count = unlockedInCategory.length;
-      const percent = clamp((count / Math.max(1, categoryTotal)) * 100, 0, 100);
-      const previewEntries = (unlockedInCategory.length ? unlockedInCategory : atlasEntries).slice(0, 3);
-      const silhouettes = previewEntries
-        .map((entry) => `<img src="${entry.image || "./assets/ui/seed.png"}" alt="" />`)
-        .join("");
-      button.classList.toggle("is-locked", Boolean(category.locked && count === 0));
-      button.innerHTML = `
-        <span class="atlas-region-copy">
-          <b>${category.label}</b>
-          <i aria-hidden="true"><em style="width:${percent}%"></em></i>
-          <span>${category.description}</span>
-        </span>
-        <span class="atlas-region-preview" aria-hidden="true">${silhouettes}</span>
-        ${category.locked && count === 0 ? '<small class="atlas-region-lock" aria-hidden="true">锁</small>' : ""}
-      `;
-      return button;
-    }),
-  );
-}
-
-function nudgeAtlasPageTurn() {
-  [atlasCollectedList, atlasLockedGrid].forEach((node) => {
-    if (!node) return;
-    node.classList.remove("is-page-turning");
-    node.getBoundingClientRect();
-    node.classList.add("is-page-turning");
-  });
-}
-
-function scrollAtlasStoryIntoView(behavior = "smooth") {
-  if (!atlasCollectedList) return;
-  const target = atlasCollectedList.querySelectorAll(".atlas-storybook")[state.atlasStoryIndex];
-  target?.scrollIntoView({ inline: "center", block: "nearest", behavior });
-}
-
-function renderAtlas() {
-  const unlocked = getUnlockedEntries();
-  const locked = atlasEntries.filter((entry) => !state.unlockedSprigs.has(entry.id));
-  const category = getActiveAtlasCategory();
-  const isGardenCategory = category.virtual === "gardens";
-  const visibleUnlocked = isGardenCategory ? [] : unlocked.filter(category.match);
-  const visibleLocked = isGardenCategory ? [] : locked.filter(category.match);
-  const categoryCount = getAtlasCategoryCount(category);
-  const lockedTotal = Math.max(categoryCount - visibleUnlocked.length, visibleLocked.length);
-  const pageCount = Math.max(1, Math.ceil(lockedTotal / ATLAS_LOCKED_PAGE_SIZE));
-  const visibleLockedPage = getLockedAtlasPage(category, visibleLocked, lockedTotal);
-  currentLockedAtlasPage = visibleLockedPage;
-  if (!visibleLockedPage.some((entry) => entry.id === state.atlasSelectedLocked?.id)) {
-    state.atlasSelectedLocked = null;
-  }
-  const { milestone, percent } = getAtlasGrowthProgress(unlocked.length);
-  const rewardMilestone = getAtlasRewardMilestone(unlocked.length);
-
-  atlasProgress.textContent = `种种图鉴 · 已认识：${unlocked.length}`;
-  atlasProgressBar.style.width = `${percent}%`;
-  renderAtlasRewards(rewardMilestone, unlocked.length);
-  renderAtlasBookmarks();
-  atlasCollectedTitle.textContent = `${category.label} · 已收集（${visibleUnlocked.length}）`;
-  atlasLockedTitle.textContent = `${category.label} · 待发现`;
-  atlasPageLabel.textContent = `${state.atlasPage + 1} / ${pageCount}`;
-  atlasPrevPage.disabled = state.atlasPage <= 0;
-  atlasNextPage.disabled = state.atlasPage >= pageCount - 1;
-  const collectedNodes = state.atlasSelectedLocked
-    ? [createLockedAtlasDetail(state.atlasSelectedLocked, category)]
-    : visibleUnlocked.length
-    ? visibleUnlocked.map((_, index) => createAtlasStoryBook(visibleUnlocked, category, index))
-    : [createAtlasEmpty(category.empty || "这一页还没有记录。去花园或地图里遇见一只种种。")];
-  atlasCollectedList.replaceChildren(...collectedNodes);
-  atlasLockedGrid.replaceChildren(
-    ...(visibleLockedPage.length ? visibleLockedPage.map((entry) => createAtlasArticle(entry, true)) : [createAtlasEmpty("这一页暂时没有新的待发现线索。")]),
-  );
-  nudgeAtlasPageTurn();
-  if (!state.atlasSelectedLocked && visibleUnlocked.length) {
-    requestAnimationFrame(() => scrollAtlasStoryIntoView("auto"));
-  }
-  renderIdentityCard();
-}
-
 function toggleAtlasRewardPopover(force) {
   if (!atlasRewardPopover || !atlasRewardButton) return;
   const willOpen = typeof force === "boolean" ? force : atlasRewardPopover.classList.contains("is-hidden");
@@ -2072,13 +1976,6 @@ function claimAtlasReward() {
   if (atlasRewardText) atlasRewardText.textContent = `${rewards.badge || "徽章"} 已收进背包。`;
   toggleAtlasRewardPopover(true);
   saveGardenProfile();
-}
-
-function createAtlasEmpty(text) {
-  const article = document.createElement("article");
-  article.className = "atlas-empty";
-  article.textContent = text;
-  return article;
 }
 
 function getMapPackStatusLabel(status) {
@@ -5362,59 +5259,84 @@ nurseryDropZone.addEventListener("drop", (event) => {
   growSeedInNursery();
 });
 
-growSeedButton.addEventListener("click", () => {
-  if (state.nurseryEndAt > Date.now()) return;
-  seedPill.classList.add("guide-target-nudge");
-  nurseryDropZone.classList.add("is-dragging");
-  nurseryResult.textContent = "按住上方，把种子拖到这里";
-  window.setTimeout(() => {
-    seedPill.classList.remove("guide-target-nudge");
+// Mobile / touch: pointer-drag the seed pill into the greenhouse drop zone.
+(() => {
+  let dragging = false;
+  let activePointerId = null;
+
+  const isNurseryOpen = () => Boolean(document.querySelector("#panel-nursery.is-open"));
+
+  const endPointerDrag = (event) => {
+    if (!dragging) return;
+    if (activePointerId != null && event.pointerId !== activePointerId) return;
+    const under = document.elementFromPoint(event.clientX, event.clientY);
+    const dropped = Boolean(under?.closest?.("#nurseryDropZone"));
+    dragging = false;
+    activePointerId = null;
+    seedPill.classList.remove("is-nursery-dragging");
     nurseryDropZone.classList.remove("is-dragging");
-  }, 800);
+    try {
+      seedPill.releasePointerCapture?.(event.pointerId);
+    } catch {
+      // Pointer may already be released.
+    }
+    if (dropped) growSeedInNursery();
+  };
+
+  seedPill.addEventListener("pointerdown", (event) => {
+    if (!isNurseryOpen()) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    // Keep native HTML5 drag for mouse; pointer path covers touch / pen.
+    if (event.pointerType === "mouse") return;
+    dragging = true;
+    activePointerId = event.pointerId;
+    seedPill.classList.add("is-nursery-dragging");
+    nurseryDropZone.classList.add("is-dragging");
+    seedPill.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  });
+
+  seedPill.addEventListener("pointermove", (event) => {
+    if (!dragging || event.pointerId !== activePointerId) return;
+    const under = document.elementFromPoint(event.clientX, event.clientY);
+    nurseryDropZone.classList.toggle("is-dragging", Boolean(under?.closest?.("#nurseryDropZone")));
+  });
+
+  seedPill.addEventListener("pointerup", endPointerDrag);
+  seedPill.addEventListener("pointercancel", endPointerDrag);
+})();
+
+growSeedButton.addEventListener("click", () => {
+  if (state.nurseryEndAt > Date.now()) {
+    renderNurseryState();
+    return;
+  }
+  // Primary action: wake a seed. Works on mobile where HTML5 drag is unreliable.
+  growSeedInNursery();
 });
 hatchRewardButton?.addEventListener("click", hideHatchReward);
 specialtyRewardButton?.addEventListener("click", collectSpecialtyReward);
 
-atlasBookmarks?.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-atlas-category]");
-  if (!button) return;
-  state.atlasCategory = button.dataset.atlasCategory;
-  state.atlasPage = 0;
-  state.atlasStoryIndex = 0;
-  state.atlasSelectedLocked = null;
-  renderAtlas();
+atlasDexGrid?.addEventListener("click", (event) => {
+  const cell = event.target.closest(".atlas-dex-cell");
+  if (!cell) return;
+  openAtlasDexCell(cell);
 });
 
-atlasCollectedList?.addEventListener("click", (event) => {
-  const button = event.target.closest(".atlas-page-corner");
-  if (!button || button.disabled) return;
-  const category = getActiveAtlasCategory();
-  const entries = getUnlockedEntries().filter(category.match);
-  if (entries.length <= 1) return;
-  state.atlasStoryIndex = (state.atlasStoryIndex + 1) % entries.length;
-  scrollAtlasStoryIntoView();
-});
+atlasDexDetailClose?.addEventListener("click", hideAtlasDexDetail);
+atlasDexDetailDismiss?.addEventListener("click", hideAtlasDexDetail);
+atlasDexDetailBackdrop?.addEventListener("click", hideAtlasDexDetail);
 
-function showLockedAtlasEntry(tile) {
-  if (!tile?.dataset?.sprig) return;
-  const entry = currentLockedAtlasPage.find((item) => item.id === tile.dataset.sprig);
-  if (!entry) return;
-  state.atlasSelectedLocked = entry;
-  state.atlasStoryIndex = 0;
-  renderAtlas();
-}
-
-atlasLockedGrid?.addEventListener("click", (event) => {
-  const tile = event.target.closest("[data-locked-atlas='true']");
-  showLockedAtlasEntry(tile);
-});
-
-atlasLockedGrid?.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter" && event.key !== " ") return;
-  const tile = event.target.closest("[data-locked-atlas='true']");
-  if (!tile) return;
-  event.preventDefault();
-  showLockedAtlasEntry(tile);
+atlasDexDetailGarden?.addEventListener("click", () => {
+  const entryId = state.atlasSelectedId;
+  hideAtlasDexDetail();
+  closePanels();
+  if (entryId && state.gardenSprigs.has(entryId)) {
+    const button = document.querySelector(`.sprig[data-sprig="${entryId}"]`);
+    button?.focus?.({ preventScroll: true });
+    button?.classList.add("is-expressing");
+    window.setTimeout(() => button?.classList.remove("is-expressing"), 1400);
+  }
 });
 
 atlasRewardButton?.addEventListener("click", (event) => {
@@ -5434,13 +5356,13 @@ document.addEventListener("click", (event) => {
 
 atlasPrevPage?.addEventListener("click", () => {
   state.atlasPage = Math.max(0, state.atlasPage - 1);
-  state.atlasSelectedLocked = null;
+  hideAtlasDexDetail();
   renderAtlas();
 });
 
 atlasNextPage?.addEventListener("click", () => {
   state.atlasPage += 1;
-  state.atlasSelectedLocked = null;
+  hideAtlasDexDetail();
   renderAtlas();
 });
 

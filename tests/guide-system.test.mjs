@@ -980,43 +980,34 @@ test("nursery icons keep the sprout inside its pixel frame", () => {
   assert.match(styles, /\.nursery-drop-icon\.svg-icon-frame img\s*\{[\s\S]*width:\s*62%/);
 });
 
-test("atlas uses simple regional dex cards with rewards and locked details", () => {
-  assert.match(html, /id="atlasLockedGrid"/);
+test("atlas uses a 3x3 dex grid with same-page detail overlay", () => {
+  assert.match(html, /id="atlasDexGrid"/);
+  assert.match(html, /id="atlasDexDetail"/);
+  assert.match(html, /id="atlasDexDetailName"/);
+  assert.match(html, /id="atlasDexDetailGarden"/);
   assert.match(html, /id="atlasPrevPage"/);
   assert.match(html, /id="atlasNextPage"/);
   assert.match(html, /id="atlasRewardList"/);
   assert.match(html, /id="atlasRewardButton"/);
   assert.match(html, /class="atlas-progress-track"/);
+  assert.doesNotMatch(html, /id="atlasBookmarks"/);
+  assert.doesNotMatch(html, /id="atlasLockedGrid"/);
   assert.doesNotMatch(html, />\s*1\s*\/\s*31142\s*</);
-  assert.match(script, /atlasCategory:\s*"pingnan"/);
-  assert.match(script, /id:\s*"pingnan"[\s\S]*label:\s*"屏南"[\s\S]*scaleLabel:\s*"151"/);
-  assert.match(script, /id:\s*"hangzhou"[\s\S]*label:\s*"杭州"[\s\S]*locked:\s*true/);
-  assert.match(script, /id:\s*"huadong"[\s\S]*label:\s*"华东"/);
-  assert.match(script, /id:\s*"huanan"[\s\S]*label:\s*"华南"/);
-  assert.match(script, /id:\s*"xinan"[\s\S]*label:\s*"西南"/);
-  assert.doesNotMatch(script, /label:\s*"水生"|label:\s*"陆生"|label:\s*"盆生"|label:\s*"附生"/);
-  assert.match(script, /className = "atlas-region-card"/);
-  assert.match(script, /class="atlas-region-copy"/);
-  assert.match(script, /class="atlas-region-preview"/);
-  assert.match(script, /class="atlas-region-lock"/);
-  assert.match(script, /种种图鉴 · 已认识/);
+  assert.match(script, /ATLAS_DEX_PAGE_SIZE\s*=\s*9/);
+  assert.match(script, /function createAtlasDexCell/);
+  assert.match(script, /function showAtlasDexDetail/);
+  assert.match(script, /function hideAtlasDexDetail/);
+  assert.match(script, /已发现 \$\{unlocked\.length\}/);
+  assert.match(script, /textContent = locked \? "？？？" : entry\.name/);
+  assert.match(script, /继续扫描植物，并到对应地点完成发现/);
+  assert.match(script, /atlasDexGrid\?\.addEventListener\("click"/);
+  assert.match(script, /atlasDexDetailClose\?\.addEventListener/);
   assert.match(script, /function renderAtlasRewards/);
   assert.match(script, /function claimAtlasReward/);
-  assert.match(script, /createAtlasRewardChip\("seed"/);
-  assert.match(script, /createAtlasRewardChip\("stamina"/);
-  assert.match(script, /createAtlasRewardChip\("badge"/);
-  assert.match(script, /function createLockedAtlasDetail/);
-  assert.match(script, /atlasLockedGrid\?\.addEventListener\("click"/);
-  assert.match(script, /data-locked-atlas='true'/);
-  assert.match(script, /<h3>\?\?\?<\/h3>/);
-  assert.match(script, /<blockquote>\?\?\?<\/blockquote>/);
-  assert.match(script, /继续扫描植物，并到对应地点完成发现/);
-  assert.doesNotMatch(script, /剪影档案|真实种种线索|预留位/);
-  assert.match(styles, /Regional atlas mode/);
-  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-bookmarks,\n\.panel--atlas \.atlas-bookmarks\s*\{[\s\S]*grid-auto-flow:\s*row !important[\s\S]*grid-template-columns:\s*1fr !important/);
-  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-region-card,\n\.panel--atlas \.atlas-region-card\s*\{[\s\S]*grid-template-columns:\s*minmax\(5\.4rem,\s*0\.72fr\) minmax\(0,\s*1fr\) !important/);
-  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-region-preview img,\n\.panel--atlas \.atlas-region-preview img\s*\{[\s\S]*object-fit:\s*contain !important/);
-  assert.match(styles, /\.panel--identity \.identity-atlas-page \.atlas-region-card\.is-locked \.atlas-region-preview img,\n\.panel--atlas \.atlas-region-card\.is-locked \.atlas-region-preview img\s*\{[\s\S]*filter:\s*brightness\(0\) saturate\(0\) opacity\(0\.28\) !important/);
+  assert.match(styles, /elorze: atlas 3×3 dex grid/);
+  assert.match(styles, /\.atlas-dex-grid[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)/);
+  assert.match(styles, /\.atlas-dex-cell\.is-locked img[\s\S]*filter:\s*brightness\(0\) saturate\(0\) opacity\(0\.34\)/);
+  assert.match(styles, /\.atlas-dex-detail[\s\S]*position:\s*absolute/);
 });
 
 test("nursery presents a seed greenhouse drop zone instead of a giant seed icon", () => {
@@ -1051,13 +1042,20 @@ test("nursery presents a seed greenhouse drop zone instead of a giant seed icon"
   assert.doesNotMatch(html, /帮我指路/);
   assert.doesNotMatch(script, /帮我指路/);
   assert.match(script, /温室槽/);
-  assert.match(script, /按住上方，把种子拖到这里/);
+  assert.match(html, /按住上方，把种子拖到这里/);
   assert.doesNotMatch(script, /拖到发光的温室槽/);
-  assert.match(script, /seedPill\.classList\.add\("guide-target-nudge"\)/);
+  // Mobile-friendly wake: button and pointer-drag both call growSeedInNursery.
+  assert.match(script, /growSeedButton\.addEventListener\("click"[\s\S]*?growSeedInNursery\(\)/);
+  assert.match(script, /seedPill\.addEventListener\("pointerdown"/);
+  assert.match(script, /is-nursery-dragging/);
   assert.match(script, /nurseryDropZone\.classList\.add\("is-dragging"\)/);
-  assert.doesNotMatch(script, /growSeedButton\.addEventListener\("click"[\s\S]*?growSeedInNursery\(\)/);
   assert.match(styles, /\.svg-icon-frame::before,[\s\S]*?\.svg-icon-frame::after,[\s\S]*?\.svg-icon-frame i\s*\{[\s\S]*display:\s*none !important/);
   assert.match(styles, /\.nursery-drop-icon\.svg-icon-frame img/);
+  assert.match(styles, /elorze fix: backpack single scroll surface/);
+  const elorzeScrollBlock = styles.match(/elorze fix: backpack single scroll surface[\s\S]*?(?=\/\* =====|$)/)?.[0] || "";
+  assert.match(elorzeScrollBlock, /\.panel--identity \.identity-pages[\s\S]*overflow-y:\s*auto !important/);
+  assert.match(elorzeScrollBlock, /\.panel--identity \.identity-page:not\(\.is-hidden\)\s*\{[\s\S]*overflow:\s*visible !important/);
+  assert.match(elorzeScrollBlock, /all viewports/);
 });
 
 test("hatch reward unlocks the atlas with ceremonial pixel light", () => {

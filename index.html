@@ -304,11 +304,11 @@
         <section class="panel panel--atlas" id="panel-atlas" aria-label="种种图鉴">
           <button class="atlas-back" type="button" data-close-panel aria-label="返回">‹</button>
           <button class="atlas-map" type="button" data-panel="panel-map" aria-label="地图探索">⌖</button>
-          <div class="atlas-book-layout">
-            <div class="atlas-pages">
+          <div class="atlas-book-layout atlas-book-layout--dex">
+            <div class="atlas-pages atlas-pages--dex">
               <div class="atlas-summary">
                 <div class="atlas-progress-track">
-                  <p id="atlasProgress">图鉴成就 Lv.1 · 1 / 5</p>
+                  <p id="atlasProgress">种种图鉴 · 已认识：1</p>
                   <i aria-hidden="true"><em id="atlasProgressBar"></em></i>
                 </div>
                 <button class="atlas-reward-button" id="atlasRewardButton" type="button" aria-expanded="false" aria-controls="atlasRewardPopover">
@@ -325,19 +325,39 @@
                   </div>
                 </div>
               </div>
-              <nav class="atlas-bookmarks" id="atlasBookmarks" aria-label="图鉴分类书签"></nav>
-              <div class="atlas-card atlas-card--collected">
-                <h2 id="atlasCollectedTitle"><span>☘</span> 已收集（1）</h2>
-                <div class="atlas-list" id="atlasCollectedList"></div>
-              </div>
-              <div class="atlas-card atlas-card--locked">
-                <h2 id="atlasLockedTitle"><span>▣</span> 等待解锁</h2>
-                <div class="atlas-page-controls" aria-label="图鉴翻页">
-                  <button type="button" id="atlasPrevPage">上一页</button>
-                  <span id="atlasPageLabel">第 1 页</span>
-                  <button type="button" id="atlasNextPage">下一页</button>
-                </div>
-                <div class="locked-grid" id="atlasLockedGrid"></div>
+
+              <section class="atlas-dex" aria-label="种种名册">
+                <header class="atlas-dex-header">
+                  <p id="atlasDexCount">已发现 1 / 9</p>
+                  <div class="atlas-page-controls" aria-label="图鉴翻页">
+                    <button type="button" id="atlasPrevPage">上一页</button>
+                    <span id="atlasPageLabel">1 / 1</span>
+                    <button type="button" id="atlasNextPage">下一页</button>
+                  </div>
+                </header>
+                <div class="atlas-dex-grid" id="atlasDexGrid" role="list"></div>
+              </section>
+
+              <div class="atlas-dex-detail is-hidden" id="atlasDexDetail" role="dialog" aria-modal="true" aria-labelledby="atlasDexDetailName" hidden>
+                <button type="button" class="atlas-dex-detail-backdrop" id="atlasDexDetailBackdrop" aria-label="关闭详情"></button>
+                <article class="atlas-dex-detail-card">
+                  <button type="button" class="atlas-dex-detail-close" id="atlasDexDetailClose" aria-label="关闭">×</button>
+                  <figure class="atlas-dex-detail-portrait">
+                    <img id="atlasDexDetailImage" src="./assets/ui/seed.png" alt="" />
+                  </figure>
+                  <p class="atlas-dex-detail-kicker" id="atlasDexDetailKicker">幸运系 / 稀有</p>
+                  <h3 id="atlasDexDetailName">四叶草种种</h3>
+                  <dl class="atlas-dex-detail-meta">
+                    <div><dt>发现地点</dt><dd id="atlasDexDetailPlace">杭州 · 草地边</dd></div>
+                    <div><dt>喜欢天气</dt><dd id="atlasDexDetailWeather">雨后晴天</dd></div>
+                    <div><dt>状态</dt><dd id="atlasDexDetailStatus">已记录</dd></div>
+                  </dl>
+                  <p class="atlas-dex-detail-blurb" id="atlasDexDetailBlurb">它总觉得自己不是特别幸运，只是比别人多长出了一片叶子。</p>
+                  <div class="atlas-dex-detail-actions">
+                    <button type="button" class="primary" id="atlasDexDetailGarden">去花园看它</button>
+                    <button type="button" id="atlasDexDetailDismiss">关闭</button>
+                  </div>
+                </article>
               </div>
             </div>
           </div>
