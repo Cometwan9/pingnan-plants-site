@@ -202,6 +202,8 @@ test("first launch asks for region language birthday then loads into the guide",
   assert.match(html, /id="bootLoading"/);
   assert.match(html, /class="boot-loading is-hidden"/);
   assert.match(html, /生日/);
+  assert.match(html, /唤醒种种/);
+  assert.match(html, /你不在的时候，它也一直在等你。/);
   assert.match(html, /地区/);
   assert.match(html, /语言/);
   assert.match(html, /旅途出发/);
@@ -217,6 +219,8 @@ test("first launch asks for region language birthday then loads into the guide",
   assert.match(script, /starterRevealKicker\.textContent = starter\.term/);
   assert.match(script, /nameTitle:\s*"命名花园"/);
   assert.match(script, /regionTitle:\s*"旅途出发"/);
+  assert.match(script, /birthdayTitle:\s*"唤醒种种"/);
+  assert.match(script, /birthdayText:\s*"你不在的时候，它也一直在等你。"/);
   assert.match(script, /ko:\s*\{[\s\S]*nameTitle:\s*"정원 이름 짓기"/);
   assert.match(script, /fr:\s*\{[\s\S]*nameTitle:\s*"Nommer le jardin"/);
   assert.match(script, /es:\s*\{[\s\S]*nameTitle:\s*"Nombrar el jardín"/);
