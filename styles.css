@@ -25932,6 +25932,115 @@ button {
   }
 }
 
+/* Guide target calm: remove the watering-can cursor and stop sprig-step self-bounce. */
+.guide-cursor {
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+  filter: drop-shadow(0 0.16rem 0 rgba(80, 111, 54, 0.16)) !important;
+  transform: translate(-50%, -2.3rem) rotate(0deg) !important;
+  animation: guideLeafCursor 1.55s ease-in-out infinite !important;
+}
+
+.guide-cursor::before {
+  left: 50% !important;
+  top: 50% !important;
+  width: 1.08rem !important;
+  height: 1.34rem !important;
+  border: 0 !important;
+  border-radius: 72% 28% 72% 28% !important;
+  background:
+    radial-gradient(circle at 36% 30%, #f5ffbe 0 0.16rem, transparent 0.18rem),
+    linear-gradient(135deg, #bfe88a 0 46%, #6f9c56 47% 100%) !important;
+  box-shadow: inset -0.14rem -0.08rem 0 rgba(80, 126, 62, 0.28) !important;
+  transform: translate(-50%, -50%) rotate(36deg) !important;
+}
+
+.guide-cursor::after {
+  left: 50% !important;
+  top: 50% !important;
+  width: 0.36rem !important;
+  height: 0.36rem !important;
+  border-radius: 50% !important;
+  background: #ffe36b !important;
+  box-shadow:
+    -0.92rem 0.12rem 0 -0.08rem #fff7a8,
+    0.74rem -0.5rem 0 -0.09rem #d8f39f,
+    0.58rem 0.62rem 0 -0.08rem #fff3a2 !important;
+  transform: translate(0.42rem, -0.62rem) !important;
+}
+
+.guide-cursor.is-shaking {
+  animation: guideLeafCursorShake 0.32s ease-in-out !important;
+}
+
+.guide-layer[data-guide-kind="sprig"] .guide-cursor {
+  display: none !important;
+}
+
+.guide-layer[data-guide-kind="sprig"] .guide-highlight {
+  border-color: rgba(168, 214, 111, 0.9) !important;
+  box-shadow:
+    0 0 0 999rem rgba(25, 38, 20, 0.1),
+    0 0 0 0.12rem rgba(255, 246, 180, 0.6) !important;
+}
+
+.guide-layer[data-guide-kind="sprig"] .guide-highlight.is-stepping,
+.guide-layer[data-guide-kind="sprig"].is-awaiting-target .guide-highlight {
+  animation: guideSprigFocus 1.1s ease-out 2 !important;
+}
+
+.sprig.guide-sprig-ready img,
+.sprig.guide-sprig-woken img {
+  animation: guideSprigWake 0.68s ease-out 1 !important;
+}
+
+@keyframes guideLeafCursor {
+  0%,
+  100% {
+    opacity: 0.88;
+    transform: translate(-50%, -2.3rem) rotate(0deg) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -2.48rem) rotate(5deg) scale(1.04);
+  }
+}
+
+@keyframes guideLeafCursorShake {
+  0%,
+  100% {
+    transform: translate(-50%, -2.3rem) rotate(0deg);
+  }
+  35% {
+    transform: translate(calc(-50% - 0.2rem), -2.3rem) rotate(-12deg);
+  }
+  70% {
+    transform: translate(calc(-50% + 0.2rem), -2.3rem) rotate(12deg);
+  }
+}
+
+@keyframes guideSprigFocus {
+  0%,
+  100% {
+    outline: 0 solid rgba(255, 237, 118, 0);
+    transform: translateZ(0);
+  }
+  45% {
+    outline: 0.18rem solid rgba(255, 237, 118, 0.44);
+    transform: translateZ(0);
+  }
+}
+
+@keyframes guideSprigWake {
+  0%,
+  100% {
+    transform: translateY(0) scale(var(--sprig-scale));
+  }
+  42% {
+    transform: translateY(-3%) scale(calc(var(--sprig-scale) * 1.03));
+  }
+}
+
 /* Passport registration polish: instant controls, right seal, unlock fields. */
 .panel--identity .identity-tabs button,
 .panel--identity .identity-tools button,
@@ -25984,6 +26093,7 @@ button {
   border-radius: 0.46rem;
   background:
     linear-gradient(135deg, rgba(255, 250, 229, 0.82), rgba(232, 243, 201, 0.46));
+  overflow: visible !important;
 }
 
 .panel--identity .identity-profile li b {
@@ -25997,6 +26107,9 @@ button {
   color: #556842 !important;
   font-size: clamp(0.72rem, 1.75vw, 0.86rem) !important;
   line-height: 1.18;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
 }
 
 .panel--identity .identity-profile li.is-locked em {
@@ -26023,7 +26136,7 @@ button {
 }
 
 .panel--identity .passport-stamp {
-  right: calc(clamp(5.8rem, 16vw, 8.6rem) * -1) !important;
+  right: calc((100% + clamp(4.8rem, 12vw, 7.4rem)) * -1) !important;
   bottom: clamp(0.45rem, 2.2vw, 1.18rem) !important;
   width: clamp(17.2rem, 38vw, 21.6rem) !important;
   height: clamp(10.8rem, 23vw, 13.6rem) !important;

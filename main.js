@@ -639,6 +639,7 @@ const guideSteps = [
     title: "叶尖动了",
     text: "点一下，它会小声说话。",
     action: "叫醒它",
+    targetKind: "sprig",
     expression: "happy",
     motion: "leaf-wave",
     pauseAfter: 1700,
@@ -1519,6 +1520,7 @@ function prepareGuideStep(step) {
   document.querySelectorAll(".guide-scroll-glow, .guide-observe-glow").forEach((element) => {
     element.classList.remove("guide-scroll-glow", "guide-observe-glow", "is-dragging");
   });
+  guideLayer.dataset.guideKind = step.targetKind || (step.selector?.includes(".sprig") ? "sprig" : "control");
   if (step.panel) {
     openPanel(step.panel);
   } else {
@@ -1778,8 +1780,13 @@ function playGuideTargetFeedback(target) {
   if (!guideTarget) return;
 
   playGardenSound(guideTarget.classList.contains("sprig") ? "sprig" : "tap");
-  guideTarget.classList.add("guide-target-nudge");
-  window.setTimeout(() => guideTarget.classList.remove("guide-target-nudge"), 650);
+  if (guideTarget.classList.contains("sprig")) {
+    guideTarget.classList.add("guide-sprig-woken");
+    window.setTimeout(() => guideTarget.classList.remove("guide-sprig-woken"), 760);
+  } else {
+    guideTarget.classList.add("guide-target-nudge");
+    window.setTimeout(() => guideTarget.classList.remove("guide-target-nudge"), 650);
+  }
 
   if (guideTarget.dataset.panel) {
     openPanel(guideTarget.dataset.panel);
@@ -1847,6 +1854,7 @@ function closeGuide(remember = true) {
   state.guideObservationReady = false;
   guideLayer.classList.add("is-hidden");
   guideLayer.classList.remove("is-transitioning", "is-stepping", "is-awaiting-target", "is-observing", "is-confirming", "is-entering-garden");
+  delete guideLayer.dataset.guideKind;
   guideLayer.setAttribute("aria-hidden", "true");
   guideHighlight.classList.add("is-hidden");
   guideCard.classList.remove("is-leaving", "is-stepping");
@@ -5609,8 +5617,13 @@ guideNext.addEventListener("click", () => {
   guideNext.textContent = step.action ? step.action : "点高亮位置";
   moveGuideToTarget(step.selector);
   const target = document.querySelector(step.selector);
-  target?.classList.add("guide-target-nudge");
-  window.setTimeout(() => target?.classList.remove("guide-target-nudge"), 650);
+  if (target?.classList.contains("sprig")) {
+    target.classList.add("guide-sprig-ready");
+    window.setTimeout(() => target.classList.remove("guide-sprig-ready"), 900);
+  } else {
+    target?.classList.add("guide-target-nudge");
+    window.setTimeout(() => target?.classList.remove("guide-target-nudge"), 650);
+  }
 });
 
 document.addEventListener("click", (event) => {

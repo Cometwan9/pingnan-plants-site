@@ -66,6 +66,8 @@ test("player guide covers the main game loops", () => {
   assert.match(script, /GUIDE_ADVANCE_MS = 1500/);
   assert.match(script, /GUIDE_INTRO_MS = 1240/);
   assert.match(script, /pauseAfter:\s*2200/);
+  assert.match(script, /targetKind:\s*"sprig"/);
+  assert.match(script, /guideLayer\.dataset\.guideKind/);
   assert.match(script, /observeSelector:\s*"#panel-identity"/);
   assert.match(script, /observeClass:\s*"guide-scroll-glow"/);
   assert.match(script, /observeSelector:\s*"#captureButton"/);
@@ -622,6 +624,7 @@ test("identity passport keeps aligned columns and uses a postmark sprig stamp", 
   assert.match(styles, /\.identity-inline-input\s*\{[\s\S]*border-bottom:\s*0\.12rem solid/);
   assert.match(styles, /\.identity-inline-input--bio\s*\{[\s\S]*font-size:\s*clamp\(0\.92rem/);
   assert.match(styles, /Passport registration polish/);
+  assert.match(styles, /\.panel--identity \.passport-stamp\s*\{[\s\S]*right:\s*calc\(\(100% \+ clamp\(4\.8rem,\s*12vw,\s*7\.4rem\)\) \* -1\)/);
   assert.match(styles, /\.panel--identity \.passport-stamp\s*\{[\s\S]*width:\s*clamp\(17\.2rem,\s*38vw,\s*21\.6rem\)/);
   assert.match(styles, /\.panel--identity \.passport-stamp::after\s*\{[\s\S]*animation:\s*passportSealRotate 18s linear infinite/);
   assert.match(styles, /@keyframes passportSealRotate/);
@@ -822,6 +825,11 @@ test("guide uses narrative motion instead of static click-through copy", () => {
   assert.match(styles, /min-height: 4\.55em/);
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(script, /guideMascotFrame\.dataset\.expression/);
+  assert.match(script, /guide-sprig-ready/);
+  assert.match(script, /guide-sprig-woken/);
+  assert.match(styles, /Guide target calm/);
+  assert.match(styles, /\.guide-layer\[data-guide-kind="sprig"\] \.guide-cursor\s*\{[\s\S]*display:\s*none !important/);
+  assert.match(styles, /@keyframes guideLeafCursor/);
   assert.doesNotMatch(styles, /\.guide-fireflies/);
   assert.doesNotMatch(styles, /\.guide-tap/);
   assert.match(script, /花园醒了/);
