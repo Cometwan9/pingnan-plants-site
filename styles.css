@@ -22948,3 +22948,27 @@ button {
   content: none !important;
   display: none !important;
 }
+
+/* EOF squad picker left inset: chosen sprig cards align with the team title and circles. */
+.panel--expedition.is-open .expedition-planning {
+  --expedition-align-edge: clamp(1.12rem, 5.2vw, 1.46rem) !important;
+}
+
+.panel--expedition.is-open .expedition-squad header,
+.panel--expedition.is-open .squad-slots,
+.panel--expedition.is-open .squad-picker,
+.panel--expedition.is-open .duration-picker {
+  padding-left: var(--expedition-align-edge) !important;
+  padding-right: var(--expedition-align-edge) !important;
+  box-sizing: border-box !important;
+}
+
+.panel--expedition.is-open .squad-picker {
+  justify-content: start !important;
+  scroll-padding-left: var(--expedition-align-edge) !important;
+  scroll-padding-right: var(--expedition-align-edge) !important;
+}
+
+.panel--expedition.is-open .squad-picker-option {
+  margin-left: 0 !important;
+}
