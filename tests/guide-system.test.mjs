@@ -714,9 +714,9 @@ test("identity passport tabs switch real sections", () => {
   assert.match(guideBubblePointer, /box-shadow:\s*\n\s*-0\.2rem 0\.2rem 0 var\(--focus-cream-soft\)/);
   assert.doesNotMatch(knowledgePointer, /rotate\(45deg\)/);
   assert.match(knowledgePointer, /box-shadow:\s*\n\s*-0\.32rem -0\.18rem 0 #fff8df/);
-  assert.match(script, /atlasCollectedTitle\.textContent/);
-  assert.match(script, /atlasLockedTitle\.textContent/);
-  assert.doesNotMatch(script, /atlasLockedTitle\.innerHTML = `<span>▣/);
+  assert.match(script, /atlasDexCount\.textContent/);
+  assert.match(script, /atlasDexGrid\.replaceChildren/);
+  assert.match(script, /showAtlasDexDetail/);
 });
 
 test("cards and navigation use a flat 8bit pixel UI without soft 3D shadows", () => {
