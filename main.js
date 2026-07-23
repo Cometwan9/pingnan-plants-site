@@ -3721,8 +3721,8 @@ function syncDailyCheckin() {
   if (dailyCheckinReward) {
     const seedBonus = state.dailyStreak > 0 && (state.dailyStreak + 1) % 3 === 0;
     dailyCheckinReward.innerHTML = seedBonus
-      ? `<span class="daily-pixel-icon daily-pixel-icon--seed" aria-hidden="true"><i></i></span><strong>体力 +6 · 种子 +2</strong>`
-      : `<span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><i></i></span><strong>体力 +6</strong>`;
+      ? `<span class="daily-pixel-icon daily-pixel-icon--seed" aria-hidden="true"><img src="./assets/ui/icon-seed.svg" alt="" /></span><strong>体力 +6 · 种子 +2</strong>`
+      : `<span class="daily-pixel-icon daily-pixel-icon--energy" aria-hidden="true"><img src="./assets/ui/daily-icons/task.png" alt="" /></span><strong>体力 +6</strong>`;
   }
 }
 

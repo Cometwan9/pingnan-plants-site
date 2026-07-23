@@ -23059,6 +23059,28 @@ button {
   background-image: url("./assets/ui/daily-icons/friend.png") !important;
 }
 
+/* EOF daily quest real image lock: use one img per task, no vector/cropped sprite fallback. */
+.daily-pixel-icon > img,
+.quest-card > b .daily-pixel-icon > img,
+.quest-heading .daily-pixel-icon > img,
+.daily-task-card .daily-pixel-icon > img,
+.daily-reward-card .daily-pixel-icon > img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  image-rendering: pixelated !important;
+}
+
+.daily-pixel-icon:has(> img) i,
+.daily-pixel-icon:has(> img) i::before,
+.daily-pixel-icon:has(> img) i::after {
+  content: none !important;
+  display: none !important;
+  background-image: none !important;
+}
+
 /* EOF expedition garden locate action: show how the current garden is read. */
 .panel--expedition.is-open .map-pack-locate {
   display: grid !important;
