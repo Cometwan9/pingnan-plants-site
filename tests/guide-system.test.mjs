@@ -204,6 +204,7 @@ test("first launch asks for region language birthday then loads into the guide",
   assert.match(html, /生日/);
   assert.match(html, /地区/);
   assert.match(html, /语言/);
+  assert.match(html, /旅途出发/);
   assert.match(script, /const regionSelect = document\.querySelector\("#regionSelect"\)/);
   assert.match(script, /const languageSelect = document\.querySelector\("#languageSelect"\)/);
   assert.match(script, /const birthdayInput = document\.querySelector\("#birthdayInput"\)/);
@@ -215,6 +216,7 @@ test("first launch asks for region language birthday then loads into the guide",
   assert.match(script, /starterRevealName\.textContent = starter\.sprig\.name/);
   assert.match(script, /starterRevealKicker\.textContent = starter\.term/);
   assert.match(script, /nameTitle:\s*"命名花园"/);
+  assert.match(script, /regionTitle:\s*"旅途出发"/);
   assert.match(script, /ko:\s*\{[\s\S]*nameTitle:\s*"정원 이름 짓기"/);
   assert.match(script, /fr:\s*\{[\s\S]*nameTitle:\s*"Nommer le jardin"/);
   assert.match(script, /es:\s*\{[\s\S]*nameTitle:\s*"Nombrar el jardín"/);
@@ -229,6 +231,9 @@ test("first launch asks for region language birthday then loads into the guide",
   assert.match(styles, /\.garden-gate-arch/);
   assert.match(styles, /\.garden-gate-rail/);
   assert.match(styles, /\.garden-vine/);
+  assert.match(styles, /\.name-screen \.location-arrow-button/);
+  assert.match(styles, /\.name-screen \.setup-grid\s*\{[\s\S]*grid-template-columns:\s*1fr/);
+  assert.match(styles, /\.name-screen \.birthday-picker/);
   assert.match(styles, /\.name-screen \.setup-actions\s*\{[\s\S]*grid-template-columns:\s*1fr !important/);
   assert.match(styles, /\.starter-reveal/);
   assert.match(styles, /@keyframes starterSeedPulse/);
